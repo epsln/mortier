@@ -4,6 +4,7 @@ import math
 import svgwrite
 from svgwrite import cm, mm   
 import random
+import configparser 
 
 from coords import coords 
 from math_utils import welzl
@@ -14,26 +15,29 @@ def in_bounds(x, y, d_welzl):
     else:
         False
 
-TS = 2 
-N_TILE = 150
-BOUNDS = -1
-aspectRatio = 1
+config = configparser.ConfigParser()
+config.read('config.ini')
+n_tiles = int(config['tesselation']['n_tiles'])
+tess_id = config['tesselation']['id'] 
+size_x = float(config['svg']['size_x'])
+size_y = float(config['svg']['size_y'])
+svg_name = config['svg']['filename']
 
 with open('data/Galebach.json', 'r') as file:
         js = json.load(file)
 
 index = 1
 
-tess = js[random.choice(list(js.keys()))]
+tess = js[tess_id]
 T1 = coords(tess["T1"])
 T2 = coords(tess["T2"])
 seed = tess["Seed"]
 svg_size = (
-    1000,
-    1000,
+    size_x,
+    size_y,
 )
 dwg = svgwrite.Drawing(
-    "foo.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
+    f"{svg_name}.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
 )
 
 polytype = [ -1, -1, 3, 4, 6, 12 ];
@@ -68,18 +72,18 @@ for x in range(1):
 #Use this distance to compute the number of cycle needed 
 #TODO: Use manhattan distance since we have a rectangular page (maybe bias with aspect ratio ?)
 d_welzl = welzl(hull).r
-TS = int(1000./(1000./N_TILE *d_welzl)) + 1
-print(TS, d_welzl)
-for x in range(-TS, TS):
-    for y in range(-TS, TS):
+TS_X = int(size_x/(size_x/n_tiles * d_welzl)) + 1
+TS_Y = int(size_y/(size_y/n_tiles * d_welzl)) + 1
+for x in range(-TS_X, TS_X):
+    for y in range(-TS_X, TS_X):
         translate = T1.scale(x).translate(T2.scale(y))
         for s in seed: 
             s = coords(s)
             WC = s.translate(translate);
             neighbor_arr[str(WC.w)] = WC.w
 
-for x in range(-TS, TS):
-    for y in range(-TS, TS):
+for x in range(-TS_Y, TS_Y):
+    for y in range(-TS_Y, TS_Y):
         translate = T1.scale(x).translate(T2.scale(y))
         for s in seed: 
             neighs = []
@@ -111,10 +115,10 @@ for x in range(-TS, TS):
                 if (f == 0):
                   FInit = F
                 if f > 0 and f + skip < 12:
-                  x1 = F.x * 1000./N_TILE+ 500 
-                  y1 = F.y * 1000./N_TILE + 500
-                  x2 = F0.x * 1000./N_TILE+ 500
-                  y2 = F0.y * 1000./N_TILE + 500
+                  x1 = F.x * size_x/n_tiles + size_x/2 
+                  y1 = F.y * size_y/n_tiles + size_y/2 
+                  x2 = F0.x * size_x/n_tiles + size_x/2 
+                  y2 = F0.y * size_y/n_tiles + size_y/2 
                   #F_init = coords(y1 - y0, x0 - x1)
                   if in_bounds(x1, y1, d_welzl) and in_bounds(x2, y2, d_welzl):
                       dwg.add(
