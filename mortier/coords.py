@@ -14,23 +14,14 @@ class coords:
     c = [(w_ + wc_)/5 for w_, wc_ in zip(self.w, wc.w)]
 
     return coords(c) 
-  
+
   def scale(self, k):
     c = [(w_ * k)/5 for w_ in self.w]
 
     return coords(c) 
 
+  def sum(self):
+      return sum(self.w)/25
+
   def __str__(self):
       return f"{self.x}, {self.y}" 
-
-class point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-class circle:
-    def __init__(self, c, r):
-        self.c = c
-        self.r = r
-
-
