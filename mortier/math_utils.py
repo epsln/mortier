@@ -1,6 +1,12 @@
 from coords import point, circle
 import random
 
+def in_bounds(x, y, d_welzl):
+    if x > d_welzl and x < 1000 + d_welzl and y > d_welzl and y < 1000 + d_welzl:
+        return True
+    else:
+        False
+
 def dist(a, b):
     return max(abs(a.x - b.x), abs(a.y - b.y))
 

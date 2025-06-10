@@ -7,13 +7,8 @@ import random
 import configparser 
 
 from coords import coords 
-from math_utils import welzl
+from math_utils import welzl, in_bounds
 
-def in_bounds(x, y, d_welzl):
-    if x > d_welzl and x < 1000 + d_welzl and y > d_welzl and y < 1000 + d_welzl:
-        return True
-    else:
-        False
 
 config = configparser.ConfigParser()
 config.read('config.ini')
