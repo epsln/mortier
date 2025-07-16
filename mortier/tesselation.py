@@ -1,125 +1,227 @@
-from coords import coords 
+from coords import LatticeCoords, EuclideanCoords
 from math_utils import in_bounds, planeToTileCoords, planeCoords
+from face import Face
 import math
-import svgwrite
-from svgwrite import cm, mm   
+import random
 
-def tesselate(config, tess):
-    n_tiles = int(config['tesselation']['n_tiles'])
-    size_x = float(config['svg']['size_x'])
-    size_y = float(config['svg']['size_y'])
-    svg_name = config['svg']['filename']
+class Tesselate():
+    def __init__(self, writer, tess, tess_id):
+        self.writer = writer
+        self.tess = tess
+        self.tess_id = tess_id
+        self.wpow = []
 
-    T1 = coords(tess["T1"])
-    T2 = coords(tess["T2"])
-    seed = tess["Seed"]
-    svg_size = (
-        size_x,
-        size_y,
-    )
-    dwg = svgwrite.Drawing(
-        f"{svg_name}.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
-    )
+        self.wpow.append(LatticeCoords([1, 0, 0, 0]))
+        self.wpow.append(LatticeCoords([0, 1, 0, 0]))
+        self.wpow.append(LatticeCoords([0, 0, 1, 0]))
+        self.wpow.append(LatticeCoords([0, 0, 0, 1]))
+        self.wpow.append(LatticeCoords([-1, 0, 1, 0]))
+        self.wpow.append(LatticeCoords([0, -1, 0, 1]))
+        self.wpow.append(LatticeCoords([-1, 0, 0, 0]))
+        self.wpow.append(LatticeCoords([0, -1, 0, 0]))
+        self.wpow.append(LatticeCoords([0, 0, -1, 0]))
+        self.wpow.append(LatticeCoords([0, 0, 0, -1]))
+        self.wpow.append(LatticeCoords([1, 0, -1, 0]))
+        self.wpow.append(LatticeCoords([0, 1, 0, -1]))
+        
+        self.set_tesselation(tess, tess_id)
+        self.faces = self.tesselate()
 
+        self.show_dual = False
+        self.show_face = False
+        self.show_base = False
+        self.ray_tesselation = False
 
-    polytype = [ -1, -1, 3, 4, 6, 12 ];
-    dir12 = []
-    dir12.append(coords([1, 0, 0, 0]))
-    dir12.append(coords([0, 1, 0, 0]))
-    dir12.append(coords([0, 0, 1, 0]))
-    dir12.append(coords([0, 0, 0, 1]))
-    dir12.append(coords([-1, 0, 1, 0]))
-    dir12.append(coords([0, -1, 0, 1]))
-    dir12.append(coords([-1, 0, 0, 0]))
-    dir12.append(coords([0, -1, 0, 0]))
-    dir12.append(coords([0, 0, -1, 0]))
-    dir12.append(coords([0, 0, 0, -1]))
-    dir12.append(coords([1, 0, -1, 0]))
-    dir12.append(coords([0, 1, 0, -1]))
-    
-    W = [1, 
-         0.8660254037844386 + 0.5* 1j,
-         0.5, 0.8660254037844386 * 1j,
-         0 + 1j
-     ]
+    def use_ray(self, use_ray):
+        self.ray_tesselation = use_ray
 
-    neighbor_arr = {}
+    def fill_neighbor(self, faces):
+        vertex_map = {}
+        for face in faces:
+            for v in face.vertices:
+                if v in vertex_map:
+                    vertex_map[v].append(face)
+                else:
+                    vertex_map[v] = [face]
+        for v in vertex_map.keys():
+            for f in vertex_map[v]:
+                f.add_neigbors(vertex_map[v])
 
-    i_min = 0
-    i_max = 0
-    j_min = 0
-    j_max = 0
+    def draw_seed(self):
+        self.writer.face(self.cell, dotted = True)
 
-    corners = [0, size_x, size_y * 1j, size_x + size_y * 1j]
+        for s in self.seed:
+            s = LatticeCoords(s)
+            self.writer.point(s)
 
-    for z in corners: 
-        z_ = planeToTileCoords(tess, W, z.real / n_tiles , z.imag / n_tiles)
+        caption = f"Cellule et Graines du pavage ${self.tess_id}$"
+        label = f"seed"
 
-        i_min = min(i_min, z_.real)
-        j_min = min(j_min, z_.imag)
-        i_max = max(i_max, z_.real)
-        j_max = max(j_max, z_.imag)
-
-    i_min = math.floor(i_min - 1);
-    i_max = math.ceil(i_max + 1);
-    j_min = math.floor(j_min - 1);
-    j_max = math.ceil(j_max + 1);
-
-    for x in range(i_min, i_max):
-        for y in range(j_min, j_max):
-            translate = T1.scale(x).translate(T2.scale(y))
-            for s in seed: 
-                s = coords(s)
-                WC = s.translate(translate);
-                neighbor_arr[str(WC.w)] = WC.w
-
-    for x in range(i_min, i_max):
-        for y in range(j_min, j_max):
-            translate = T1.scale(x).translate(T2.scale(y))
-            for s in seed: 
-                neighs = []
-                s = coords(s)
-                WC = s.translate(translate);
+        self.writer.set_caption(caption)
+        self.writer.set_label(caption)
+        self.writer.write(caption, label)
             
-                for d in range(6): 
-                  neighbor = WC.translate(dir12[d])
-                  if str(neighbor.w) in neighbor_arr:
-                      neighs.append(d)
+    def draw_star(self):
+        neighbor_arr = {}
+        
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]: 
+                f_ = self.cell.translate(self.T1, self.T2, x, y) 
 
-                if len(neighs) <= 1:
-                    continue
+                self.writer.face(f_, dotted = True)
 
-                for n, next_n in zip(neighs, neighs[1:]):
-                  maxDist = 0;
-                  diff = next_n - n
-                  skip = int(12/polytype[diff])
+                for s in self.seed: 
+                    s = LatticeCoords(s)
+                    p = s.translate(self.T1.scale(x).translate(self.T2.scale(y)))
+                    neighbor_arr[str(p.w)] = 1 
+                    self.writer.point(p)
+                    self.writer.point(s)
 
-                  fc = WC
-                  F = coords([0, 0, 0, 0])
-                  for f in range(0, 12, skip): 
+        for s in self.seed:
+          s = LatticeCoords(s)
 
-                    F0 = F
-                    nfc = fc.translate(dir12[(n + f) % 12 ] )
-                    F = nfc.scale(n_tiles)
-                    fc = nfc
-                
-                    if (f == 0):
-                      FInit = F
-                    if f > 0 and f + skip < 12:
-                      x1 = F.x
-                      y1 = F.y
-                      x2 = F0.x
-                      y2 = F0.y
-                      #F_init = coords(y1 - y0, x0 - x1)
-                      if in_bounds(x1, y1, size_x, size_y) and in_bounds(x2, y2, size_x, size_y):
-                          dwg.add(
-                            dwg.line(
-                                start = (x1 * mm, y1 * mm),
-                                end = (x2 * mm, y2 * mm),
-                                stroke="black",
-                                stroke_width = 1
-                            )
-                        )    
+          for k in range(6):
+            p = self.wpow[k];
+            sk = s.translate(p)
+            if str(sk.w) in neighbor_arr:
+                self.writer.line(s, sk)
+                self.writer.point(sk)
 
-        dwg.save()
+        caption = f"Graphe Étoile du pavage {self.tess_id}"
+        label = f"star"
+        self.writer.set_caption(caption)
+        self.writer.set_label(caption)
+        self.writer.write()
 
+    def draw_edge(self):
+        neighbor_arr = {}
+
+        self.writer.face(self.cell, dotted = True)
+        
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]: 
+                for s in self.seed: 
+                    s = LatticeCoords(s)
+                    p = s.translate(self.T1.scale(x).translate(self.T2.scale(y)))
+                    neighbor_arr[str(p.w)] = 1 
+
+        for s in self.seed:
+          s = LatticeCoords(s)
+
+          for k in range(6):
+            p = self.wpow[k];
+            sk = s.translate(p)
+            if str(sk.w) in neighbor_arr:
+                self.writer.line(s, sk)
+
+        caption = f"Squelette du pavage {self.tess_id} construit avec le voisinage immédiat"
+        label = "edge"
+        
+        self.writer.set_caption(caption)
+        self.writer.set_label(caption)
+        self.writer.write()
+
+    def tesselate(self):
+        neighbor_arr = {}
+
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                for s in self.seed: 
+                    s = LatticeCoords(s)
+                    p = s.translate(self.T1.scale(x).translate(self.T2.scale(y)))
+                    neighbor_arr[str(p.w)] = 1 
+
+        faces = []
+        for s in self.seed:
+          s = LatticeCoords(s)
+          S = []
+
+          for k in range(6):
+            p = self.wpow[k];
+            sk = s.translate(p)
+            if str(sk.w) in neighbor_arr:
+                S.append(k)
+
+          for i in range(len(S) - 1):
+            h = 6 - (S[i+1]-S[i]);
+            m = 12/h;
+            faces.append(Face.generate(s, S[i], m))
+        
+        self.fill_neighbor(faces)
+        return faces
+    
+    def find_corners(self):
+        W = [1, 
+             0.8660254037844386 + 0.5* 1j,
+             0.5 +  0.8660254037844386 * 1j,
+             0 + 1j
+         ]
+
+        i_min = 1000
+        i_max = -1000
+        j_min = 1000
+        j_max = -1000
+        corners = [0, 
+                   self.writer.size[0],
+                   self.writer.size[1] * 1j,
+                   (self.writer.size[0] + self.writer.size[1] * 1j)]
+        lines = []
+
+        for z in corners: 
+            z_ = planeToTileCoords(self.tess, W, 
+                                   z.real/self.writer.n_tiles, 
+                                   z.imag/self.writer.n_tiles)
+
+            i_min = min(i_min, z_.real)
+            j_min = min(j_min, z_.imag)
+            i_max = max(i_max, z_.real)
+            j_max = max(j_max, z_.imag)
+
+        i_min = math.floor(i_min - 1)
+        i_max = math.ceil(i_max + 1)
+        j_min = math.floor(j_min - 1)
+        j_max = math.ceil(j_max + 1)
+        
+        return i_min, i_max, j_min, j_max
+    
+    def draw_tesselation(self):
+        faces = self.tesselate()
+        i_min, i_max, j_min, j_max = self.find_corners()
+        if self.show_base:
+            i_min = -1
+            i_max =  2
+            j_min = -1
+            j_max =  2
+
+        for i in range(i_min, i_max): 
+            for j in range(j_min, j_max): 
+                if self.show_base:
+                    f_ = self.cell.translate(self.T1, self.T2, i, j) 
+                    self.writer.face(f_, dotted = True)
+
+                for f in faces:
+                    f_ = f.translate(self.T1, self.T2, i, j)
+                    f_ = f_.scale(self.writer.n_tiles)
+                    f_ = f_.ray_transform(0)
+                    self.writer.face(f_)
+
+        caption = f"Pavage ${self.tess_id}$" 
+        label = f"finished_{self.tess_id}"
+
+        self.writer.set_caption(caption)
+        self.writer.set_label(caption)
+        self.writer.write()
+    
+
+    def set_tesselation(self, tess, tess_id):
+        self.tess = tess
+        self.tess_id = tess_id
+        self.T0 = LatticeCoords([0, 0, 0, 0])
+        self.T1 = LatticeCoords(tess["T1"])
+        self.T2 = LatticeCoords(tess["T2"])
+        self.T3 = self.T1.translate(self.T2)
+        self.seed = self.tess["Seed"]
+        self.cell = Face([self.T0, self.T1, self.T3, self.T2])
+
+    def set_writer(self, writer):
+        self.writer = writer
