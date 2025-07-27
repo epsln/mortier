@@ -177,14 +177,14 @@ class Tesselate():
             i_max = max(i_max, z_.real)
             j_max = max(j_max, z_.imag)
 
-        i_min = math.floor(i_min - 1)
-        i_max = math.ceil(i_max + 1)
-        j_min = math.floor(j_min - 1)
-        j_max = math.ceil(j_max + 1)
+        i_min = math.floor(i_min - 2)
+        i_max = math.ceil(i_max + 2)
+        j_min = math.floor(j_min - 2)
+        j_max = math.ceil(j_max + 2)
         
         return i_min, i_max, j_min, j_max
     
-    def draw_tesselation(self):
+    def draw_tesselation(self, angle = None):
         faces = self.tesselate()
         i_min, i_max, j_min, j_max = self.find_corners()
         if self.show_base:
@@ -202,7 +202,7 @@ class Tesselate():
                 for f in faces:
                     f_ = f.translate(self.T1, self.T2, i, j)
                     f_ = f_.scale(self.writer.n_tiles)
-                    f_ = f_.ray_transform(0)
+                    f_ = f_.ray_transform(angle)
                     self.writer.face(f_)
 
         caption = f"Pavage ${self.tess_id}$" 

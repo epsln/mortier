@@ -1,4 +1,4 @@
-from coords import LatticeCoords, EuclideanCoords
+from coords import LatticeCoords, EuclideanCoords, Line
 import numpy as np
 
 class Face():
@@ -9,7 +9,6 @@ class Face():
 
     @staticmethod
     def generate(v, k, m): 
-
         wpow = []
         wpow.append(LatticeCoords([1, 0, 0, 0]))
         wpow.append(LatticeCoords([0, 1, 0, 0]))
@@ -72,25 +71,41 @@ class Face():
     def ray_transform(self, angle):
         #TODO: Create line class and move midpoint logic in there
         vertices = []
-        for i in range(len(self.vertices) - 1):
+
+        for i in range(len(self.vertices)):
+            #TODO: Put sides in faces instead of using vertices
             p0 = self.vertices[i]
-            p1 = self.vertices[i + 1]
+            p1 = self.vertices[(i + 1) % len(self.vertices)]
             p2 = self.vertices[(i + 2) % len(self.vertices)]
-            p_mid_0 = p0.translate(p1).scale(1/2).numpy()
-            p_mid_1 = p1.translate(p2).scale(1/2).numpy()
-            theta_0 = p1.translate(p0.scale(-1)).angle() + np.pi/2
-            theta_1 = p2.translate(p1.scale(-1)).angle() + np.pi/2
-            ray_0 = np.array([p_mid_0 + np.sin(angle + theta_0), p_mid_0 + np.cos(angle + theta_0)]).T
-            ray_1 = np.array([p_mid_0 + np.sin(angle - theta_0), p_mid_0 + np.cos(angle - theta_0)]).T
-            ray_2 = np.array([p_mid_1 + np.sin(angle + theta_1), p_mid_1 + np.cos(angle + theta_1)]).T
-            ray_3 = np.array([p_mid_1 + np.sin(angle - theta_1), p_mid_1 + np.cos(angle - theta_1)]).T
-            x, _, _= np.linalg.lstsq(np.array([ray_0, -ray_3]).T, p_mid_1 - p_mid_0)[:3]
-            vertices.append(EuclideanCoords(p_mid_0))
-            vertices.append(EuclideanCoords(ray_0 * x[0] + p_mid_0))
-            x, _, _= np.linalg.lstsq(np.array([ray_1, -ray_2]).T, p_mid_1 - p_mid_0)[:3]
-            vertices.append(EuclideanCoords(p_mid_1))
-            print(p_mid_0, ray_0)
-            vertices.append(EuclideanCoords(ray_2 * x[0] + p_mid_1))
+
+            side_0 = Line(p0, p1)
+            side_1 = Line(p1, p2)
+
+            p_mid_0 = side_0.get_midpoint()
+            p_mid_1 = side_1.get_midpoint() 
+
+            n_0 = side_0.heading()
+            n_1 = side_1.heading()
+
+            end_pt_0 = EuclideanCoords([np.cos(angle),  np.sin(angle)]) 
+            end_pt_1 = EuclideanCoords([np.cos(-angle), np.sin(-angle)]) 
+
+            end_pt_0 = end_pt_0.rotate(n_0)
+            end_pt_1 = end_pt_1.rotate(n_1)
+
+            end_pt_0 = p_mid_0.translate(end_pt_0)
+            end_pt_1 = p_mid_1.translate(end_pt_1)
+
+            s0 = EuclideanCoords([p_mid_0.x - end_pt_0.x, p_mid_0.y - end_pt_0.y])
+            s1 = EuclideanCoords([p_mid_1.x - end_pt_1.x, p_mid_1.y - end_pt_1.y])
+
+            s = (-s0.y * (p_mid_0.x - p_mid_1.x) + s0.x * (p_mid_0.y - p_mid_1.y)) / (-s1.x * s0.y + s0.x * s1.y)
+            t = ( s1.x * (p_mid_0.y - p_mid_1.y) - s1.y * (p_mid_0.x - p_mid_1.x)) / (-s1.x * s0.y + s0.x * s1.y)
+            
+            x = EuclideanCoords([p_mid_0.x + (t * s0.x), p_mid_0.y + (t * s0.y)])
+
+            vertices.append(p_mid_0)
+            vertices.append(x)
 
         return Face(vertices)
             

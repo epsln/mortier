@@ -15,7 +15,7 @@ class Writer():
 
     def in_bounds(self, f):
         for v in f.vertices:
-            if 0 > v.x or v.x > self.size[0] or 0 > v.y or v.y > self.size[1]:
+            if -self.size[0]/10 > v.x or v.x > 11 * self.size[0]/10 or -self.size[1] > v.y or v.y > 11 * self.size[1]/10:
                 return False
         return True
 

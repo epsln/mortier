@@ -19,13 +19,13 @@ else:
     tess_id = random.choice(list(js.keys()))
 
 tess = js[tess_id]
+size = (int(config['svg']['size_x']), int(config['svg']['size_y']))
 
-writer = BitmapWriter("images/images_0.png", (1080, 1080), n_tiles = config['tesselation']['n_tiles'])
+writer = BitmapWriter("images/images_0.png", size, n_tiles = config['tesselation']['n_tiles'])
 tesselation = Tesselate(writer, tess, tess_id)
-#tesselation.use_ray(True)
 
-for i in range(1):
+for i in range(100):
     tess = js[tess_id]
     writer.new(f"images/images_{i}.png")
     tesselation.set_tesselation(tess, tess_id)
-    tesselation.draw_tesselation()
+    tesselation.draw_tesselation(i * 1.0/300 * 3.1415926/2)
