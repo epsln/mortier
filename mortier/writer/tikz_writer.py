@@ -5,7 +5,6 @@ class TikzWriter(Writer):
         super().__init__(filename, size, n_tiles)
         self.output = []
         self.header = "\\begin{tikzpicture}\n"
-        self.header += f"\\clip(0,0) rectangle {self.size};"
         self.footer = "\\end{tikzpicture}"
         
     def point(self, p):
@@ -42,6 +41,7 @@ class TikzWriter(Writer):
             f.write(self.footer)
 
     def new(self, filename, size = None, n_tiles = None):
+        self.header = "\\begin{tikzpicture}\n"
         if not size:
             size = self.size
         if not n_tiles:

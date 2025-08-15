@@ -12,13 +12,13 @@ class BitmapWriter(Writer):
         self.output.point((p.x, p.y))
 
     def line(self, p0, p1):
-        self.output.line([(p0.x, p0.y), (p1.x, p1.y)])
+        self.output.line([(p0.x, p0.y), (p1.x, p1.y)], width = 1)
 
     def face(self, face, dotted = False):
         t = []
         if not self.in_bounds(face):
             return
-
+        
         for i in range(len(face.vertices)):
             self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
             self.point(face.vertices[i])

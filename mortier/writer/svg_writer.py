@@ -3,32 +3,34 @@ import svgwrite
 from svgwrite import cm, mm   
 
 class SVGWriter(Writer):
-    def __init__(self, filename, size):
-        super().__init__(filename, size)
+    def __init__(self, filename, size, n_tiles = 1):
+        super().__init__(filename, size, n_tiles)
         svg_size = (
-            size_x,
-            size_y,
+            size[0],
+            size[1],
         )
         self.dwg = svgwrite.Drawing(
-            f"{svg_name}.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
+            f"{filename}.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
         )
 
-        dwg.viewbox(width=size_x, height=size_y)
+        self.dwg.viewbox(width=size[0], height=size[1])
 
 
     def line(self, p0, p1):
         self.dwg.add(
-          dwg.line(
+          self.dwg.line(
             start = (p0.x, p0.y),
-            end = (p0.x, p0.y)
+            end = (p0.x, p0.y),
 
             stroke = "black",
             stroke_width = 0.05
             )
+          )
 
     def face(self, face):
-        dwg.add(
-          dwg.polygon(
+        f = [(f.x * 4, f.y * 4) for f in face.vertices]
+        self.dwg.add(
+          self.dwg.polygon(
             points=f,
             fill = "none",
             stroke="black",
@@ -37,4 +39,19 @@ class SVGWriter(Writer):
         )        
 
     def write(self):
-        dwg.save()
+        self.dwg.save()
+
+    def new(self, filename, size = None, n_tiles = None):
+        if not size:
+            size = self.size
+            svg_size = (
+                size[0],
+                size[1],
+            )
+        if not n_tiles:
+            n_tiles = self.n_tiles
+        super().__init__(filename, size, n_tiles)
+        self.dwg = svgwrite.Drawing(
+            f"{filename}.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
+        )
+
