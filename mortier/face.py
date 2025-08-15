@@ -84,14 +84,11 @@ class Face():
             p_mid_0 = side_0.get_midpoint()
             p_mid_1 = side_1.get_midpoint() 
 
-            n_0 = side_0.heading()
-            n_1 = side_1.heading()
+            angle_0 = side_0.heading() + angle
+            angle_1 = side_1.heading() - angle
 
-            end_pt_0 = EuclideanCoords([np.cos(angle),  np.sin(angle)]) 
-            end_pt_1 = EuclideanCoords([np.cos(-angle), np.sin(-angle)]) 
-
-            end_pt_0 = end_pt_0.rotate(n_0)
-            end_pt_1 = end_pt_1.rotate(n_1)
+            end_pt_0 = EuclideanCoords([np.cos(angle_0),  np.sin(angle_0)]) 
+            end_pt_1 = EuclideanCoords([np.cos(angle_1), np.sin(angle_1)]) 
 
             end_pt_0 = p_mid_0.translate(end_pt_0)
             end_pt_1 = p_mid_1.translate(end_pt_1)
