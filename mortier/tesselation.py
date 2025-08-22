@@ -1,6 +1,7 @@
-from coords import LatticeCoords, EuclideanCoords
+from coords import LatticeCoords, EuclideanCoords, Line
 from math_utils import in_bounds, planeToTileCoords, planeCoords
 from face import Face
+import numpy as np
 import math
 import random
 
@@ -25,7 +26,6 @@ class Tesselate():
         self.wpow.append(LatticeCoords([0, 1, 0, -1]))
         
         self.set_tesselation(tess, tess_id)
-        self.faces = self.tesselate()
 
         self.show_dual = False
         self.show_face = False
@@ -121,7 +121,7 @@ class Tesselate():
         self.writer.set_label(caption)
         self.writer.write()
 
-    def tesselate(self):
+    def tesselate_face(self):
         neighbor_arr = {}
 
         for x in [-1, 0, 1]:
@@ -162,9 +162,9 @@ class Tesselate():
         j_min = 1000
         j_max = -1000
         corners = [0, 
-                   self.writer.size[0],
-                   self.writer.size[1] * 1j,
-                   (self.writer.size[0] + self.writer.size[1] * 1j)]
+                   self.writer.size[2],
+                   self.writer.size[3] * 1j,
+                   (self.writer.size[2] + self.writer.size[3] * 1j)]
         lines = []
 
         for z in corners: 
@@ -182,10 +182,12 @@ class Tesselate():
         j_min = math.floor(j_min - 1)
         j_max = math.ceil(j_max + 1)
         
+        print(i_min, i_max, j_min, j_max)
+        
         return i_min, i_max, j_min, j_max
-    
-    def draw_tesselation(self, angle = None, show_underlying = False):
-        faces = self.tesselate()
+
+    def draw_tesselation(self, x, angle = None, show_underlying = False, sin = False, assym = False, separated_site = False):
+        faces = self.tesselate_face()
         i_min, i_max, j_min, j_max = self.find_corners()
         dot = False
         if self.show_base:
@@ -194,6 +196,7 @@ class Tesselate():
             j_min = -1
             j_max =  2
 
+        tess_arr = []
         for i in range(i_min, i_max): 
             for j in range(j_min, j_max): 
                 if self.show_base:
@@ -206,17 +209,62 @@ class Tesselate():
                     if show_underlying:
                         self.writer.face(f_)
                         dot = True
-                    if angle:
-                        f_ = f_.ray_transform(angle)
+                   # if angle:
+                    f_ = f_.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site)
+                    tess_arr.append(f_)
                     self.writer.face(f_, dotted = dot)
 
+
         caption = f"Pavage ${self.tess_id}$" 
-        label = f"finished_{self.tess_id}"
+        if assym: 
+            caption += ", sites séparés"
+        if sin:
+            caption += ", angle paramétrisé"
 
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
         self.writer.write()
-    
+        return tess_arr
+
+    def draw_n_ray(self, n_iter, angle = np.random.uniform(0, np.pi/2), sin = False, assym = False, separated_site = False):
+        #Recursive application
+        faces = self.tesselate_face()
+        i_min, i_max, j_min, j_max = self.find_corners()
+
+        tess_arr = []
+        for i in range(i_min, i_max): 
+            for j in range(j_min, j_max): 
+                for f in faces:
+                    f_ = f.translate(self.T1, self.T2, i, j)
+                    f_ = f_.scale(self.writer.n_tiles)
+                    f_ = f_.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site)
+                    tess_arr.append(f_)
+
+        for i in range(n_iter):
+            angle = np.random.uniform(0, np.pi/2)
+            buff = []
+            for f in tess_arr:
+                buff.append(f.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site))
+            tess_arr = buff
+        
+        for f in tess_arr:
+            self.writer.face(f)
+            
+        caption = f"Pavage ${self.tess_id}$" 
+        if assym: 
+            caption += ", angles assymétrique"
+        if sin:
+            caption += ", angle paramétrisé"
+        if separated_site:
+            caption += ", site séparé"
+        if n_iter > 0:
+            caption += f", application récursive ({n_iter + 1} fois)"
+
+        self.writer.set_caption(caption)
+        self.writer.set_label(caption)
+        self.writer.write()
+        return tess_arr
+
 
     def set_tesselation(self, tess, tess_id):
         self.tess = tess
