@@ -56,6 +56,12 @@ class EuclideanCoords(Coords):
     self.x = p[0] 
     self.y = p[1] 
     #TODO: Return x,y as tuple for easy access
+
+  def isclose(self, p):
+      if abs(self.x - p.x) < 0.0001 and abs(self.y - p.y) < 0.0001:
+          return True
+      else:
+          return False
   
   def translate(self, wc):
     return EuclideanCoords([self.x + wc.x, self.y + wc.y]) 
@@ -80,21 +86,46 @@ class EuclideanCoords(Coords):
     y_rotated = self.x * np.sin(angle) + self.y * np.cos(angle)
     return EuclideanCoords([x_rotated, y_rotated])
 
+  def rotate_around(self, dx, dy, angle):
+    x_rotated = ((self.x - dx) * np.cos(angle)) - ((self.y - dy) * np.sin(angle)) + dx
+    y_rotated = ((self.x - dx) * np.sin(angle)) + ((self.y - dy) * np.cos(angle)) + dy
+    return EuclideanCoords([x_rotated, y_rotated])
+
 class Line(Coords):
-    def __init__(self, p0, p1):
-        self.beg_pt = p0
-        self.end_pt = p1
-        self.vec = p1.translate(p0.scale(-1))
-
-    def heading(self):
-        return np.atan2(self.vec.y, self.vec.x) % np.pi
+  def __init__(self, p0, p1):
+      self.beg_pt = p0
+      self.end_pt = p1
+      self.vec = p1.translate(p0.scale(-1))
   
-    def len(self):
-        return self.vec.len() 
+  def heading(self):
+      return np.atan2(self.vec.y, self.vec.x)
+  
+  def len(self):
+      return self.vec.len() 
+  
+  def get_midpoint(self):
+      return self.beg_pt.translate(self.end_pt).scale(1/2).toEuclidean()
+  
+  def get_pq_point(self, p, q ):
+      x = self.beg_pt.x + p * (self.end_pt.x - self.beg_pt.x)/q
+      y = self.beg_pt.y + p * (self.end_pt.y - self.beg_pt.y)/q
+      return EuclideanCoords([x, y])
+  
+  def heading(self):
+    return np.atan2(self.vec.y, self.vec.x) % np.pi
 
-    def get_midpoint(self):
-        return self.beg_pt.translate(self.end_pt).scale(1/2).toEuclidean()
+  def translate(self, wc):
+    return Line(self.beg_pt.translate(wc), self.end_pt.translate(wc)) 
 
-    def heading(self):
-      return np.atan2(self.vec.y, self.vec.x) % np.pi
+  def scale(self, k):
+    return Line(self.beg_pt.scale(k), self.end_pt.scale(k)) 
+
+  def rotate_around(self, x, y, theta):
+      p0 = self.beg_pt.rotate_around(x, y, theta)
+      p1 = self.beg_pt.rotate_around(x, y, theta)
+      return Line(p0, p1)
+
+  def __str__(self):
+      return f"{self.beg_pt}->{self.end_pt}" 
+
 
