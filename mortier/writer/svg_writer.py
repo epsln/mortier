@@ -6,21 +6,21 @@ class SVGWriter(Writer):
     def __init__(self, filename, size, n_tiles = 1):
         super().__init__(filename, size, n_tiles)
         svg_size = (
-            size[0],
-            size[1],
+            size[2],
+            size[3],
         )
         self.dwg = svgwrite.Drawing(
             f"{filename}.svg", size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm")
         )
 
-        self.dwg.viewbox(width=size[0], height=size[1])
+        self.dwg.viewbox(width=size[2], height=size[3])
 
 
     def line(self, p0, p1):
         self.dwg.add(
           self.dwg.line(
             start = (p0.x, p0.y),
-            end = (p0.x, p0.y),
+            end = (p1.x, p1.y),
 
             stroke = "black",
             stroke_width = 0.05
@@ -43,7 +43,7 @@ class SVGWriter(Writer):
 
     def new(self, filename, size = None, n_tiles = None):
         if not size:
-            size = self.size
+            size = self.svg_size
             svg_size = (
                 size[0],
                 size[1],
