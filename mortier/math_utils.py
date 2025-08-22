@@ -1,9 +1,9 @@
 from coords import LatticeCoords
 import random
 
-def in_bounds(face, size_x, size_y):
+def in_bounds(face, size):
     for v in face:
-        if v.x < 0 or v.x > size_x or v.y < 0 or v.y > size_y: 
+        if v.x < size[0] or v.x > size[2] or v.y < size[1] or v.y > size[3]: 
             return False 
     return True 
 

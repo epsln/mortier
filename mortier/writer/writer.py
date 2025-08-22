@@ -1,3 +1,4 @@
+import math
 class Writer():
     def __init__(self, filename, size, n_tiles = 1):
         self.filename = filename
@@ -13,10 +14,12 @@ class Writer():
     def face(self, face, dotted = False):
         pass
 
-    def in_bounds(self, f):
-        for v in f.vertices:
-            if -self.size[0]/10 > v.x or v.x > 11 * self.size[0]/10 or -self.size[1] > v.y or v.y > 11 * self.size[1]/10:
-                return False
+    def in_bounds(self, v):
+        
+        if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
+            return False
+        if not (self.size[0] < v.x < self.size[0] + 1.1 * self.size[2] and self.size[1] < v.y < self.size[1] + self.size[3]):
+            return False
         return True
 
     def set_label(self, label):
