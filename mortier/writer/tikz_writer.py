@@ -6,7 +6,7 @@ class TikzWriter(Writer):
         super().__init__(filename, size, n_tiles)
         self.output = []
         self.header = "\\begin{tikzpicture}\n"
-        self.footer = "\\end{tikzpicture}"
+        self.footer = "\n\\end{tikzpicture}\n"
         self.set_bounds(size) 
         
     def point(self, p):
@@ -39,6 +39,9 @@ class TikzWriter(Writer):
         self.header += "\\clip ("+ str(size[0]) + ","+ str(size[1]) + ")"
         self.header += "rectangle + (" + str(size[2]) + "," + str(size[3])+");\n"
 
+    def no_clip(self):
+        self.header = "\\begin{tikzpicture}\n"
+
     def write(self, caption = None, label = None):
         self.output = '\n'.join(list(set(self.output)))
         with open(self.filename, "w+") as f:
@@ -48,7 +51,7 @@ class TikzWriter(Writer):
 
     def new(self, filename, size = None, n_tiles = None):
         self.header = "\\begin{tikzpicture}\n"
-        self.footer = "\\end{tikzpicture}"
+        self.footer = "\n\\end{tikzpicture}\n"
         if not size:
             size = self.size
         if not n_tiles:

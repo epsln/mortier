@@ -16,25 +16,25 @@ class SVGWriter(Writer):
         self.dwg.viewbox(width=size[2], height=size[3])
 
 
-    def line(self, p0, p1):
+    def line(self, p0, p1, color):
         self.dwg.add(
           self.dwg.line(
             start = (p0.x, p0.y),
             end = (p1.x, p1.y),
 
-            stroke = "black",
-            stroke_width = 0.05
+            stroke = color,
+            stroke_width = 0.5
             )
           )
 
-    def face(self, face):
-        f = [(f.x * 4, f.y * 4) for f in face.vertices]
+    def face(self, face, color = "black", stroke_width = 1):
+        f = [(f.x, f.y) for f in face.vertices]
         self.dwg.add(
           self.dwg.polygon(
             points=f,
             fill = "none",
-            stroke="black",
-            stroke_width = 0.5
+            stroke= color,
+            stroke_width = stroke_width 
             )
         )        
 
