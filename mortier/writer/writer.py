@@ -132,7 +132,7 @@ class Writer():
             add_length = cut_length
         return cut_length, add_length
 
-    def outline_lines(self, points, mid_points, closed=True):
+    def outline_lines(self, points):
         """
         Compute pairs of offset polylines (outer and inner) for a given polyline.
         """
@@ -146,14 +146,9 @@ class Writer():
         neg_ring = []
 
         for i in range(n):
-            if closed:
-                p_prev = pts[(i - 1) % n]
-                p_curr = pts[i]
-                p_next = pts[(i + 1) % n]
-            else:
-                p_curr = pts[i]
-                p_prev = pts[i - 1] if i > 0 else pts[i]
-                p_next = pts[i + 1] if i < n - 1 else pts[i]
+            p_prev = pts[(i - 1) % n]
+            p_curr = pts[i]
+            p_next = pts[(i + 1) % n]
 
             if i == 0 or i == n - 1:
                 end = self.bands_angle
@@ -166,7 +161,6 @@ class Writer():
 
             if str(p_curr) in self.intersect_points:
                 beg_point = self.offset_segment(p_curr, p_next, cut_length)
-
                 if self.intersect_points[str(p_curr)][0] == 1:
                     beg_point = self.offset_segment(p_curr, p_next, cut_length)
                 else:
@@ -187,8 +181,8 @@ class Writer():
 
         return pos_ring, neg_ring
 
-    def draw_outline_lines(self, points, mid_points, color="red", closed=True):
-        pos_ring, neg_ring = self.outline_lines(points, mid_points, closed)
+    def draw_outline_lines(self, points, color="red"):
+        pos_ring, neg_ring = self.outline_lines(points)
 
         for i in range(0, len(pos_ring) - 2, 2):
             p0 = pos_ring[i]
@@ -237,14 +231,14 @@ class Writer():
         pattern = ""
         n_vert = len(face.vertices)
 
-        for p in face.mid_points:
+        for p, angle in face.mid_points:
             if str(p) not in self.intersect_points:
-                self.intersect_points[str(p)] = np.random.randint(2, size = 2) 
+                self.intersect_points[str(p)] = np.random.randint(2, size = 2)
             elif self.intersect_points[str(p)].sum() % 2 == 0:
                 self.intersect_points[str(p)] = [(x + 1) % 2 for x in self.intersect_points[str(p)]] 
 
         if self.lacing_mode or self.bands_mode:
-            self.draw_outline_lines(face.vertices, face.mid_points)
+            self.draw_outline_lines(face.vertices)
         else:
             if self.bezier_curve:
                 for i in range(0, len(face.vertices) - 2, 2):
