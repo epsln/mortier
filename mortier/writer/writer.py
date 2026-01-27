@@ -12,6 +12,7 @@ class Writer():
         self.bands_mode = bands_mode
         self.bands_width = bands_width 
         self.bands_angle = bands_angle 
+        self.bezier_curve = False 
         assert not (self.lacing_mode and self.bands_mode)
 
     def set_band_angle(self, bands_angle):
@@ -65,6 +66,9 @@ class Writer():
 
     def vertex_miter(self, p_prev, p_curr, p_next, half_w, end = False):
         """Compute offset points (left/right) at vertex p_curr using miter join."""
+        p_prev = p_prev.numpy()
+        p_curr = p_curr.numpy()
+        p_next = p_next.numpy()
         v_prev = p_curr - p_prev
         v_next = p_next - p_curr
         nv_prev = self.normalize(v_prev)
@@ -72,34 +76,34 @@ class Writer():
         EPS = 1e-9
 
         if np.linalg.norm(nv_prev) < EPS and np.linalg.norm(nv_next) < EPS:
-            return p_curr + np.array([half_w, 0]), p_curr - np.array([half_w, 0])
+            return EuclideanCoords(p_curr + np.array([half_w, 0])), EuclideanCoords(p_curr - np.array([half_w, 0]))
 
         if np.linalg.norm(nv_prev) < EPS:
             n = self.normalize(self.perp(nv_next))
             d = self.normalize(nv_next)
             cut = half_w/np.tan(end + np.pi/2)
-            return p_curr + n * half_w - d * cut, p_curr - n * half_w
+            return EuclideanCoords(p_curr + n * half_w - d * cut), EuclideanCoords(p_curr - n * half_w)
 
         if np.linalg.norm(nv_next) < EPS:
             n = self.normalize(self.perp(nv_prev))
             d = self.normalize(nv_prev)
             cut = -half_w/np.tan(end + np.pi/2)
-            return p_curr + n * half_w - d * cut, p_curr - n * half_w
+            return EuclideanCoords(p_curr + n * half_w - d * cut), EuclideanCoords(p_curr - n * half_w)
 
         n1 = self.normalize(self.perp(nv_prev))
         n2 = self.normalize(self.perp(nv_next))
         bis = n1 + n2
         bis_len = np.linalg.norm(bis)
         if bis_len < 1e-6:
-            return p_curr + n2 * half_w, p_curr - n2 * half_w
+            return EuclideanCoords(p_curr + n2 * half_w), EuclideanCoords(p_curr - n2 * half_w)
         b = bis / bis_len
         denom = np.dot(b, n2)
         miter_len = half_w / denom
         pos = p_curr + b * miter_len
         neg = p_curr - b * miter_len
-        return pos, neg
+        return EuclideanCoords(pos), EuclideanCoords(neg)
 
-    def offset_segment(self, p0, p1, direction, cut_length = 5):
+    def offset_segment(self, p0, p1, cut_length, end_cut = False):
         """Return outer and inner offset lines for a single segment."""
         p0 = p0.numpy() 
         p1 = p1.numpy()
@@ -108,22 +112,30 @@ class Writer():
         d = self.normalize(dir_vec)
         off = n * (self.bands_width / 2)
         l = p0 - p1
-        #print(p0, p1, (l[0]**2 + l[1]**2)**0.5, cut_length)
-        if direction == "left":
+        if not end_cut:
             p0_cut = p0 + d * cut_length
-            #print("left", p0, p0_cut, off, p0_cut - off, n)
-            return tuple(p0_cut - off)
+            return EuclideanCoords(p0_cut - off)
         else:
             p1_cut = p1 - d * cut_length
-            #print("right", p1, p1_cut, off, p1_cut - off, n)
-            return tuple(p1_cut - off)
+            return EuclideanCoords(p1_cut - off)
 
+    def compute_cut_length(self, theta, half_w):
+        if theta < np.pi/4:
+            theta_ = np.pi/2 - theta*2 
+            add_length = -(half_w/ np.cos(theta_) - half_w * np.tan(theta_))
+            cut_length = half_w / np.cos(theta_) + half_w* np.tan(theta_) 
+        else:
+            theta_ = theta * 2 - np.pi/2 
+            add_length = -(half_w / np.cos(theta_) + half_w * np.tan(theta_))
+            cut_length = half_w / np.cos(theta_) - half_w * np.tan(theta_)
+        if self.bands_mode:
+            add_length = cut_length
+        return cut_length, add_length
 
     def outline_lines(self, points, mid_points, closed=True):
         """
         Compute pairs of offset polylines (outer and inner) for a given polyline.
         """
-        #pts = clean_points(points)
         pts = points 
         n = len(pts) 
         if n < 2:
@@ -148,61 +160,61 @@ class Writer():
             else:
                 end = False
 
-            pos, inner= self.vertex_miter(p_prev.numpy(), p_curr.numpy(), p_next.numpy(), half_w, end)
-            theta = self.bands_angle 
-            if theta < np.pi/4:
-                theta_ = np.pi/2 - theta*2 
-                add_length = -(half_w/ np.cos(theta_) - half_w * np.tan(theta_))
-                cut_length = half_w / np.cos(theta_) + half_w* np.tan(theta_) 
-            else:
-                theta_ = theta * 2 - np.pi/2 
-                add_length = -(half_w / np.cos(theta_) + half_w * np.tan(theta_))
-                cut_length = half_w / np.cos(theta_) - half_w * np.tan(theta_)
+            cut_length, add_length = self.compute_cut_length(self.bands_angle, half_w)
+
+            pos_midpoint, neg_midpoint = self.vertex_miter(p_prev, p_curr, p_next, half_w, end)
 
             if str(p_curr) in self.intersect_points:
-                cut = self.offset_segment(p_curr, p_next, "left", cut_length = cut_length)
+                beg_point = self.offset_segment(p_curr, p_next, cut_length)
 
-                if self.intersect_points[str(p_curr)][0] == 1 and not self.bands_mode:
-                    cut = self.offset_segment(p_curr, p_next, "left", cut_length = cut_length)
-                    col_r = "red"
+                if self.intersect_points[str(p_curr)][0] == 1:
+                    beg_point = self.offset_segment(p_curr, p_next, cut_length)
                 else:
-                    cut = self.offset_segment(p_curr, p_next, "left", cut_length = add_length)
-                    col_r = "orange"
-                if self.bands_mode:
-                    cut = self.offset_segment(p_curr, p_next, "left", cut_length = cut_length)
+                    beg_point = self.offset_segment(p_curr, p_next, add_length)
 
             elif str(p_next) in self.intersect_points:
-                #print("green")
-                cut_ = self.offset_segment(p_curr, p_next, "right", cut_length = cut_length)
-                col_l = "green"
+                end_point = self.offset_segment(p_curr, p_next, cut_length, end_cut = True)
                 if self.intersect_points[str(p_next)][1] == 1:
-                    cut_ = self.offset_segment(p_curr, p_next, "right", cut_length = cut_length)
-                    col_l = "green"
+                    end_point = self.offset_segment(p_curr, p_next, cut_length, end_cut = True)
                 else:
-                    #print("cyan")
-                    cut_ = self.offset_segment(p_curr, p_next,  "right", cut_length = add_length)
-                    col_l = "cyan"
-                if self.bands_mode: 
-                    cut_ = self.offset_segment(p_curr, p_next, "right", cut_length = cut_length)
+                    end_point = self.offset_segment(p_curr, p_next, add_length, end_cut = True)
 
-                cut = EuclideanCoords([cut[0], cut[1]])
-                inner = EuclideanCoords(inner)
-                cut_ = EuclideanCoords([cut_[0], cut_[1]])
-                self.line(cut, inner)
-                self.line(inner, cut_)
+                neg_ring.append(beg_point)
+                neg_ring.append(neg_midpoint)
+                neg_ring.append(end_point)
 
-            pos_ring.append(pos)
-            neg_ring.append(inner)
+            pos_ring.append(pos_midpoint)
 
         return pos_ring, neg_ring
 
     def draw_outline_lines(self, points, mid_points, color="red", closed=True):
         pos_ring, neg_ring = self.outline_lines(points, mid_points, closed)
 
-        for i in range(len(pos_ring) - 1):
-            p0 = EuclideanCoords([pos_ring[i][0], pos_ring[i][1]])
-            p1 = EuclideanCoords([pos_ring[i + 1][0], pos_ring[i + 1][1]])
-            self.line(p0, p1)
+        for i in range(0, len(pos_ring) - 2, 2):
+            p0 = pos_ring[i]
+            p1 = pos_ring[i + 1]
+            p2 = pos_ring[i + 2]
+            
+            if self.bezier_curve:
+                l = self.quadratic_bezier(p0, p1, p2)
+                for j in range(len(l) - 1):
+                    self.line(l[j], l[j + 1]) 
+            else:
+                self.line(p0, p1)
+                self.line(p1, p2)
+            
+        for i in range(0, len(neg_ring) - 2, 3):
+            p0 = neg_ring[i]
+            p1 = neg_ring[i + 1]
+            p2 = neg_ring[i + 2]
+            
+            if self.bezier_curve:
+                l = self.quadratic_bezier(p0, p1, p2)
+                for j in range(len(l) - 1):
+                    self.line(l[j], l[j + 1]) 
+            else:
+                self.line(p0, p1)
+                self.line(p1, p2)
 
     def point(self, p):
         pass
@@ -210,21 +222,41 @@ class Writer():
     def line(self, p0, p1):
         pass
 
+    def quadratic_bezier(self, p0, p1, p2, steps=10):
+        #TODO: Maybe N order bezier with all vertices ?
+        points = []
+        for i in range(steps + 1):
+            t = i / steps
+            x = (1 - t)**2 * p0.x + 2 * (1 - t) * t * p1.x + t**2 * p2.x
+            y = (1 - t)**2 * p0.y + 2 * (1 - t) * t * p1.y + t**2 * p2.y
+            points.append(EuclideanCoords([x, y]))
+        return points
+ 
     def face(self, face, dotted = False, color = (255, 255, 255)):
-        #Put me in writer...
         t = []
         pattern = ""
+        n_vert = len(face.vertices)
 
         for p in face.mid_points:
             if str(p) not in self.intersect_points:
                 self.intersect_points[str(p)] = np.random.randint(2, size = 2) 
             elif self.intersect_points[str(p)].sum() % 2 == 0:
                 self.intersect_points[str(p)] = [(x + 1) % 2 for x in self.intersect_points[str(p)]] 
+
         if self.lacing_mode or self.bands_mode:
             self.draw_outline_lines(face.vertices, face.mid_points)
         else:
-            for i in range(len(face.vertices)):
-                self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)], color = color)
+            if self.bezier_curve:
+                for i in range(0, len(face.vertices) - 2, 2):
+                    p0 = face.vertices[i] 
+                    p1 = face.vertices[i + 1] 
+                    p2 = face.vertices[i + 2] 
+                    l = self.quadratic_bezier(p0, p1, p2)
+                    for j in range(len(l) - 1):
+                        self.line(l[j], l[j + 1]) 
+            else:
+                for i in range(len(face.vertices)):
+                    self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)], color = color)
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
