@@ -104,6 +104,7 @@ class Face():
         elif self.sin_mode == "perlin":
             angle += noise.pnoise2(self.vertices[0].x / 8, self.vertices[0].y / 5,  octaves=3) * 2 - 0.5
             angle = np.clip(angle, 0.1, 1.3)
+
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
             p0 = self.vertices[i]
@@ -144,11 +145,14 @@ class Face():
             
             x = EuclideanCoords([p_mid_0.x + (t * s0.x), p_mid_0.y + (t * s0.y)])
             vertices.append(p_mid_0)
-            mid_points.append(p_mid_0)
+            mid_points.append((p_mid_0, angle))
             vertices.append(x)
             if self.separated_site_mode:
                 vertices.append(p_mid_1)
-                mid_points.append(p_mid_1)
+                if self.assym_mode:
+                    mid_points.append((p_mid_1, assym_mode))
+                else:
+                    mid_points.append((p_mid_1, angle))
             #if p_mid_0.translate(x.scale(-1)).len() > 5:#Trying to remove degen case...
             #    vertices = [EuclideanCoords([-100, -100])]
 
