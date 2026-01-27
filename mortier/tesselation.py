@@ -31,9 +31,12 @@ class Tesselate():
         self.show_face = False
         self.show_base = False
         self.ray_tesselation = False
-
-    def use_ray(self, use_ray):
-        self.ray_tesselation = use_ray
+        self.angle = False
+        self.assym_angle = False
+        self.sin_mode = False
+        self.show_underlying = False
+        self.separated_site_mode = False
+        self.lacing_mode = False
 
     def fill_neighbor(self, faces):
         vertex_map = {}
@@ -54,21 +57,30 @@ class Tesselate():
             s = LatticeCoords(s)
             self.writer.point(s)
 
-        caption = f"Cellule et Graines du pavage ${self.tess_id}$"
-        label = f"seed"
+        self.writer.write()
 
-        self.writer.set_caption(caption)
-        self.writer.set_label(caption)
-        self.writer.write(caption, label)
+    def draw_cell(self):
+        for x in range(-2, 2):
+            t = self.T1.translate(self.T1.scale(x))
+            t = t.translate(self.T2.scale(-1))
+            t1 = self.T1.translate(self.T1.scale(x))
+            t1 = t1.translate(self.T2.scale(2))
+            self.writer.line(t, t1, dotted = True)
+
+        for x in range(-1, 3):
+            t = self.T1.translate(self.T1.scale(-2))
+            t = t.translate(self.T2.scale(x))
+            t1 = self.T1.translate(self.T1.scale(1))
+            t1 = t1.translate(self.T2.scale(x))
+            self.writer.line(t, t1, dotted = True)
             
     def draw_star(self):
         neighbor_arr = {}
+        self.draw_cell()
         
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]: 
                 f_ = self.cell.translate(self.T1, self.T2, x, y) 
-
-                self.writer.face(f_, dotted = True)
 
                 for s in self.seed: 
                     s = LatticeCoords(s)
@@ -87,17 +99,12 @@ class Tesselate():
                 self.writer.line(s, sk)
                 self.writer.point(sk)
 
-        caption = f"Graphe Étoile du pavage {self.tess_id}"
-        label = f"star"
-        self.writer.set_caption(caption)
-        self.writer.set_label(caption)
         self.writer.write()
 
     def draw_edge(self):
         neighbor_arr = {}
 
         self.writer.face(self.cell, dotted = True)
-        
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]: 
                 for s in self.seed: 
@@ -114,11 +121,6 @@ class Tesselate():
             if str(sk.w) in neighbor_arr:
                 self.writer.line(s, sk)
 
-        caption = f"Squelette du pavage {self.tess_id} construit avec le voisinage immédiat"
-        label = "edge"
-        
-        self.writer.set_caption(caption)
-        self.writer.set_label(caption)
         self.writer.write()
 
     def tesselate_face(self):
@@ -145,7 +147,7 @@ class Tesselate():
           for i in range(len(S) - 1):
             h = 6 - (S[i+1]-S[i]);
             m = 12/h;
-            faces.append(Face.generate(s, S[i], m))
+            faces.append(Face.generate(s, S[i], m, sin_mode = self.sin_mode, assym_mode = self.assym_angle, separated_site_mode = self.separated_site_mode))
         
         self.fill_neighbor(faces)
         return faces
@@ -178,15 +180,29 @@ class Tesselate():
             j_max = max(j_max, z_.imag)
 
         i_min = math.floor(i_min - 1)
-        i_max = math.ceil(i_max + 1)
+        i_max = math.ceil(i_max + 2)
         j_min = math.floor(j_min - 1)
-        j_max = math.ceil(j_max + 1)
-        
-        print(i_min, i_max, j_min, j_max)
+        j_max = math.ceil(j_max + 2)
         
         return i_min, i_max, j_min, j_max
 
-    def draw_tesselation(self, x, angle = None, show_underlying = False, sin = False, assym = False, separated_site = False):
+    def set_sin_mode(self, sin = False):
+        self.sin_mode = sin 
+
+    def set_angle(self, angle = False):
+        self.angle = angle 
+        self.writer.set_band_angle(angle)
+
+    def set_assym_angle(self, angle = False):
+        self.assym_angle = angle 
+
+    def set_show_underlying(self, show_underlying = False):
+        self.show_underlying = show_underlying 
+
+    def set_separated_site_mode(self, separated_site = False):
+        self.separated_site_mode = separated_site
+
+    def draw_tesselation(self):
         faces = self.tesselate_face()
         i_min, i_max, j_min, j_max = self.find_corners()
         dot = False
@@ -195,76 +211,40 @@ class Tesselate():
             i_max =  2
             j_min = -1
             j_max =  2
+            self.draw_cell()
 
         tess_arr = []
         for i in range(i_min, i_max): 
             for j in range(j_min, j_max): 
-                if self.show_base:
-                    f_ = self.cell.translate(self.T1, self.T2, i, j) 
-                    self.writer.face(f_, dotted = True)
-
                 for f in faces:
                     f_ = f.translate(self.T1, self.T2, i, j)
                     f_ = f_.scale(self.writer.n_tiles)
-                    if show_underlying:
-                        self.writer.face(f_)
-                        dot = True
-                   # if angle:
-                    f_ = f_.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site)
-                    tess_arr.append(f_)
-                    self.writer.face(f_, dotted = dot)
-
+                    if self.show_underlying:
+                        self.writer.face(f_, dotted = True)
+                    if self.angle:
+                        f_ = f_.ray_transform(self.angle)
+                    self.writer.face(f_)
 
         caption = f"Pavage ${self.tess_id}$" 
-        if assym: 
+        if self.angle and not self.assym_angle: 
+            caption += f", avec $\\theta \\approx {round(self.angle, 3)}$"
+        if self.separated_site_mode: 
             caption += ", sites séparés"
-        if sin:
-            caption += ", angle paramétrisé"
+        if self.sin_mode == "sin":
+            caption += ", angle paramétrisé (sinus)"
+        if self.sin_mode == "perlin":
+            caption += ", angle paramétrisé (bruit de Perlin)"
+        if self.assym_angle:
+            caption += f", angles assymétrique $\\theta_0 \\approx {round(self.angle, 3)}, \\theta_1 \\approx {round(self.assym_angle, 3)}$"
+        if self.writer.lacing_mode:
+            caption += ", entrelacements"
+        if self.writer.bands_mode:
+            caption += ", bandeaux"
 
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
         self.writer.write()
         return tess_arr
-
-    def draw_n_ray(self, n_iter, angle = np.random.uniform(0, np.pi/2), sin = False, assym = False, separated_site = False):
-        #Recursive application
-        faces = self.tesselate_face()
-        i_min, i_max, j_min, j_max = self.find_corners()
-
-        tess_arr = []
-        for i in range(i_min, i_max): 
-            for j in range(j_min, j_max): 
-                for f in faces:
-                    f_ = f.translate(self.T1, self.T2, i, j)
-                    f_ = f_.scale(self.writer.n_tiles)
-                    f_ = f_.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site)
-                    tess_arr.append(f_)
-
-        for i in range(n_iter):
-            angle = np.random.uniform(0, np.pi/2)
-            buff = []
-            for f in tess_arr:
-                buff.append(f.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site))
-            tess_arr = buff
-        
-        for f in tess_arr:
-            self.writer.face(f)
-            
-        caption = f"Pavage ${self.tess_id}$" 
-        if assym: 
-            caption += ", angles assymétrique"
-        if sin:
-            caption += ", angle paramétrisé"
-        if separated_site:
-            caption += ", site séparé"
-        if n_iter > 0:
-            caption += f", application récursive ({n_iter + 1} fois)"
-
-        self.writer.set_caption(caption)
-        self.writer.set_label(caption)
-        self.writer.write()
-        return tess_arr
-
 
     def set_tesselation(self, tess, tess_id):
         self.tess = tess

@@ -6,23 +6,45 @@ import math
 import random
 
 class Penrose():
-    def __init__(self, writer, tile = "P2", level = 7):
+    def __init__(self, writer, tile = "P2", level = 8, sin_mode = False, assym = False, separated_site = False):
         self.writer = writer
         self.level = level
         self.tile = tile
+        self.assym_angle = assym
+        self.sin_mode = sin_mode 
+        self.separated_site_mode = separated_site 
+        print(tile)
         if tile == "P2":
             self.pen = P2Penrose.initialise(0)
         else:
             self.pen = P3Penrose.initialise(0)
-    
-    def draw_n_ray(self, n_iter, angle = np.random.uniform(0, np.pi/2), sin = False, assym = False, separated_site = False, skip_face = False):
+            
+    def set_lacing_mode(self, lacing = False):
+        self.lacing_mode = lacing
+
+    def set_sin_mode(self, sin = False):
+        self.sin_mode = sin 
+
+    def set_angle(self, angle = False):
+        self.angle = angle 
+
+    def set_assym_angle(self, angle = False):
+        self.assym_angle = angle 
+
+    def set_show_underlying(self, show_underlying = False):
+        self.show_underlying = show_underlying 
+
+    def set_separated_site_mode(self, separated_site = False):
+        self.separated_site_mode = separated_site
+
+    def draw_tesselation(self):
         for i in range(self.level):
             triangle = []
             for p in self.pen:
                 triangle.extend(p.inflate())
             self.pen = triangle   
 
-        if angle:
+        if self.angle:
             for i, p in enumerate(self.pen):
                 for p_ in self.pen[i + 1:] :
                     if (p.A.isclose(p_.A) and p.C.isclose(p_.C)) or (p.A.isclose(p_.C) and p.C.isclose(p_.A)): 
@@ -32,12 +54,9 @@ class Penrose():
                             s += (vertices[(i + 1)%4].x - vertices[i].x)/(vertices[(i + 1) % 4].y + vertices[i].y)
                         if s < 0:
                             vertices = vertices[::-1]
-                        f = Face(vertices)
-
-                        #f_ = f.ray_transform(angle).scale(1.8).translate_euclidean(EuclideanCoords([-800, -950]))
-                        f_ = f.ray_transform(angle, assym = assym, sin = sin, separated_site = separated_site)
-                        #f_ = f_.rotate(x/(30 * 10) * 2 * np.pi, 0)
-                        self.writer.face(f_)
+                        f = Face(vertices, sin_mode = self.sin_mode, assym_mode = self.assym_angle, separated_site_mode = self.separated_site_mode)
+                        f_ = f.ray_transform(self.angle)
+                        self.writer.face(f_, outline = False)
                         break
 
         else:
@@ -46,13 +65,13 @@ class Penrose():
                     self.writer.line(l.beg_pt, l.end_pt)
                 self.writer.line(l.beg_pt, l.end_pt)
                         
-        caption = f"Pavage ${self.tile}$" 
-        if assym: 
-            caption += ", angles assymétrique"
-        if sin:
+        caption = f"Pavage ${self.tile}$, avec $\\theta = {round(self.angle, 3)}$" 
+        if self.separated_site_mode: 
+            caption += ", sites séparés"
+        if self.sin_mode:
             caption += ", angle paramétrisé"
-        if separated_site:
-            caption += ", site séparé"
+        if self.assym_angle:
+            caption += ", angle assymétrique"
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
         self.writer.write()

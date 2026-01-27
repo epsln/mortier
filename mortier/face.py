@@ -1,15 +1,24 @@
 from coords import LatticeCoords, EuclideanCoords, Line
 import math
+import random
+import noise
 import numpy as np
 
 class Face():
-    def __init__(self, vertices, barycenter = None):
-        self.vertices = vertices
+    def __init__(self, vertices, mid_points = [], barycenter = None, sin_mode = False, assym_mode = False, separated_site_mode = False):
+        self.vertices = vertices 
+        self.mid_points = mid_points
         self.barycenter = barycenter 
+        self.sin_mode = sin_mode 
+        self.assym_mode = assym_mode
+
+        self.separated_site_mode = separated_site_mode
+        if self.separated_site_mode:
+            self.separated_site = self.separated_site_mode 
         self.neighbors = []
 
     @staticmethod
-    def generate(v, k, m): 
+    def generate(v, k, m, sin_mode = False, assym_mode = False, separated_site_mode = False): 
         wpow = []
         wpow.append(LatticeCoords([1, 0, 0, 0]))
         wpow.append(LatticeCoords([0, 1, 0, 0]))
@@ -26,6 +35,7 @@ class Face():
 
         vertices = [v, v.translate(wpow[k])]
         
+        
         for i in range(2, int(m)): 
           k = int((k + 12/m) % 12)
           vertices.append(vertices[i - 1].translate(wpow[k]))
@@ -40,7 +50,7 @@ class Face():
         if m == 12: #Dodecagon
             d = v.translate(wpow[(k + 2) % len(wpow)].translate(wpow[(k + 3) % len(wpow)]))
 
-        return Face(vertices, d) 
+        return Face(vertices, sin_mode = sin_mode, assym_mode = assym_mode, separated_site_mode = separated_site_mode) 
 
     def translate(self, T1, T2, i, j):
       vertices = []
@@ -51,16 +61,17 @@ class Face():
 
       if self.barycenter:
           b = self.barycenter.translate(TIJ)
-          return Face(vertices, b)
+          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
       else:
-          return Face(vertices)
+          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
     def translate_euclidean(self, T1):
       vertices = []
       for v in self.vertices:
           vertices.append(v.translate(T1))
 
-      return Face(vertices)
+      return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+
     def scale(self, n):
       vertices = []
       for v in self.vertices:
@@ -68,24 +79,31 @@ class Face():
 
       if self.barycenter:
           b = self.barycenter.scale(n)
-          return Face(vertices, b)
+          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
       else:
-          return Face(vertices)
+          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
-    def rotate(self, theta, x):
+    def rotate(self, theta):
         vertices = []
 
         for v in self.vertices:
-            v_r = v.rotate_around(1920/2, 1080/2, theta)
-            vertices.append(v_r.translate(EuclideanCoords([0, 0])))
-        return Face(vertices)
+            v = EuclideanCoords([v.x, v.y])
+            v_r = v.rotate(theta)
+            vertices.append(v_r)
+        return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
     def add_neigbors(self, face):
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
-    def ray_transform(self, angle, sin = False, assym = False, separated_site = False):
+    def ray_transform(self, angle):
         vertices = []
-
+        mid_points = []
+        
+        if self.sin_mode == "sin":
+            angle += np.sin(self.vertices[0].y/2)/2
+        elif self.sin_mode == "perlin":
+            angle += noise.pnoise2(self.vertices[0].x / 8, self.vertices[0].y / 5,  octaves=3) * 2 - 0.5
+            angle = np.clip(angle, 0.1, 1.3)
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
             p0 = self.vertices[i]
@@ -98,19 +116,19 @@ class Face():
             p_mid_0 = side_0.get_midpoint()
             p_mid_1 = side_1.get_midpoint() 
 
-            if separated_site:
-                p_mid_0 = side_0.get_pq_point(1, 3)
-                p_mid_1 = side_1.get_pq_point(2, 3) 
-            if sin:
-                angle += np.sin(p_mid_0.x/200)/12
-                #angle = np.clip(angle, 0, np.pi/2)
+            if self.separated_site_mode:
+                p_mid_0 = side_0.get_pq_point(1, self.separated_site)
+                p_mid_1 = side_1.get_pq_point(self.separated_site - 1, self.separated_site) 
+            #if self.sin_mode:
+            #    angle_0 = side_0.heading() + angle + np.sin(p_mid_0.y/5)/10
+            #    angle_1 = side_1.heading() - angle + np.sin(p_mid_0.y/5)/10
             #angle_0 = side_0.heading() + angle
+            #else:
             angle_0 = side_0.heading() + angle
             angle_1 = side_1.heading() - angle
             
-            
-            if assym:
-                angle_1 = side_1.heading() - assym 
+            if self.assym_mode:
+                angle_1 = side_1.heading() - self.assym_mode
             
             end_pt_0 = EuclideanCoords([np.cos(angle_0),  np.sin(angle_0)]) 
             end_pt_1 = EuclideanCoords([np.cos(angle_1), np.sin(angle_1)]) 
@@ -126,10 +144,16 @@ class Face():
             
             x = EuclideanCoords([p_mid_0.x + (t * s0.x), p_mid_0.y + (t * s0.y)])
             vertices.append(p_mid_0)
+            mid_points.append(p_mid_0)
             vertices.append(x)
+            if self.separated_site_mode:
+                vertices.append(p_mid_1)
+                mid_points.append(p_mid_1)
+            #if p_mid_0.translate(x.scale(-1)).len() > 5:#Trying to remove degen case...
+            #    vertices = [EuclideanCoords([-100, -100])]
 
         vertices.append(vertices[0])
-        return Face(vertices)
+        return Face(vertices, mid_points = mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
             
     def __str__(self):
       t = []
@@ -148,13 +172,18 @@ class P2Penrose(Face):
     @staticmethod
     def initialise(code = 2):
         p0 = -0
-        l = 2500 
-        y = 1000
+        l = 70 
+        y = -0
         A = EuclideanCoords([p0, y])
         B = EuclideanCoords([l, y]) 
-        C = EuclideanCoords([(l)/2, y - np.tan(0.62) * (l)/2])
+        C = EuclideanCoords([(l)/2, y + np.tan(0.62) * (l)/2])
         C0 = EuclideanCoords([(l)/2, y + np.tan(0.62) * (l)/2])
-        return [P2Penrose(A, B, C, 2), P2Penrose(A, B, C0, 2)]
+        C1 = EuclideanCoords([l * np.cos(72/360 * 2 * np.pi), l * np.sin(72/360 * 2 * np.pi)])
+        A = A.translate(EuclideanCoords([-15, 0]))
+        B = B.translate(EuclideanCoords([-15, 0]))
+        C = C.translate(EuclideanCoords([-15, 0]))
+        C1 = C1.translate(EuclideanCoords([-5, 0]))
+        return [P2Penrose(A, B, C, 3), P2Penrose(A, C1, C, 2)]
 
     def __str__(self):
         return f"{self.A} -> {self.B} -> {self.C} ({self.code})"
@@ -191,4 +220,61 @@ class P2Penrose(Face):
 
             result.append(P2Penrose(self.A, p0, self.C, 0))
             result.append(P2Penrose(self.B, self.C, p0, 3))
+            return result 
+
+class P3Penrose(P2Penrose):
+    def __init__(self, A, B, C, code):
+        self.A = A 
+        self.B = B 
+        self.C = C 
+        self.edges = [Line(A, B), Line(B, C)]
+        self.code = code
+
+    @staticmethod
+    def initialise(code = 2):
+        p0 = -0
+        l = 60 
+        y =  0
+        A = EuclideanCoords([p0, y])
+        B = EuclideanCoords([(l)/2, y - np.tan(0.62) * (l)/2])
+        B0 = EuclideanCoords([(l)/2, y + np.tan(0.62) * (l)/2])
+        C = EuclideanCoords([l, y]) 
+        A =  A.translate(EuclideanCoords([-5, 2]))
+        B =  B.translate(EuclideanCoords([-5, 2]))
+        B0 =B0.translate(EuclideanCoords([-5, 2]))
+        C =  C.translate(EuclideanCoords([-5, 2]))
+        return [P3Penrose(A, B, C, 2), P3Penrose(A, B0, C, 2)]
+
+    def inflate(self):
+        result = []
+        if self.code == 0:
+            p0 = Line(self.B, self.A).get_pq_point(2, (1 + np.sqrt(5)))
+
+            result.append(P3Penrose(p0, self.C, self.A, 0))
+            result.append(P3Penrose(self.B, p0, self.C, 3))
+            return result 
+
+        if self.code == 1:
+            p0 = Line(self.B, self.C).get_pq_point(2, (1 + np.sqrt(5)))
+
+            result.append(P3Penrose(self.C, self.A, p0, 1))
+            result.append(P3Penrose(self.A, p0, self.B,  2))
+            return result 
+
+        if self.code == 2:
+            p0 = Line(self.A, self.B).get_pq_point(2, (1 + np.sqrt(5)))
+            p1 = Line(self.A, self.C).get_pq_point(2, (1 + np.sqrt(5)))
+
+            result.append(P3Penrose(self.A, p0, p1, 3))
+            result.append(P3Penrose(p0, p1, self.B, 0))
+            result.append(P3Penrose(self.C, p1, self.B, 2))
+            return result 
+
+        if self.code == 3:
+            p0 = Line(self.C, self.B).get_pq_point(2, (1 + np.sqrt(5)))
+            p1 = Line(self.C, self.A).get_pq_point(2, (1 + np.sqrt(5)))
+
+            result.append(P3Penrose(self.B, p1, self.A, 3))
+            result.append(P3Penrose(self.B, p1, p0, 1))
+            result.append(P3Penrose(p1, p0, self.C, 2))
             return result 

@@ -1,34 +1,31 @@
 from .writer import Writer 
+from mortier.coords import EuclideanCoords
 from PIL import Image, ImageDraw
+import random
 import numpy as np
 
 class BitmapWriter(Writer):
-    def __init__(self, filename, size, n_tiles = 1):
-        super().__init__(filename, size, n_tiles)
+    def __init__(self, filename, size, n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
+        super().__init__(filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width)
         self.image = Image.new("RGB", (size[2], size[3]))
         self.output = ImageDraw.Draw(self.image)
         
     def point(self, p):
         self.output.point((p.x, p.y))
 
-    def line(self, p0, p1, fill = (255, 255, 255)):
-        #if not self.in_bounds(p0) or not self.in_bounds(p1):
-        #    return
-        self.output.line([(p0.x, p0.y), (p1.x, p1.y)], fill = fill)
-
-    def face(self, face, dotted = False):
-        t = []
-        
-        
-        if dotted:
-            fill = (255, 0, 0)
-        else:
-            fill = (255, 255, 255)
-        
-        for i in range(len(face.vertices)):
-            self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)], fill = fill)
-            #self.point(face.vertices[i])
-            #self.point(face.vertices[(i + 1) % len(face.vertices)])
+    def line(self, p0, p1, color = (255, 255, 255)):
+        if color == "red":
+            color = (255, 0, 0)
+        if color == "green":
+            color = (0, 255, 0)
+        if color == "green":
+            color = (0, 0, 255)
+        if color == "cyan":
+            color = (0, 128, 200)
+        if color == "cyan":
+            color = (255, 227, 0)
+        N = EuclideanCoords([-(p1.y - p0.y), (p1.x - p0.x)]).normalise().scale(5)
+        self.output.line([(p0.x, p0.y), (p1.x, p1.y)], fill = color, width = 1)
 
     def write(self):
         self.image.save(self.filename) 

@@ -10,7 +10,6 @@ class TikzWriter(Writer):
         self.draw_borders = draw_borders
         self.set_bounds(size) 
         self.color = "black"
-        self.bands_width = 1
         self.seen_line = {}
         
     def point(self, p):
@@ -23,25 +22,34 @@ class TikzWriter(Writer):
         if self.in_bounds(p0) and self.in_bounds(p1):
             self.output.append(f"\\draw [draw={color}{pattern}] ({np.round(p0.x, 2)}, {np.round(p0.y, 2)}) -- ({np.round(p1.x, 2)}, {np.round(p1.y, 2)});")
 
-    def face(self, face, dotted = False, outline = False):
+    def face(self, face, dotted = False, outline = False, lacing = False, bands = False):
         t = []
         pattern = ""
-        if dotted:
-            pattern = ",dotted"
+
 
         for p in face.mid_points:
             if str(p) not in self.intersect_points:
                 self.intersect_points[str(p)] = np.random.randint(2, size = 2) 
             elif self.intersect_points[str(p)].sum() % 2 == 0:
-                self.intersect_points[str(p)] = np.array([(x + 1) % 2 for x in self.intersect_points[str(p)]])
-        if self.lacing_mode or self.bands_mode:
-            self.draw_outline_lines(face.vertices, face.mid_points)
+                self.intersect_points[str(p)] = [(x + 1) % 2 for x in self.intersect_points[str(p)]] 
+
+        if lacing:
+            self.draw_outline_lines(face.vertices, face.mid_points, lacing["angle"], width = 0.2, bands = bands)
         else:
             for i, v in enumerate(face.vertices):
+                seen_str_0 = f"({np.round(v.x, 2)}, {np.round(v.y, 2)})" 
+                if i < len(face.vertices):
+                    seen_str_1 = f"({np.round(face.vertices[i + 1].x, 2)}, {np.round(v.y, 2)})" 
+                if seen_str_0 in self.seen_line and seen_str_1 in self.seen_line:
+                    continue
+                else:
+                    self.seen_line[seen_str_0] = True
+                    self.seen_line[seen_str_1] = True
+
                 if not self.in_bounds(v):
-                    t0 = '--'.join(t)
-                    self.output.append(f"\\draw[{self.color} {pattern}] {t0};")
-                    t = []
+                #    t0 = '--'.join(t)
+                #    self.output.append(f"\\draw[{self.color} {pattern}] {t0};")
+                #    t = []
                     continue
                 t.append(f"({np.round(v.x, 2)}, {np.round(v.y, 2)})")
             if dotted: #We are probably drawing the base cell so connect all sides (WRONG)
@@ -61,9 +69,9 @@ class TikzWriter(Writer):
 
     def set_bounds(self, size):
         if self.draw_borders:
-            self.header += "\\draw (0, 0) rectangle + (" + str(size[2] - 2) + "," + str(size[3] - 2)+");\n"
+            self.header += "\\draw (0, 0) rectangle + (" + str(size[2] - 1) + "," + str(size[3] - 1)+");\n"
         self.header += "\\clip ("+ str(size[0] + 1) + ","+ str(size[1] + 1) + ")"
-        self.header += "rectangle + (" + str(size[2] - 2) + "," + str(size[3] - 2)+");\n"
+        self.header += "rectangle + (" + str(size[2] - 1) + "," + str(size[3] - 1)+");\n"
 
     def no_clip(self):
         self.header = "\\begin{tikzpicture}\n"
@@ -85,5 +93,4 @@ class TikzWriter(Writer):
             n_tiles = self.n_tiles
         super().__init__(filename, size, n_tiles)
         self.set_bounds(size) 
-        self.seen_line = {}
         self.output = []

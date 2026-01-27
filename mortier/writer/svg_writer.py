@@ -3,8 +3,8 @@ import svgwrite
 from svgwrite import cm, mm   
 
 class SVGWriter(Writer):
-    def __init__(self, filename, size, n_tiles = 1):
-        super().__init__(filename, size, n_tiles)
+    def __init__(self, filename, size, n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
+        super().__init__(filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width)
         svg_size = (
             size[2],
             size[3],
@@ -16,7 +16,9 @@ class SVGWriter(Writer):
         self.dwg.viewbox(width=size[2], height=size[3])
 
 
-    def line(self, p0, p1, color):
+    def line(self, p0, p1, color = "black"):
+        if not self.in_bounds(p0) and not self.in_bounds(p1):
+            return
         self.dwg.add(
           self.dwg.line(
             start = (p0.x, p0.y),
@@ -26,18 +28,7 @@ class SVGWriter(Writer):
             stroke_width = 0.5
             )
           )
-
-    def face(self, face, color = "black", stroke_width = 1):
-        f = [(f.x, f.y) for f in face.vertices]
-        self.dwg.add(
-          self.dwg.polygon(
-            points=f,
-            fill = "none",
-            stroke= color,
-            stroke_width = stroke_width 
-            )
-        )        
-
+#
     def write(self):
         self.dwg.save()
 

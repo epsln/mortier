@@ -8,7 +8,7 @@ from multiprocessing import Pool
 
 from tesselation import Tesselate 
 from penrose import Penrose 
-from writer import BitmapWriter, SVGWriter
+from writer import BitmapWriter, SVGWriter, TikzWriter
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -21,41 +21,40 @@ if config['tesselation']['id'] != "random":
 else:
     tess_id = random.choice(list(js.keys()))
 
+tess_id = "t3003"
+tess_id = random.choice(list(js.keys()))
 tess = js[tess_id]
-size = (0, 0, int(config['svg']['size_x']), int(config['svg']['size_y']))
+size = (0, 0, int(config['svg']['size_x']), int(config['svg']['size_y'])) 
+tess_id = random.choice(list(js.keys()))
 
-writer = BitmapWriter("images/images_0.png", size, n_tiles = config['tesselation']['n_tiles'])
-#writer = SVGWriter("images/images_0.png", size, n_tiles = config['tesselation']['n_tiles'])
-tesselation = Tesselate(writer, tess, tess_id)
-
-#for i in range(50):
-#    tess_id = random.choice(list(js.keys()))
-#    tess = js[tess_id]
-#    writer.new(f"images/recursive_{i}_iters.png")
-#    tesselation.set_tesselation(tess, tess_id)
-#    tesselation.draw_n_ray(np.random.randint(3), np.random.uniform(0.1, np.pi/2))
-
-#tess_id = random.choice(list(js.keys()))
-#tess = js[tess_id]
-#for i in range(30 * 15):
-#    #tess_id = random.choice(list(js.keys()))
-#    #tess = js["t3003"]
-#    writer.new(f"images/images_{i}.png")
-#    tesselation.set_tesselation(tess, tess_id)
-#    angle =  (np.sin(i/(30 * 7.5) * 2 * np.pi)/2 + 0.5) * (np.pi/2 - 0.01)
-#    tesselation.draw_tesselation(i, angle, sin = False)
-    #tess_id = random.choice(list(js.keys()))
-    #tess = js["t3003"]
-
-#def f(i):
-i = 0
-writer = SVGWriter("penrose_red", size, n_tiles = config['tesselation']['n_tiles'])
-writer = BitmapWriter("penrose_red.png", size, n_tiles = config['tesselation']['n_tiles'])
-tesselation = Tesselate(writer, tess, tess_id)
-#writer.new(f"images/pen_{i}.png")
-penrose = Penrose(writer)
-angle =  (np.sin(i/(30 * 5) * 2 * np.pi)/2 + 0.5) * np.pi/8
-penrose.draw(9, angle, i)
-
-#with Pool(8) as p:
-#    p.map(f, [i for i in range(450)])
+for i in range(300):
+    tess = js[tess_id]
+    size = (0, 0, int(config['svg']['size_x']), int(config['svg']['size_y'])) 
+    writer = BitmapWriter(f"images/img_{i}.png", size, n_tiles = 100, lacing_mode = False, bands_width = 8) 
+    #writer = BitmapWriter(f"images/img_{i}.png", size, n_tiles = 350, lacing_mode = False, bands_width = 16) 
+    #writer = SVGWriter(f"images/img_{i}", size, n_tiles = 20, lacing_mode = True, bands_width = 4) 
+    tesselation = Tesselate(writer, tess, tess_id)
+    tesselation.set_tesselation(tess, tess_id)
+    angle = np.random.uniform(low = 0.1, high = np.pi/2) 
+    #if np.random.random() > 0.2:
+    #    assym = np.random.uniform(low=0.1, high=angle)
+    #else:
+    #    assym = False
+    #if np.random.random() > 0.2:
+    #    separated_site = np.random.randint(3, 10) 
+    #else:
+    #    separated_site = False
+    #tesselation.draw_n_ray(0, angle, assym = assym, separated_site = separated_site)
+    tesselation.set_sin_mode("perlin")
+    angle = np.random.uniform(low = 0.2, high = np.pi/2)
+    angle = 0.4 
+    print(f"Computing image {i} (tess_id: {tess_id} angle: {angle})")
+    tesselation.set_angle(angle)
+    tesselation.draw_tesselation(i)
+    #tesselation.draw_tesselation(0.5)
+#writer.new(f"figures/penrose_P2.tex")
+#penrose = Penrose(writer, "P2")
+#penrose.draw(8)
+#writer.new(f"figures/penrose_P3.tex")
+#penrose = Penrose(writer, "P3")
+#penrose.draw(8)
