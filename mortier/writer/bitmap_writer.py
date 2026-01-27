@@ -9,7 +9,8 @@ class BitmapWriter(Writer):
         super().__init__(filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width)
         self.image = Image.new("RGB", (size[2], size[3]))
         self.output = ImageDraw.Draw(self.image)
-        
+
+       
     def point(self, p):
         self.output.point((p.x, p.y))
 
@@ -24,7 +25,6 @@ class BitmapWriter(Writer):
             color = (0, 128, 200)
         if color == "cyan":
             color = (255, 227, 0)
-        N = EuclideanCoords([-(p1.y - p0.y), (p1.x - p0.x)]).normalise().scale(5)
         self.output.line([(p0.x, p0.y), (p1.x, p1.y)], fill = color, width = 1)
 
     def write(self):
