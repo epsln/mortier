@@ -222,7 +222,7 @@ class Tesselate():
                     if self.show_underlying:
                         self.writer.face(f_, dotted = True)
                     if self.angle:
-                        f_ = f_.ray_transform(self.angle)
+                        f_ = f_.ray_transform(self.angle, self.writer.size)
                     self.writer.face(f_)
 
         caption = f"Pavage ${self.tess_id}$" 

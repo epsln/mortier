@@ -1,4 +1,6 @@
 from coords import LatticeCoords, EuclideanCoords, Line
+import math_utils
+
 import math
 import random
 import noise
@@ -95,15 +97,11 @@ class Face():
     def add_neigbors(self, face):
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
-    def ray_transform(self, angle):
+    def ray_transform(self, angle, bounds = []):
         vertices = []
         mid_points = []
         
-        if self.sin_mode == "sin":
-            angle += np.sin(self.vertices[0].y/2)/2
-        elif self.sin_mode == "perlin":
-            angle += noise.pnoise2(self.vertices[0].x / 8, self.vertices[0].y / 5,  octaves=3) * 2 - 0.5
-            angle = np.clip(angle, 0.1, 1.3)
+        angle = math_utils.angle_parametrisation(self.vertices[0], self.sin_mode, bounds) 
 
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
