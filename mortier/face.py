@@ -7,11 +7,11 @@ import noise
 import numpy as np
 
 class Face():
-    def __init__(self, vertices, mid_points = [], barycenter = None, sin_mode = False, assym_mode = False, separated_site_mode = False):
+    def __init__(self, vertices, mid_points = [], barycenter = None, param_mode = False, assym_mode = False, separated_site_mode = False):
         self.vertices = vertices 
         self.mid_points = mid_points
         self.barycenter = barycenter 
-        self.sin_mode = sin_mode 
+        self.param_mode = param_mode 
         self.assym_mode = assym_mode
 
         self.separated_site_mode = separated_site_mode
@@ -20,7 +20,7 @@ class Face():
         self.neighbors = []
 
     @staticmethod
-    def generate(v, k, m, sin_mode = False, assym_mode = False, separated_site_mode = False): 
+    def generate(v, k, m, param_mode = False, assym_mode = False, separated_site_mode = False): 
         wpow = []
         wpow.append(LatticeCoords([1, 0, 0, 0]))
         wpow.append(LatticeCoords([0, 1, 0, 0]))
@@ -52,7 +52,7 @@ class Face():
         if m == 12: #Dodecagon
             d = v.translate(wpow[(k + 2) % len(wpow)].translate(wpow[(k + 3) % len(wpow)]))
 
-        return Face(vertices, sin_mode = sin_mode, assym_mode = assym_mode, separated_site_mode = separated_site_mode) 
+        return Face(vertices, param_mode = param_mode, assym_mode = assym_mode, separated_site_mode = separated_site_mode) 
 
     def translate(self, T1, T2, i, j):
       vertices = []
@@ -63,16 +63,16 @@ class Face():
 
       if self.barycenter:
           b = self.barycenter.translate(TIJ)
-          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
       else:
-          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
     def translate_euclidean(self, T1):
       vertices = []
       for v in self.vertices:
           vertices.append(v.translate(T1))
 
-      return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+      return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
     def scale(self, n):
       vertices = []
@@ -81,9 +81,9 @@ class Face():
 
       if self.barycenter:
           b = self.barycenter.scale(n)
-          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
       else:
-          return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
     def rotate(self, theta):
         vertices = []
@@ -92,7 +92,7 @@ class Face():
             v = EuclideanCoords([v.x, v.y])
             v_r = v.rotate(theta)
             vertices.append(v_r)
-        return Face(vertices, mid_points = self.mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+        return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
 
     def add_neigbors(self, face):
         self.neighbors = [f for f in face if f.vertices != self.vertices]
@@ -101,7 +101,7 @@ class Face():
         vertices = []
         mid_points = []
         
-        angle = math_utils.angle_parametrisation(self.vertices[0], self.sin_mode, bounds, frame_num) 
+        angle = math_utils.angle_parametrisation(self.vertices[0], self.param_mode, bounds, frame_num) 
 
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
@@ -149,7 +149,7 @@ class Face():
                     mid_points.append((p_mid_1, angle))
 
         vertices.append(vertices[0])
-        return Face(vertices, mid_points = mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+        return Face(vertices, mid_points = mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
             
     def __str__(self):
       t = []
