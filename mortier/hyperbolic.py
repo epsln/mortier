@@ -1,21 +1,20 @@
 from coords import EuclideanCoords
 from math_utils import map_num
 from face import Face
+from tesselation import Tesselate 
 
-import matplotlib.pyplot as plt
 import numpy as np
 from hypertiling import HyperbolicTiling
 from hypertiling.graphics.plot import plot_tiling, convert_polygons_to_patches
 
-class HyperbolicTesselate:
-    def __init__(self, writer, p, q, n_layers = 5):
+class HyperbolicTesselate(Tesselate):
+    def __init__(self, writer, p, q, n_layers = 7, angle = None):
         self.writer = writer
         self.p = p
         self.q = q
-        self.n_layers = 5
+        self.n_layers = 6 
         self.T = HyperbolicTiling(self.p, self.q, self.n_layers)
-        self.fig = plt.figure(figsize=(8,8), dpi = 300)
-        self.figname = "hypertest.png"
+        self.angle = angle
         self.faces = self.extract_faces()
 
     def extract_faces(self):
@@ -31,6 +30,9 @@ class HyperbolicTesselate:
 
     def draw_tesselation(self, frame_num = 0): 
         for f in self.faces:
-            self.writer.face(f)
+            if self.angle:
+                f_ = f.ray_transform(self.angle, self.writer.size, frame_num)
+                self.writer.face(f_)
+            
         self.writer.write()
 
