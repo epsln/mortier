@@ -100,8 +100,10 @@ class Face():
     def ray_transform(self, angle, bounds = [], frame_num = 0):
         vertices = []
         mid_points = []
-        
-        angle = math_utils.angle_parametrisation(self.vertices[0], self.param_mode, bounds, frame_num) 
+            
+        if self.param_mode:
+            angle = math_utils.angle_parametrisation(self.vertices[0], self.param_mode, bounds, frame_num) 
+
 
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
@@ -118,7 +120,6 @@ class Face():
             if self.separated_site_mode:
                 p_mid_0 = side_0.get_pq_point(1, self.separated_site)
                 p_mid_1 = side_1.get_pq_point(self.separated_site - 1, self.separated_site) 
-
             angle_0 = side_0.heading() + angle
             angle_1 = side_1.heading() - angle
             
