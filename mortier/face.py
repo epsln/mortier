@@ -118,11 +118,7 @@ class Face():
             if self.separated_site_mode:
                 p_mid_0 = side_0.get_pq_point(1, self.separated_site)
                 p_mid_1 = side_1.get_pq_point(self.separated_site - 1, self.separated_site) 
-            #if self.sin_mode:
-            #    angle_0 = side_0.heading() + angle + np.sin(p_mid_0.y/5)/10
-            #    angle_1 = side_1.heading() - angle + np.sin(p_mid_0.y/5)/10
-            #angle_0 = side_0.heading() + angle
-            #else:
+
             angle_0 = side_0.heading() + angle
             angle_1 = side_1.heading() - angle
             
@@ -138,10 +134,10 @@ class Face():
             s0 = EuclideanCoords([p_mid_0.x - end_pt_0.x, p_mid_0.y - end_pt_0.y])
             s1 = EuclideanCoords([p_mid_1.x - end_pt_1.x, p_mid_1.y - end_pt_1.y])
 
-            #s = (-s0.y * (p_mid_0.x - p_mid_1.x) + s0.x * (p_mid_0.y - p_mid_1.y)) / (-s1.x * s0.y + s0.x * s1.y)
             t = ( s1.x * (p_mid_0.y - p_mid_1.y) - s1.y * (p_mid_0.x - p_mid_1.x)) / (-s1.x * s0.y + s0.x * s1.y)
             
             x = EuclideanCoords([p_mid_0.x + (t * s0.x), p_mid_0.y + (t * s0.y)])
+
             vertices.append(p_mid_0)
             mid_points.append((p_mid_0, angle))
             vertices.append(x)
@@ -151,8 +147,6 @@ class Face():
                     mid_points.append((p_mid_1, assym_mode))
                 else:
                     mid_points.append((p_mid_1, angle))
-            #if p_mid_0.translate(x.scale(-1)).len() > 5:#Trying to remove degen case...
-            #    vertices = [EuclideanCoords([-100, -100])]
 
         vertices.append(vertices[0])
         return Face(vertices, mid_points = mid_points, sin_mode = self.sin_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
