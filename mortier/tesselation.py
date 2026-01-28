@@ -33,7 +33,7 @@ class Tesselate():
         self.ray_tesselation = False
         self.angle = False
         self.assym_angle = False
-        self.sin_mode = False
+        self.param_mode = False
         self.show_underlying = False
         self.separated_site_mode = False
         self.lacing_mode = False
@@ -147,7 +147,7 @@ class Tesselate():
           for i in range(len(S) - 1):
             h = 6 - (S[i+1]-S[i]);
             m = 12/h;
-            faces.append(Face.generate(s, S[i], m, sin_mode = self.sin_mode, assym_mode = self.assym_angle, separated_site_mode = self.separated_site_mode))
+            faces.append(Face.generate(s, S[i], m, param_mode = self.param_mode, assym_mode = self.assym_angle, separated_site_mode = self.separated_site_mode))
         
         self.fill_neighbor(faces)
         return faces
@@ -186,8 +186,8 @@ class Tesselate():
         
         return i_min, i_max, j_min, j_max
 
-    def set_sin_mode(self, sin = False):
-        self.sin_mode = sin 
+    def set_param_mode(self, mode = False):
+        self.param_mode = mode 
 
     def set_angle(self, angle = False):
         self.angle = angle 
@@ -230,10 +230,12 @@ class Tesselate():
             caption += f", avec $\\theta \\approx {round(self.angle, 3)}$"
         if self.separated_site_mode: 
             caption += ", sites séparés"
-        if self.sin_mode == "sin":
+        if self.param_mode == "sin":
             caption += ", angle paramétrisé (sinus)"
-        if self.sin_mode == "perlin":
+        if self.param_mode == "perlin":
             caption += ", angle paramétrisé (bruit de Perlin)"
+        if self.param_mode == "simplex":
+            caption += ", angle paramétrisé (bruit Simplex)"
         if self.assym_angle:
             caption += f", angles assymétrique $\\theta_0 \\approx {round(self.angle, 3)}, \\theta_1 \\approx {round(self.assym_angle, 3)}$"
         if self.writer.lacing_mode:
