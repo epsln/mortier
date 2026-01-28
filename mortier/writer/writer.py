@@ -155,20 +155,24 @@ class Writer():
             else:
                 end = False
 
-            cut_length, add_length = self.compute_cut_length(self.bands_angle, half_w)
 
             pos_midpoint, neg_midpoint = self.vertex_miter(p_prev, p_curr, p_next, half_w, end)
 
             if str(p_curr) in self.intersect_points:
+                inter_p = self.intersect_points[str(p_curr)]
+                print(inter_p["angle"])
+                cut_length, add_length = self.compute_cut_length(inter_p["angle"], half_w)
                 beg_point = self.offset_segment(p_curr, p_next, cut_length)
-                if self.intersect_points[str(p_curr)][0] == 1:
+                if inter_p['state'][0] == 1:
                     beg_point = self.offset_segment(p_curr, p_next, cut_length)
                 else:
                     beg_point = self.offset_segment(p_curr, p_next, add_length)
 
             elif str(p_next) in self.intersect_points:
+                inter_p = self.intersect_points[str(p_next)]
+                cut_length, add_length = self.compute_cut_length(inter_p["angle"], half_w)
                 end_point = self.offset_segment(p_curr, p_next, cut_length, end_cut = True)
-                if self.intersect_points[str(p_next)][1] == 1:
+                if inter_p['state'][1] == 1:
                     end_point = self.offset_segment(p_curr, p_next, cut_length, end_cut = True)
                 else:
                     end_point = self.offset_segment(p_curr, p_next, add_length, end_cut = True)
@@ -233,9 +237,11 @@ class Writer():
 
         for p, angle in face.mid_points:
             if str(p) not in self.intersect_points:
-                self.intersect_points[str(p)] = np.random.randint(2, size = 2)
-            elif self.intersect_points[str(p)].sum() % 2 == 0:
-                self.intersect_points[str(p)] = [(x + 1) % 2 for x in self.intersect_points[str(p)]] 
+                self.intersect_points[str(p)] = {"state": np.random.randint(2, size = 2),
+                                                 "angle": angle}
+            elif self.intersect_points[str(p)]["state"].sum() % 2 == 0:
+                self.intersect_points[str(p)] = {"state": [(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]],
+                                                 "angle": angle} 
 
         if self.lacing_mode or self.bands_mode:
             self.draw_outline_lines(face.vertices)
