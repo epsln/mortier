@@ -202,7 +202,7 @@ class Tesselate():
     def set_separated_site_mode(self, separated_site = False):
         self.separated_site_mode = separated_site
 
-    def draw_tesselation(self):
+    def draw_tesselation(self, frame_num = 0):
         faces = self.tesselate_face()
         i_min, i_max, j_min, j_max = self.find_corners()
         dot = False
@@ -222,7 +222,7 @@ class Tesselate():
                     if self.show_underlying:
                         self.writer.face(f_, dotted = True)
                     if self.angle:
-                        f_ = f_.ray_transform(self.angle, self.writer.size)
+                        f_ = f_.ray_transform(self.angle, self.writer.size, frame_num)
                     self.writer.face(f_)
 
         caption = f"Pavage ${self.tess_id}$" 
