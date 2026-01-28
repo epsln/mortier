@@ -11,6 +11,7 @@ svgwrite = "^1.4.3"
 numpy = "^2.3.1"
 pillow = "^11.3.0"
 noise = "^1.2.2"
+hypertiling = "^1.4.1"
 
 
 [build-system]
