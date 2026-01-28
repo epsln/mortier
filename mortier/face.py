@@ -97,11 +97,11 @@ class Face():
     def add_neigbors(self, face):
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
-    def ray_transform(self, angle, bounds = []):
+    def ray_transform(self, angle, bounds = [], frame_num = 0):
         vertices = []
         mid_points = []
         
-        angle = math_utils.angle_parametrisation(self.vertices[0], self.sin_mode, bounds) 
+        angle = math_utils.angle_parametrisation(self.vertices[0], self.sin_mode, bounds, frame_num) 
 
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
