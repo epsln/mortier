@@ -35,20 +35,24 @@ def planeToTileCoords(tiling, W, x, y):
     
     return complex(ai * x + bi * y, ci * x + di * y)
 
-def angle_parametrisation(point, mode, bounds):
+def angle_parametrisation(point, mode, bounds, frame_num = []):
+    z = np.sin(map_num(frame_num[0], 0, frame_num[1], 0, 2 * np.pi))
+
+    if mode == "constant":
+        z = np.sin(map_num(frame_num[0], 0, frame_num[1], 0, 2 * np.pi))
+        return map_num(z, -1, 1, 0.01, np.pi/2)
+
     if mode == "sin":
         return (np.sin(map_num(point.y, bounds[1], bounds[3], 0, 2 * np.pi)) + 1)/2
     elif mode == "perlin":
         x = map_num(point.x, bounds[0], bounds[2], 0, 2)
         y = map_num(point.y, bounds[1], bounds[3], 1, 2)
-        angle = noise.pnoise2(x, y,  octaves=3)
-        angle += 1
-        angle = np.clip(angle, 0.1, np.pi/2)
+        angle = noise.pnoise3(x, y, z,  octaves=3)
+        angle = map_num(angle, -1, 1, 0.01, np.pi/2) 
         return angle
     elif mode == "simplex":
-        x = map_num(point.x, bounds[0], bounds[2], 0, 2)
-        y = map_num(point.y, bounds[1], bounds[3], 1, 3)
-        angle = noise.snoise2(x, y,  octaves=3)
-        angle += 1
-        angle = np.clip(angle, 0.1, np.pi/2)
+        x = map_num(point.x, bounds[0], bounds[2], -1, 0.5)
+        y = map_num(point.y, bounds[1], bounds[3], 3, 4)
+        angle = noise.snoise3(x, y, z,  octaves=4)
+        angle = map_num(angle, -1, 1, 0.01, np.pi/2) 
         return angle
