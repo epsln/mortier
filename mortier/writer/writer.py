@@ -253,7 +253,7 @@ class Writer():
                 self.intersect_points[str(p)] = {"state": np.random.randint(2, size = 2),
                                                  "angle": angle}
             elif self.intersect_points[str(p)]["state"].sum() % 2 == 0:
-                self.intersect_points[str(p)] = {"state": [(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]],
+                self.intersect_points[str(p)] = {"state": np.array([(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]]),
                                                  "angle": angle} 
 
         if self.lacing_mode or self.bands_mode:
