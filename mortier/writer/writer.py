@@ -150,6 +150,10 @@ class Writer():
             p_curr = pts[i]
             p_next = pts[(i + 1) % n]
 
+            #p_curr = pts[i]
+            #p_prev = pts[i - 1] if i > 0 else pts[i]
+            #p_next = pts[i + 1] if i < n - 1 else pts[i]
+
             if i == 0 or i == n - 1:
                 end = self.bands_angle
             else:
@@ -160,7 +164,6 @@ class Writer():
 
             if str(p_curr) in self.intersect_points:
                 inter_p = self.intersect_points[str(p_curr)]
-                print(inter_p["angle"])
                 cut_length, add_length = self.compute_cut_length(inter_p["angle"], half_w)
                 beg_point = self.offset_segment(p_curr, p_next, cut_length)
                 if inter_p['state'][0] == 1:
@@ -182,20 +185,30 @@ class Writer():
                 neg_ring.append(end_point)
 
             pos_ring.append(pos_midpoint)
+        
+        
+        #Hacky way to get the closing of the inside polygon 
+        s0 = EuclideanCoords([pos_ring[0].x - pos_ring[1].x, pos_ring[0].y - pos_ring[1].y])
+        s1 = EuclideanCoords([pos_ring[-2].x - pos_ring[-1].x, pos_ring[-2].y - pos_ring[-1].y])
 
+        t = ( s1.x * (pos_ring[0].y - pos_ring[-2].y) - s1.y * (pos_ring[0].x - pos_ring[-2].x)) / (-s1.x * s0.y + s0.x * s1.y)
+        
+        x = EuclideanCoords([pos_ring[0].x + (t * s0.x), pos_ring[0].y + (t * s0.y)])
+
+        pos_ring[0] = x 
+        pos_ring[-1] = x 
         return pos_ring, neg_ring
 
     def draw_outline_lines(self, points, color="red"):
         pos_ring, neg_ring = self.outline_lines(points)
-
-        for i in range(0, len(pos_ring) - 2, 2):
+        for i in range(0, len(pos_ring) - 1, 2):
             p0 = pos_ring[i]
             p1 = pos_ring[i + 1]
-            p2 = pos_ring[i + 2]
+            p2 = pos_ring[(i + 2) % len(pos_ring)]
             
             if self.bezier_curve:
                 l = self.quadratic_bezier(p0, p1, p2)
-                for j in range(len(l) - 1):
+                for j in range(len(l)- 1):
                     self.line(l[j], l[j + 1]) 
             else:
                 self.line(p0, p1)
