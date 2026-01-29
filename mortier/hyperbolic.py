@@ -18,6 +18,10 @@ class HyperbolicTesselate(Tesselate):
         #TODO: handle aspect ratio 
         self.scale = self.writer.size[2] / 2
         self.faces = self.extract_faces()
+        self.draw_unit_circle = False
+
+    def set_draw_unit_circle(self, draw):
+        self.draw_unit_circle = draw
 
     def refine_tiling(self, iterations):
         self.T.refine_lattice(iterations)
@@ -40,5 +44,8 @@ class HyperbolicTesselate(Tesselate):
             if self.angle:
                 f = f.ray_transform(self.angle, self.writer.size, frame_num)
             self.writer.face(f)
+        if self.draw_unit_circle:
+            self.writer.circle(EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2]),
+                               min(self.writer.size[2], self.writer.size[3])/2)
         self.writer.write()
 

@@ -16,6 +16,12 @@ class BitmapWriter(Writer):
     def arc(self, bbox, start, end):
         self.output.arc(bbox, start = start, end = end)
 
+    def circle(self, c, r, color = (255, 255, 255)):
+        p0 = (c.x - r, c.y - r)
+        p1 = (c.x + r, c.y + r)
+        plist = [p0, p1]
+        self.draw.ellipse(plist, fill=color)
+
     def line(self, p0, p1, color = (255, 255, 255)):
         if color == "red":
             color = (255, 0, 0)

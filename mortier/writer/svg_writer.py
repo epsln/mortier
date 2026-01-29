@@ -14,6 +14,17 @@ class SVGWriter(Writer):
         )
 
         self.dwg.viewbox(width=size[2], height=size[3])
+    
+    def circle(self, c, r):
+        if not self.in_bounds(c):
+            return
+        self.dwg.add(
+            self.dwg.circle(
+                center = (c.x, c.y),
+                r = r,
+                fill = "none",
+                stroke = "black")
+            )
 
 
     def line(self, p0, p1, color = "black"):
@@ -28,7 +39,7 @@ class SVGWriter(Writer):
             stroke_width = 0.5
             )
           )
-#
+
     def write(self):
         self.dwg.save()
 

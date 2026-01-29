@@ -228,6 +228,9 @@ class Writer():
                 self.line(p0, p1)
                 self.line(p1, p2)
 
+    def circle(self, c, r, color = (255, 255, 255)):
+        pass
+
     def point(self, p):
         pass
 

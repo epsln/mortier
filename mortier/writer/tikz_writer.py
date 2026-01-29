@@ -12,6 +12,9 @@ class TikzWriter(Writer):
         self.color = "black"
         self.bands_width = 1
         self.seen_line = {}
+
+    def circle(self, p, r):
+        self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});")
         
     def point(self, p):
         self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle (2pt);")
