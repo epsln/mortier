@@ -9,10 +9,12 @@ class BitmapWriter(Writer):
         super().__init__(filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width)
         self.image = Image.new("RGB", (size[2], size[3]))
         self.output = ImageDraw.Draw(self.image)
-
        
     def point(self, p):
         self.output.point((p.x, p.y))
+
+    def arc(self, bbox, start, end):
+        self.output.arc(bbox, start = start, end = end)
 
     def line(self, p0, p1, color = (255, 255, 255)):
         if color == "red":

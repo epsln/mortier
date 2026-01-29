@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from mortier.coords import EuclideanCoords
+from hypertiling.graphics.plot import geodesic_arc
 
 class Writer():
     def __init__(self, filename, size, n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
@@ -269,7 +270,7 @@ class Writer():
                         self.line(l[j], l[j + 1]) 
             else:
                 for i in range(len(face.vertices)):
-                    self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)], color = color)
+                    self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
