@@ -15,10 +15,12 @@ class HyperbolicTesselate(Tesselate):
         self.n_layers = n_layers 
         self.T = HyperbolicTiling(self.p, self.q, self.n_layers, kernel = "SRS")
         self.angle = angle
-        #TODO: handle aspect ratio 
-        self.scale = self.writer.size[2] / 2
+        self.scale = min(self.writer.size[3], self.writer.size[2])/2
         self.faces = self.extract_faces()
         self.draw_unit_circle = False
+
+    def set_scale(self, scale):
+        self.scale = min(self.writer.size[3], self.writer.size[2])/2 * scale
 
     def set_draw_unit_circle(self, draw):
         self.draw_unit_circle = draw
@@ -38,14 +40,15 @@ class HyperbolicTesselate(Tesselate):
         return faces
 
     def draw_tesselation(self, frame_num = 0): 
-        z_point = EuclideanCoords([1, 1])
+        z_point = EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2])
+
         for f in self.faces:
-            f = f.translate_euclidean(z_point).scale(self.scale)
+            f = f.scale(self.scale).translate_euclidean(z_point)
             if self.angle:
                 f = f.ray_transform(self.angle, self.writer.size, frame_num)
             self.writer.face(f)
         if self.draw_unit_circle:
             self.writer.circle(EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2]),
-                               min(self.writer.size[2], self.writer.size[3])/2)
+                               self.scale)
         self.writer.write()
 
