@@ -12,9 +12,15 @@ class HyperbolicTesselate(Tesselate):
         self.writer = writer
         self.p = p
         self.q = q
-        self.n_layers = 6 
-        self.T = HyperbolicTiling(self.p, self.q, self.n_layers)
+        self.n_layers = n_layers 
+        self.T = HyperbolicTiling(self.p, self.q, self.n_layers, kernel = "SRS")
         self.angle = angle
+        #TODO: handle aspect ratio 
+        self.scale = self.writer.size[2] / 2
+        self.faces = self.extract_faces()
+
+    def refine_tiling(self, iterations):
+        self.T.refine_lattice(iterations)
         self.faces = self.extract_faces()
 
     def extract_faces(self):
@@ -23,16 +29,16 @@ class HyperbolicTesselate(Tesselate):
         faces = []
         for polygon in self.T:
             u = polygon[1:]
-            v = [EuclideanCoords([map_num(p.real, -1, 1, 0, self.writer.size[2]), 
-                                  map_num(p.imag, -1, 1, 0, self.writer.size[3])]) for p in u]
+            v = [EuclideanCoords([p.real, p.imag]) for p in u]
             faces.append(Face(v))
         return faces
 
     def draw_tesselation(self, frame_num = 0): 
+        z_point = EuclideanCoords([1, 1])
         for f in self.faces:
+            f = f.translate_euclidean(z_point).scale(self.scale)
             if self.angle:
-                f_ = f.ray_transform(self.angle, self.writer.size, frame_num)
-                self.writer.face(f_)
-            
+                f = f.ray_transform(self.angle, self.writer.size, frame_num)
+            self.writer.face(f)
         self.writer.write()
 
