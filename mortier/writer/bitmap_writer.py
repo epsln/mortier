@@ -20,7 +20,7 @@ class BitmapWriter(Writer):
         p0 = (c.x - r, c.y - r)
         p1 = (c.x + r, c.y + r)
         plist = [p0, p1]
-        self.draw.ellipse(plist, fill=color)
+        self.output.ellipse(plist, fill=color)
 
     def line(self, p0, p1, color = (255, 255, 255)):
         if color == "red":
