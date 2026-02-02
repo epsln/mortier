@@ -1,8 +1,9 @@
-import json
-from tesselation import Tesselate 
-from writer import TikzWriter, BitmapWriter 
-from penrose import Penrose
+from mortier.tesselation import Tesselate 
+from mortier.writer import TikzWriter, BitmapWriter 
+from mortier.penrose import Penrose
+
 import random
+import json
 import numpy as np
 
 ROOT_DIR = "/home/epsilon/misc/tesselation_alt_layout/"

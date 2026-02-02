@@ -1,11 +1,13 @@
-from coords import LatticeCoords, EuclideanCoords, Line
-from math_utils import in_bounds, planeToTileCoords, planeCoords
-from face import Face
+from mortier.coords import LatticeCoords, EuclideanCoords, Line
+from mortier.math_utils import in_bounds, planeToTileCoords, planeCoords
+from mortier.face import Face
+
 import numpy as np
 import math
 import random
 
 class Tesselate():
+    #TODO: Make class more generic removing tess parameters
     def __init__(self, writer, tess, tess_id):
         self.writer = writer
         self.tess = tess

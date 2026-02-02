@@ -1,6 +1,7 @@
-from coords import LatticeCoords
-import noise
+from mortier.coords import LatticeCoords
+
 import numpy as np
+from noise import pnoise3, snoise3
 import random
 
 def in_bounds(face, size):
@@ -47,12 +48,12 @@ def angle_parametrisation(point, mode, bounds, frame_num = []):
     elif mode == "perlin":
         x = map_num(point.x, bounds[0], bounds[2], 0, 2)
         y = map_num(point.y, bounds[1], bounds[3], 1, 2)
-        angle = noise.pnoise3(x, y, z,  octaves=3)
+        angle = pnoise3(x, y, z,  octaves=3)
         angle = map_num(angle, -1, 1, 0.01, np.pi/2) 
         return angle
     elif mode == "simplex":
         x = map_num(point.x, bounds[0], bounds[2], -1, 0.5)
         y = map_num(point.y, bounds[1], bounds[3], 3, 4)
-        angle = noise.snoise3(x, y, z,  octaves=4)
+        angle = snoise3(x, y, z,  octaves=4)
         angle = map_num(angle, -1, 1, 0.01, np.pi/2) 
         return angle

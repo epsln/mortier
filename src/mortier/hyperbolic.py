@@ -1,7 +1,7 @@
-from coords import EuclideanCoords
-from math_utils import map_num
-from face import Face
-from tesselation import Tesselate 
+from mortier.coords import EuclideanCoords
+from mortier.math_utils import map_num
+from mortier.face import Face
+from mortier.tesselation import Tesselate 
 
 import numpy as np
 from hypertiling import HyperbolicTiling

@@ -1,5 +1,5 @@
-from coords import LatticeCoords, EuclideanCoords, Line
-import math_utils
+from mortier.coords import LatticeCoords, EuclideanCoords, Line
+import mortier.math_utils
 
 import math
 import random
@@ -41,16 +41,6 @@ class Face():
         for i in range(2, int(m)): 
           k = int((k + 12/m) % 12)
           vertices.append(vertices[i - 1].translate(wpow[k]))
-
-        k = int(k)
-        if m == 3: #Triangle
-            d = v.translate(wpow[k + 1].scale(1/3))    
-        if m == 4: #Quad
-            d = v.translate(wpow[k].translate(wpow[k].translate(wpow[k + 3])).scale(1/2))
-        if m == 6: #Hexagon
-            d = v.translate(wpow[k + 2])
-        if m == 12: #Dodecagon
-            d = v.translate(wpow[(k + 2) % len(wpow)].translate(wpow[(k + 3) % len(wpow)]))
 
         return Face(vertices, param_mode = param_mode, assym_mode = assym_mode, separated_site_mode = separated_site_mode) 
 
