@@ -5,18 +5,8 @@ import numpy as np
 from mortier.coords import LatticeCoords, EuclideanCoords, Line
 from mortier.face import Face, P2Penrose, P3Penrose
 
-
-# ----------------------------
-# Helpers
-# ----------------------------
-
 def approx_point(p, q, eps=1e-6):
     return abs(p.x - q.x) < eps and abs(p.y - q.y) < eps
-
-
-# ----------------------------
-# Face.generate
-# ----------------------------
 
 @pytest.mark.parametrize("m,expected_vertices", [
     (3, 3),
@@ -38,10 +28,6 @@ def test_face_generate_vertices_are_latticecoords():
     for vert in face.vertices:
         assert isinstance(vert, LatticeCoords)
 
-
-# ----------------------------
-# Face.translate / scale
-# ----------------------------
 
 def test_face_translate_preserves_vertex_count():
     v = LatticeCoords([0, 0, 0, 0])
@@ -67,10 +53,6 @@ def test_face_scale_scales_all_vertices():
     assert approx_point(scaled.vertices[1], EuclideanCoords([6, 8]))
 
 
-# ----------------------------
-# Face.rotate
-# ----------------------------
-
 def test_face_rotate_90_deg():
     face = Face([
         EuclideanCoords([1, 0]),
@@ -82,10 +64,6 @@ def test_face_rotate_90_deg():
     assert approx_point(rotated.vertices[0], EuclideanCoords([0, 1]))
     assert approx_point(rotated.vertices[1], EuclideanCoords([-1, 0]))
 
-
-# ----------------------------
-# ray_transform
-# ----------------------------
 
 def test_ray_transform_returns_closed_face():
     face = Face([
@@ -118,10 +96,6 @@ def test_ray_transform_midpoints_exist():
         assert isinstance(a, float)
 
 
-# ----------------------------
-# half_plane
-# ----------------------------
-
 def test_half_plane_modifies_vertices_in_place():
     face = Face([
         EuclideanCoords([1, 1]),
@@ -132,11 +106,6 @@ def test_half_plane_modifies_vertices_in_place():
 
     assert out is face
     assert all(isinstance(v, EuclideanCoords) for v in face.vertices)
-
-
-# ----------------------------
-# P2Penrose
-# ----------------------------
 
 def test_p2penrose_initialise():
     tiles = P2Penrose.initialise()
@@ -164,11 +133,6 @@ def test_p2penrose_inflate_count(code, expected):
     assert len(children) == expected
     for c in children:
         assert isinstance(c, P2Penrose)
-
-
-# ----------------------------
-# P3Penrose
-# ----------------------------
 
 def test_p3penrose_initialise():
     tiles = P3Penrose.initialise()

@@ -1,6 +1,7 @@
 from mortier.coords import LatticeCoords, EuclideanCoords, Line
 import mortier.math_utils
 
+import copy
 import math
 import random
 import noise
@@ -37,7 +38,6 @@ class Face():
 
         vertices = [v, v.translate(wpow[k])]
         
-        
         for i in range(2, int(m)): 
           k = int((k + 12/m) % 12)
           vertices.append(vertices[i - 1].translate(wpow[k]))
@@ -45,55 +45,58 @@ class Face():
         return Face(vertices, param_mode = param_mode, assym_mode = assym_mode, separated_site_mode = separated_site_mode) 
 
     def translate(self, T1, T2, i, j):
-      vertices = []
+      new_face = copy.copy(self)
       TI  = T1.scale(i)
       TIJ = TI.translate(T2.scale(j))
-      for v in self.vertices:
-          vertices.append(v.translate(TIJ))
+      new_face.vertices= [v.translate(TIJ) for v in self.vertices]
 
       if self.barycenter:
+          #TODO: Remove me
           b = self.barycenter.translate(TIJ)
-          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          new_face.barycenter = b
+          return new_face 
       else:
-          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          return new_face 
 
     def translate_euclidean(self, T1):
-      vertices = []
-      for v in self.vertices:
-          vertices.append(v.translate(T1))
+        #TODO: Refactor by combining with translate and applying based on type
+        new_face = copy.copy(self)
+        new_face.vertices = [v.translate(T1) for v in self.vertices]
 
-      return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+        return new_face 
 
     def scale(self, n):
-      vertices = []
-      for v in self.vertices:
-          vertices.append(v.scale(n))
+        new_face = copy.copy(self)
+        new_face.vertices = [v.scale(n) for v in self.vertices]
 
-      if self.barycenter:
-          b = self.barycenter.scale(n)
-          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
-      else:
-          return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+        if self.barycenter:
+            #TODO: Remove
+            b = self.barycenter.scale(n)
+            new_face.barycenter = b
+            return new_face 
+        else:
+            return new_face 
 
     def rotate(self, theta):
+        new_face = copy.copy(self)
         vertices = []
-
         for v in self.vertices:
-            v = EuclideanCoords([v.x, v.y])
-            v_r = v.rotate(theta)
-            vertices.append(v_r)
-        return Face(vertices, mid_points = self.mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+          v = EuclideanCoords([v.x, v.y])
+          v_r = v.rotate(theta)
+          vertices.append(v_r)
+        new_face.vertices = vertices
+        return new_face 
 
     def add_neigbors(self, face):
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
     def ray_transform(self, angle, bounds = [], frame_num = 0):
+        new_face = copy.copy(self)
         vertices = []
         mid_points = []
             
         if self.param_mode:
             angle = math_utils.angle_parametrisation(self.vertices[0], self.param_mode, bounds, frame_num) 
-
 
         for i in range(len(self.vertices)):
             #TODO: Put sides in faces instead of using vertices
@@ -140,8 +143,9 @@ class Face():
                     mid_points.append((p_mid_1, angle))
 
         vertices.append(vertices[0])
-        #TODO: Return self....
-        return Face(vertices, mid_points = mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+        new_face.vertices = vertices
+        new_face.mid_points = mid_points 
+        return new_face
 
     def half_plane(self):
         vertices = []
