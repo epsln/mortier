@@ -40,3 +40,6 @@ class EuclideanCoords(Coords):
     x_rotated = ((self.x - dx) * np.cos(angle)) - ((self.y - dy) * np.sin(angle)) + dx
     y_rotated = ((self.x - dx) * np.sin(angle)) + ((self.y - dy) * np.cos(angle)) + dy
     return EuclideanCoords([x_rotated, y_rotated])
+
+  def toEuclidean(self):
+      return self

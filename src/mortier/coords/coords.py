@@ -27,4 +27,7 @@ class Coords:
       new_c.y = self.x
       return new_c 
 
+  def toEuclidean(self):
+      pass
+
 
