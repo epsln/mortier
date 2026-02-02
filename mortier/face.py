@@ -150,7 +150,17 @@ class Face():
                     mid_points.append((p_mid_1, angle))
 
         vertices.append(vertices[0])
+        #TODO: Return self....
         return Face(vertices, mid_points = mid_points, param_mode = self.param_mode, assym_mode = self.assym_mode, separated_site_mode = self.separated_site_mode) 
+
+    def half_plane(self):
+        vertices = []
+        for v in self.vertices:
+            z = v.x + 1j * v.y
+            z = (-1j * z - 1j)/(z - 1)
+            vertices.append(EuclideanCoords([z.real, z.imag]))
+        self.vertices = vertices
+        return self
             
     def __str__(self):
       t = []

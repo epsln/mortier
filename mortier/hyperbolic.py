@@ -22,6 +22,12 @@ class HyperbolicTesselate(Tesselate):
     def set_scale(self, scale):
         self.scale = min(self.writer.size[3], self.writer.size[2])/2 * scale
 
+    def convert_to_half_plane(self):
+        faces = []
+        for f in self.faces:
+            faces.append(f.half_plane())
+        self.faces = faces
+
     def set_draw_unit_circle(self, draw):
         self.draw_unit_circle = draw
 
@@ -41,6 +47,7 @@ class HyperbolicTesselate(Tesselate):
 
     def draw_tesselation(self, frame_num = 0): 
         z_point = EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2])
+        #z_point = EuclideanCoords([self.writer.size[2]/2, 0])
 
         for f in self.faces:
             f = f.scale(self.scale).translate_euclidean(z_point)
