@@ -1,5 +1,5 @@
 from mortier.writer.writer import Writer 
-from mortier.coords.coords import EuclideanCoords
+from mortier.coords import EuclideanCoords
 from PIL import Image, ImageDraw
 import random
 import numpy as np

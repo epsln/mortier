@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from mortier.coords.coords import EuclideanCoords
+from mortier.coords import EuclideanCoords
 from hypertiling.graphics.plot import geodesic_arc
 
 class Writer():

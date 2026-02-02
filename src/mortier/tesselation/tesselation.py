@@ -1,4 +1,4 @@
-from mortier.coords.coords import LatticeCoords, EuclideanCoords, Line
+from mortier.coords import LatticeCoords, EuclideanCoords, Line
 from mortier.utils.math_utils import in_bounds, planeToTileCoords, planeCoords
 from mortier.face.face import Face
 

@@ -1,4 +1,4 @@
-from mortier.coords.coords import LatticeCoords, EuclideanCoords, Line
+from mortier.coords import LatticeCoords, EuclideanCoords, Line
 import mortier.utils.math_utils
 
 import copy
