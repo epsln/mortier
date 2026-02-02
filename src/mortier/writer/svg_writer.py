@@ -1,4 +1,4 @@
-from .writer import Writer 
+from mortier.writer.writer import Writer 
 import svgwrite
 from svgwrite import cm, mm   
 

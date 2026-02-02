@@ -1,6 +1,6 @@
-from mortier.coords import LatticeCoords, EuclideanCoords, Line
-from mortier.math_utils import in_bounds, planeToTileCoords, planeCoords
-from mortier.face import P3Penrose, P2Penrose, Face
+from mortier.coords.coords import LatticeCoords, EuclideanCoords, Line
+from mortier.utils.math_utils import in_bounds, planeToTileCoords, planeCoords
+from mortier.face.face import P3Penrose, P2Penrose, Face
 
 import numpy as np
 import math

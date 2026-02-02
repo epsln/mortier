@@ -1,4 +1,4 @@
-from mortier.tesselation import Tesselate 
+from mortier.tesselation.tesselation import Tesselate 
 from mortier.writer import TikzWriter, BitmapWriter 
 from mortier.penrose import Penrose
 

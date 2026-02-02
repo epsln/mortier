@@ -1,4 +1,4 @@
-from mortier.coords import LatticeCoords
+from mortier.coords.coords import LatticeCoords
 
 import numpy as np
 from noise import pnoise3, snoise3

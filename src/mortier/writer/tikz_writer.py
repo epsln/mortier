@@ -1,4 +1,4 @@
-from .writer import Writer 
+from mortier.writer.writer import Writer 
 import numpy as np
 
 class TikzWriter(Writer):

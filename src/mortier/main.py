@@ -1,6 +1,6 @@
-from mortier.tesselation import Tesselate 
-from mortier.hyperbolic import HyperbolicTesselate 
-from mortier.penrose import Penrose 
+from mortier.tesselation.tesselation import Tesselate 
+from mortier.tesselation.hyperbolic import HyperbolicTesselate 
+from mortier.tesselation.penrose import Penrose 
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 
 import json
@@ -31,10 +31,8 @@ for i in range(300):
     tess_id = random.choice(list(js.keys()))
     tess = js[tess_id]
     size = (0, 0, int(config['svg']['size_x']), int(config['svg']['size_y'])) 
-    writer = SVGWriter(f"images/img_{i}", size, n_tiles = 10, bands_mode = False, bands_width = 2)
-    tesselation = HyperbolicTesselate(writer, 7, 4, 4)
-    tesselation.refine_tiling(3)
-    tesselation.set_scale(1.75)
+    writer = BitmapWriter(f"images/img_{i}.png", size, n_tiles = 80, bands_mode = False, bands_width = 2)
+    tesselation = Tesselate(writer, tess, tess_id)
     angle = np.random.uniform(low = 0.2, high = np.pi/2)
     tesselation.set_assym_angle = np.random.uniform(low=0.1, high=angle)
     tesselation.set_separated_site_mode(np.random.randint(3, 10))

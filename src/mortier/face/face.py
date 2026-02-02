@@ -1,5 +1,5 @@
-from mortier.coords import LatticeCoords, EuclideanCoords, Line
-import mortier.math_utils
+from mortier.coords.coords import LatticeCoords, EuclideanCoords, Line
+import mortier.utils.math_utils
 
 import copy
 import math
