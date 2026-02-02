@@ -40,6 +40,27 @@ def test_face_translate_preserves_vertex_count():
 
     assert len(moved.vertices) == len(face.vertices)
 
+def test_face_translate_euclidean_lattice():
+    v = LatticeCoords([0, 0, 0, 0])
+    face = Face.generate(v, k=0, m=4)
+
+    T1 = LatticeCoords([1, 0, 0, 0])
+    T2 = LatticeCoords([0, 1, 0, 0])
+
+    moved = face.translate(T1, T2, 2, 3)
+    for v in moved.vertices:
+        assert type(v).__name__ == "LatticeCoords"
+
+    v = [EuclideanCoords([0, 0])]
+    face = Face(v)
+
+    T1 = EuclideanCoords([1, 0])
+
+    moved = face.translate(T1, T2, 2, 3)
+    for v in moved.vertices:
+        assert type(v).__name__ == "EuclideanCoords"
+    assert approx_point(moved.vertices[0], T1) 
+
 
 def test_face_scale_scales_all_vertices():
     face = Face([

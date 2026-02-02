@@ -46,9 +46,12 @@ class Face():
 
     def translate(self, T1, T2, i, j):
       new_face = copy.copy(self)
-      TI  = T1.scale(i)
-      TIJ = TI.translate(T2.scale(j))
-      new_face.vertices= [v.translate(TIJ) for v in self.vertices]
+      if type(self.vertices[0]).__name__ == "LatticeCoords":
+          TI  = T1.scale(i)
+          TIJ = TI.translate(T2.scale(j))
+          new_face.vertices= [v.translate(TIJ) for v in self.vertices]
+      else:
+          new_face.vertices = [v.translate(T1) for v in self.vertices]
 
       if self.barycenter:
           #TODO: Remove me
@@ -57,13 +60,6 @@ class Face():
           return new_face 
       else:
           return new_face 
-
-    def translate_euclidean(self, T1):
-        #TODO: Refactor by combining with translate and applying based on type
-        new_face = copy.copy(self)
-        new_face.vertices = [v.translate(T1) for v in self.vertices]
-
-        return new_face 
 
     def scale(self, n):
         new_face = copy.copy(self)
