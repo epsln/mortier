@@ -44,7 +44,7 @@ class Face():
 
         return Face(vertices, param_mode = param_mode, assym_mode = assym_mode, separated_site_mode = separated_site_mode) 
 
-    def translate(self, T1, T2, i, j):
+    def translate(self, T1, T2 = None, i = None, j = None):
       new_face = copy.copy(self)
       if type(self.vertices[0]).__name__ == "LatticeCoords":
           TI  = T1.scale(i)

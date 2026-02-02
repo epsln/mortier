@@ -1,22 +1,23 @@
 from mortier.coords import EuclideanCoords
 from mortier.utils.math_utils import map_num
 from mortier.face.face import Face
-from mortier.tesselation.tesselation import Tesselate 
+from mortier.tesselation.tesselation import Tesselation 
 
 import numpy as np
 from hypertiling import HyperbolicTiling
 from hypertiling.graphics.plot import plot_tiling, convert_polygons_to_patches
 
-class HyperbolicTesselate(Tesselate):
+class HyperbolicTesselate(Tesselation):
     def __init__(self, writer, p, q, n_layers = 7, angle = None):
-        self.writer = writer
+        super().__init__(writer)
         self.p = p
         self.q = q
+        self.tess_id = f"{p}-gone, {q}-voisins"
         self.n_layers = n_layers 
         self.T = HyperbolicTiling(self.p, self.q, self.n_layers, kernel = "SRS")
+        self.faces = []
         self.angle = angle
         self.scale = min(self.writer.size[3], self.writer.size[2])/2
-        self.faces = self.extract_faces()
         self.draw_unit_circle = False
 
     def set_scale(self, scale):
@@ -33,29 +34,15 @@ class HyperbolicTesselate(Tesselate):
 
     def refine_tiling(self, iterations):
         self.T.refine_lattice(iterations)
-        self.faces = self.extract_faces()
 
-    def extract_faces(self):
+    def tesselate_face(self):
         #Extract faces from a Matplotlib polygoncollection
+        z_point = EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2])
         pgoncollec = convert_polygons_to_patches(self.T)
         faces = []
         for polygon in self.T:
             u = polygon[1:]
             v = [EuclideanCoords([p.real, p.imag]) for p in u]
-            faces.append(Face(v))
-        return faces
-
-    def draw_tesselation(self, frame_num = 0): 
-        z_point = EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2])
-        #z_point = EuclideanCoords([self.writer.size[2]/2, 0])
-
-        for f in self.faces:
-            f = f.scale(self.scale).translate_euclidean(z_point)
-            if self.angle:
-                f = f.ray_transform(self.angle, self.writer.size, frame_num)
-            self.writer.face(f)
-        if self.draw_unit_circle:
-            self.writer.circle(EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2]),
-                               self.scale)
-        self.writer.write()
-
+            f = Face(v)
+            f = f.scale(self.scale).translate(z_point)
+            self.faces.append(f)
