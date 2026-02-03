@@ -175,7 +175,7 @@ class Writer():
 
                 x0, x1 = xs[k], xs[k + 1]
 
-                if not self.hatch_fill_parameters["cross"]:
+                if not self.hatch_fill_parameters["dot"]:
                     a = EuclideanCoords([x0, y]).rotate(angle)
                     b = EuclideanCoords([x1, y]).rotate(angle)
                     self.line(a, b)
