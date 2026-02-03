@@ -14,9 +14,9 @@ class PenroseTesselation(Tesselation):
         self.tile = tile
         self.tess_id = None
         if tile == "P2":
-            self.pen = P2Penrose.initialise(0)
+            self.pen = P2Penrose.initialise(0, l = writer.size[2] * 2.5, x_offset = -writer.size[2]/2, y_offset = -writer.size[3]/4)
         else:
-            self.pen = P3Penrose.initialise(0)
+            self.pen = P3Penrose.initialise(0, l = writer.size[2] * 3.5, x_offset = -writer.size[2]/1, y_offset = -writer.size[3]/4)
         self.faces = []
 
     def tesselate_face(self):

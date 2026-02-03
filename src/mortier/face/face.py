@@ -167,19 +167,18 @@ class P2Penrose(Face):
         self.code = code
 
     @staticmethod
-    def initialise(code = 2):
+    def initialise(code = 2, l = 70, x_offset = -15, y_offset = -5):
         p0 = -0
-        l = 70 
         y = -0
         A = EuclideanCoords([p0, y])
         B = EuclideanCoords([l, y]) 
         C = EuclideanCoords([(l)/2, y + np.tan(0.62) * (l)/2])
         C0 = EuclideanCoords([(l)/2, y + np.tan(0.62) * (l)/2])
         C1 = EuclideanCoords([l * np.cos(72/360 * 2 * np.pi), l * np.sin(72/360 * 2 * np.pi)])
-        A = A.translate(EuclideanCoords([-15, 0]))
-        B = B.translate(EuclideanCoords([-15, 0]))
-        C = C.translate(EuclideanCoords([-15, 0]))
-        C1 = C1.translate(EuclideanCoords([-5, 0]))
+        A = A.translate(EuclideanCoords([x_offset, y_offset]))
+        B = B.translate(EuclideanCoords([x_offset, y_offset]))
+        C = C.translate(EuclideanCoords([x_offset, y_offset]))
+        C1 = C1.translate(EuclideanCoords([x_offset, y_offset]))
         return [P2Penrose(A, B, C, 3), P2Penrose(A, C1, C, 2)]
 
     def __str__(self):
@@ -228,18 +227,17 @@ class P3Penrose(P2Penrose):
         self.code = code
 
     @staticmethod
-    def initialise(code = 2):
+    def initialise(code = 2, l = 60, x_offset = -5, y_offset = 2):
         p0 = -0
-        l = 60 
         y =  0
         A = EuclideanCoords([p0, y])
         B = EuclideanCoords([(l)/2, y - np.tan(0.62) * (l)/2])
         B0 = EuclideanCoords([(l)/2, y + np.tan(0.62) * (l)/2])
         C = EuclideanCoords([l, y]) 
-        A =  A.translate(EuclideanCoords([-5, 2]))
-        B =  B.translate(EuclideanCoords([-5, 2]))
-        B0 =B0.translate(EuclideanCoords([-5, 2]))
-        C =  C.translate(EuclideanCoords([-5, 2]))
+        A =  A.translate(EuclideanCoords([x_offset, y_offset]))
+        B =  B.translate(EuclideanCoords([x_offset, y_offset]))
+        B0 =B0.translate(EuclideanCoords([x_offset, y_offset]))
+        C =  C.translate(EuclideanCoords([x_offset, y_offset]))
         return [P3Penrose(A, B, C, 2), P3Penrose(A, B0, C, 2)]
 
     def inflate(self):
