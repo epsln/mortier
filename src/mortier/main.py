@@ -48,8 +48,7 @@ with open('data/database.json', 'r') as file:
               help='Hatch angle in degrees')
 @click.option('--hatch_spacing', default = 10., type = click.FloatRange(min = 1),
               help='Hatch angle in degrees')
-@click.option('--cross_hatch', default = False, type = bool,
-              help='Cross hatching')
+@click.option('--cross_hatch', is_flag = True, help='Cross hatching')
 @click.option('--pq', default = (3, 7), type = (int, int),
               help='Number of sides and number of neighbors of Hyperbolic Tesselation')
 @click.option('--depth', default = 4, type = click.IntRange(min = 2),
