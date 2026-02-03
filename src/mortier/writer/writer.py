@@ -14,10 +14,16 @@ class Writer():
         self.bands_width = bands_width 
         self.bands_angle = bands_angle 
         self.bezier_curve = False 
+        self.hatch_fill_parameters = {"angle": None, "spacing": 20, "crosshatch": False} 
+        assert not (self.bezier_curve and self.hatch_fill_parameters["angle"])
         assert not (self.lacing_mode and self.bands_mode)
 
     def set_band_angle(self, bands_angle):
         self.bands_angle = bands_angle
+
+    def set_hatch_fill(self, hatch_fill_parameters):
+        assert not (self.bezier_curve and hatch_fill_angle["angle"])
+        self.hatch_fill_parameters = hatch_fill_parameters
 
     def line_offset(self, p1, p2, d):
         """Return the two offset lines at distance ±d from the base line."""
@@ -133,6 +139,47 @@ class Writer():
             add_length = cut_length
         return cut_length, add_length
 
+    def hatch_fill(self, face, cross_hatch = False):
+        lines = []
+        angle = self.hatch_fill_parameters["angle"]
+        if cross_hatch:
+            angle += np.pi/2
+
+        f_rotated = face.rotate(-angle)
+        ys = [v.y for v in f_rotated.vertices]
+        y_min, y_max = min(ys), max(ys)
+
+
+        y = y_min + self.hatch_fill_parameters["spacing"] 
+        while y < y_max:
+            xs = []
+
+            for j in range(len(f_rotated.vertices)):
+                p0 = f_rotated.vertices[j]
+                p1 = f_rotated.vertices[(j + 1) % len(f_rotated.vertices)]
+
+                if p0.y == p1.y:
+                    continue
+
+                if (p0.y <= y < p1.y) or (p1.y <= y < p0.y):
+                    t = (y - p0.y) / (p1.y - p0.y)
+                    x = p0.x + t * (p1.x - p0.x)
+                    xs.append(x)
+
+            xs.sort()
+
+            for k in range(0, len(xs), 2):
+                if k + 1 < len(xs):
+                    p_start = EuclideanCoords([xs[k], y])
+                    p_end   = EuclideanCoords([xs[k + 1], y])
+                    p_start = p_start.rotate(angle)
+                    p_end   = p_end.rotate(angle)
+        
+                    lines.append((p_start, p_end))
+                    self.line(p_start, p_end)
+
+            y += self.hatch_fill_parameters["spacing"]
+
     def outline_lines(self, points):
         """
         Compute pairs of offset polylines (outer and inner) for a given polyline.
@@ -160,7 +207,6 @@ class Writer():
             else:
                 end = False
 
-
             pos_midpoint, neg_midpoint = self.vertex_miter(p_prev, p_curr, p_next, half_w, end)
 
             if str(p_curr) in self.intersect_points:
@@ -186,7 +232,6 @@ class Writer():
                 neg_ring.append(end_point)
 
             pos_ring.append(pos_midpoint)
-        
         
         #Hacky way to get the closing of the inside polygon 
         s0 = EuclideanCoords([pos_ring[0].x - pos_ring[1].x, pos_ring[0].y - pos_ring[1].y])
@@ -252,6 +297,7 @@ class Writer():
         pattern = ""
         n_vert = len(face.vertices)
 
+        #TODO: Put this in its own function
         for p, angle in face.mid_points:
             if str(p) not in self.intersect_points:
                 self.intersect_points[str(p)] = {"state": np.random.randint(2, size = 2),
@@ -264,6 +310,7 @@ class Writer():
             self.draw_outline_lines(face.vertices)
         else:
             if self.bezier_curve:
+                #TODO: Also own function
                 for i in range(0, len(face.vertices) - 2, 2):
                     p0 = face.vertices[i] 
                     p1 = face.vertices[i + 1] 
@@ -274,6 +321,10 @@ class Writer():
             else:
                 for i in range(len(face.vertices)):
                     self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
+        if self.hatch_fill_parameters["angle"] is not None:
+            self.hatch_fill(face)
+            if self.hatch_fill_parameters["crosshatch"]:
+                self.hatch_fill(face, self.hatch_fill_parameters["crosshatch"])
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
