@@ -45,7 +45,7 @@ class SVGWriter(Writer):
     def write(self):
         if self.api_mode:
             buf = io.StringIO()
-            dwg.write(buf)
+            self.dwg.write(buf)
             return buf.getvalue() 
         else:
             self.dwg.save()
