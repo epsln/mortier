@@ -97,8 +97,8 @@ class Tesselation():
 
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
-        self.writer.write()
-        return tess_arr
+        output = self.writer.write()
+        return output 
 
     def set_tesselation(self, tess, tess_id):
         self.tess = tess
