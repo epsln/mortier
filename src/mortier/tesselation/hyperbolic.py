@@ -18,6 +18,8 @@ class HyperbolicTesselation(Tesselation):
         self.faces = []
         self.angle = angle
         self.scale = min(self.writer.size[3], self.writer.size[2])/2
+        self.refine_level = 0
+        self.half_plane = False
         self.draw_unit_circle = False
 
     def set_scale(self, scale):
@@ -34,6 +36,7 @@ class HyperbolicTesselation(Tesselation):
 
     def refine_tiling(self, iterations):
         self.T.refine_lattice(iterations)
+        self.tesselate_face()
 
     def tesselate_face(self):
         #Extract faces from a Matplotlib polygoncollection
@@ -44,5 +47,13 @@ class HyperbolicTesselation(Tesselation):
             u = polygon[1:]
             v = [EuclideanCoords([p.real, p.imag]) for p in u]
             f = Face(v)
-            f = f.scale(self.scale).translate(z_point)
             self.faces.append(f)
+
+        if self.half_plane:
+            self.convert_to_half_plane()
+            z_point = EuclideanCoords([self.writer.size[2]/2, 0])
+
+        for f in self.faces:
+            f = f.scale(self.scale).translate(z_point)
+            faces.append(f)
+        self.faces = faces 
