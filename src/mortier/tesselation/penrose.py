@@ -7,7 +7,7 @@ import numpy as np
 import math
 import random
 
-class Penrose(Tesselation):
+class PenroseTesselation(Tesselation):
     def __init__(self, writer, tile = "P2", level = 8, sin_mode = False, assym = False, separated_site = False):
         super().__init__(writer, sin_mode, assym, separated_site_mode)
         self.level = level

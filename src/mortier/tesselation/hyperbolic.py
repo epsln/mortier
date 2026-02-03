@@ -7,7 +7,7 @@ import numpy as np
 from hypertiling import HyperbolicTiling
 from hypertiling.graphics.plot import plot_tiling, convert_polygons_to_patches
 
-class HyperbolicTesselate(Tesselation):
+class HyperbolicTesselation(Tesselation):
     def __init__(self, writer, p, q, n_layers = 7, angle = None):
         super().__init__(writer)
         self.p = p
