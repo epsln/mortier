@@ -15,7 +15,7 @@ class Writer():
         self.bands_angle = bands_angle 
         self.bezier_curve = False 
         self.hatch_fill_parameters = {"angle": None, "spacing": 5, 
-                                      "crosshatch": False, "dot": False} 
+                                      "crosshatch": False, "type": None} 
         assert not (self.bezier_curve and self.hatch_fill_parameters["angle"])
         assert not (self.lacing_mode and self.bands_mode)
 
@@ -175,7 +175,7 @@ class Writer():
 
                 x0, x1 = xs[k], xs[k + 1]
 
-                if not self.hatch_fill_parameters["dot"]:
+                if not self.hatch_fill_parameters["type"] == "dot":
                     a = EuclideanCoords([x0, y]).rotate(angle)
                     b = EuclideanCoords([x1, y]).rotate(angle)
                     self.line(a, b)
@@ -337,7 +337,7 @@ class Writer():
             else:
                 for i in range(len(face.vertices)):
                     self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
-        if self.hatch_fill_parameters["angle"] is not None:
+        if self.hatch_fill_parameters["type"] is not None:
             self.hatch_fill(inside_vertices)
             if self.hatch_fill_parameters["crosshatch"]:
                 self.hatch_fill(inside_vertices, self.hatch_fill_parameters["crosshatch"])
