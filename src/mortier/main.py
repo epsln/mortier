@@ -36,10 +36,12 @@ with open('data/database.json', 'r') as file:
               help='Angle of the rays.')
 @click.option('--parametrised', default=None, type = click.Choice(ParamType, case_sensitive = False),
               help='Apply a type of noise to the rays angle.')
-@click.option('--bands', default=False,
+@click.option('--bands', is_flag=True,
               help='Bands mode')
-@click.option('--lace', default=False,
+@click.option('--lace', is_flag=True,
               help='Lace mode')
+@click.option('--bezier', is_flag=True,
+              help='Sides are drawn as bezier curves')
 @click.option('--bands_width', type = click.FloatRange(0, clamp=True),
               help='Bands width')
 @click.option('--hatch_type', default = None, type = click.Choice(HatchType, case_sensitive = False), 
@@ -60,7 +62,7 @@ with open('data/database.json', 'r') as file:
 def tess_param(tesselation_type, tess_id, 
                file_type, output, output_size, 
                scale, angle, parametrised, 
-               bands, lace, bands_width, 
+               bands, lace, bands_width, bezier, 
                hatch_type, hatch_angle, hatch_spacing, cross_hatch, 
                pq, depth, assym_angle, separated_sites):
     tess = js[tess_id]
@@ -74,6 +76,7 @@ def tess_param(tesselation_type, tess_id,
     writer.output_size = (0, 0, output_size[0], output_size[1]) 
     writer.bands_mode = bands
     writer.lace_mode = lace 
+    writer.bezier_curve = bezier 
     writer.hatch_fill_parameters["angle"] = hatch_angle
     writer.hatch_fill_parameters["spacing"] = hatch_spacing
     writer.hatch_fill_parameters["crosshatch"] = cross_hatch
