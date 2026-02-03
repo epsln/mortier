@@ -1,0 +1,3 @@
+from mortier.tesselation.regular_tesselation import RegularTesselation
+from mortier.tesselation.hyperbolic import HyperbolicTesselation
+from mortier.tesselation.penrose import PenroseTesselation 
