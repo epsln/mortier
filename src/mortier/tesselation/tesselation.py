@@ -77,7 +77,10 @@ class Tesselation():
             self.writer.circle(EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2]),
                                self.scale)
 
-        caption = f"Pavage ${self.tess_id}$" 
+        if self.tess_id: 
+            caption = f"Pavage ${self.tess_id}$" 
+        elif self.tile:
+            caption = f"Pavage ${self.tile}$" 
         if self.angle and not self.assym_angle: 
             caption += f", avec $\\theta \\approx {round(self.angle, 3)}$"
         if self.separated_site_mode: 
@@ -97,6 +100,7 @@ class Tesselation():
 
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
+        self.writer.api_mode = True
         output = self.writer.write()
         return output 
 
