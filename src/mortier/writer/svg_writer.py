@@ -1,4 +1,5 @@
 from mortier.writer.writer import Writer 
+import io
 import svgwrite
 from svgwrite import cm, mm   
 
@@ -14,6 +15,7 @@ class SVGWriter(Writer):
         )
 
         self.dwg.viewbox(width=size[2], height=size[3])
+        self.api_mode = False
     
     def circle(self, c, r):
         if not self.in_bounds(c):
@@ -41,7 +43,12 @@ class SVGWriter(Writer):
           )
 
     def write(self):
-        self.dwg.save()
+        if self.api_mode:
+            buf = io.StringIO()
+            dwg.write(buf)
+            return buf.getvalue() 
+        else:
+            self.dwg.save()
 
     def new(self, filename, size = None, n_tiles = None):
         if not size:
