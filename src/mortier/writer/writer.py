@@ -1,6 +1,8 @@
 import math
 import numpy as np
 from mortier.coords import EuclideanCoords
+from mortier.enums import HatchType 
+
 from hypertiling.graphics.plot import geodesic_arc
 
 class Writer():
@@ -175,7 +177,7 @@ class Writer():
 
                 x0, x1 = xs[k], xs[k + 1]
 
-                if not self.hatch_fill_parameters["type"] == "dot":
+                if not self.hatch_fill_parameters["type"] == HatchType.dot:
                     a = EuclideanCoords([x0, y]).rotate(angle)
                     b = EuclideanCoords([x1, y]).rotate(angle)
                     self.line(a, b)
