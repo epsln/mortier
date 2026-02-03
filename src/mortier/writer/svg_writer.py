@@ -3,7 +3,7 @@ import svgwrite
 from svgwrite import cm, mm   
 
 class SVGWriter(Writer):
-    def __init__(self, filename, size, n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
+    def __init__(self, filename, size = (0, 0, 210, 297), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
         super().__init__(filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width)
         svg_size = (
             size[2],

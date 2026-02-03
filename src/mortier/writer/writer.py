@@ -4,7 +4,7 @@ from mortier.coords import EuclideanCoords
 from hypertiling.graphics.plot import geodesic_arc
 
 class Writer():
-    def __init__(self, filename, size, n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
+    def __init__(self, filename, size = (0, 0, 1920, 1080), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
         self.filename = filename
         self.n_tiles = int(n_tiles)
         self.size = size

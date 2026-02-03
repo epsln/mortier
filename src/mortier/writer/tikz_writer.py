@@ -2,7 +2,7 @@ from mortier.writer.writer import Writer
 import numpy as np
 
 class TikzWriter(Writer):
-    def __init__(self, filename, size, n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0, draw_borders = False):
+    def __init__(self, filename, size = (0, 0, 14, 20), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0, draw_borders = False):
         super().__init__(filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width)
         self.output = []
         self.header = "\\begin{tikzpicture}\n"
