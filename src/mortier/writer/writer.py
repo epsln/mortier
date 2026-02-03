@@ -139,14 +139,14 @@ class Writer():
             add_length = cut_length
         return cut_length, add_length
 
-    def hatch_fill(self, face, cross_hatch = False):
+    def hatch_fill(self, vertices, cross_hatch = False):
         lines = []
         angle = self.hatch_fill_parameters["angle"]
         if cross_hatch:
             angle += np.pi/2
-
-        f_rotated = face.rotate(-angle)
-        ys = [v.y for v in f_rotated.vertices]
+        
+        vertices_rotated = [v.rotate(-angle) for v in vertices]
+        ys = [v.y for v in vertices_rotated]
         y_min, y_max = min(ys), max(ys)
 
 
@@ -154,9 +154,9 @@ class Writer():
         while y < y_max:
             xs = []
 
-            for j in range(len(f_rotated.vertices)):
-                p0 = f_rotated.vertices[j]
-                p1 = f_rotated.vertices[(j + 1) % len(f_rotated.vertices)]
+            for j in range(len(vertices_rotated)):
+                p0 = vertices_rotated[j]
+                p1 = vertices_rotated[(j + 1) % len(vertices_rotated)]
 
                 if p0.y == p1.y:
                     continue
@@ -273,6 +273,8 @@ class Writer():
                 self.line(p0, p1)
                 self.line(p1, p2)
 
+        return pos_ring
+
     def circle(self, c, r, color = (255, 255, 255)):
         pass
 
@@ -291,12 +293,8 @@ class Writer():
             y = (1 - t)**2 * p0.y + 2 * (1 - t) * t * p1.y + t**2 * p2.y
             points.append(EuclideanCoords([x, y]))
         return points
- 
-    def face(self, face, dotted = False, color = (255, 255, 255)):
-        t = []
-        pattern = ""
-        n_vert = len(face.vertices)
 
+    def fill_intersect_points(self, face):
         #TODO: Put this in its own function
         for p, angle in face.mid_points:
             if str(p) not in self.intersect_points:
@@ -305,26 +303,36 @@ class Writer():
             elif self.intersect_points[str(p)]["state"].sum() % 2 == 0:
                 self.intersect_points[str(p)] = {"state": np.array([(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]]),
                                                  "angle": angle} 
+    def draw_bezier_curves(self, face):
+        #TODO: Also own function
+        for i in range(0, len(face.vertices) - 2, 2):
+            p0 = face.vertices[i] 
+            p1 = face.vertices[i + 1] 
+            p2 = face.vertices[i + 2] 
+            l = self.quadratic_bezier(p0, p1, p2)
+            for j in range(len(l) - 1):
+                self.line(l[j], l[j + 1]) 
+ 
+    def face(self, face, dotted = False, color = (255, 255, 255)):
+        t = []
+        pattern = ""
+        n_vert = len(face.vertices)
+
+        self.fill_intersect_points(face)
+        inside_vertices = face.vertices
 
         if self.lacing_mode or self.bands_mode:
-            self.draw_outline_lines(face.vertices)
+            inside_vertices = self.draw_outline_lines(face.vertices)
         else:
             if self.bezier_curve:
-                #TODO: Also own function
-                for i in range(0, len(face.vertices) - 2, 2):
-                    p0 = face.vertices[i] 
-                    p1 = face.vertices[i + 1] 
-                    p2 = face.vertices[i + 2] 
-                    l = self.quadratic_bezier(p0, p1, p2)
-                    for j in range(len(l) - 1):
-                        self.line(l[j], l[j + 1]) 
+                self.draw_bezier_curves(face)
             else:
                 for i in range(len(face.vertices)):
                     self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
         if self.hatch_fill_parameters["angle"] is not None:
-            self.hatch_fill(face)
+            self.hatch_fill(inside_vertices)
             if self.hatch_fill_parameters["crosshatch"]:
-                self.hatch_fill(face, self.hatch_fill_parameters["crosshatch"])
+                self.hatch_fill(inside_vertices, self.hatch_fill_parameters["crosshatch"])
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
