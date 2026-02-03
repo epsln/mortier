@@ -14,6 +14,7 @@ class Tesselation():
         self.show_dual = False
         self.show_face = False
         self.show_base = False
+        self.draw_unit_circle = False
         self.ray_tesselation = False
         self.angle = False
         self.assym_angle = False
