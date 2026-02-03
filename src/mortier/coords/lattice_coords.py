@@ -1,5 +1,6 @@
 from mortier.coords import Coords
 from mortier.coords.euclidean_coords import EuclideanCoords
+import numpy as np
 
 class LatticeCoords(Coords):
     def __init__(self, w): 
@@ -23,6 +24,11 @@ class LatticeCoords(Coords):
   
     def sum(self):
         return sum(self.w)
+
+    def rotate(self, angle):
+        x_rotated = self.x * np.cos(angle) - self.y * np.sin(angle)
+        y_rotated = self.x * np.sin(angle) + self.y * np.cos(angle)
+        return EuclideanCoords([x_rotated, y_rotated])
   
     def toEuclidean(self):
         return EuclideanCoords([self.x, self.y])
