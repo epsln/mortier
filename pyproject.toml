@@ -7,7 +7,7 @@ packages = [{ include = "mortier", from = "src" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11"
 svgwrite = "^1.4.3"
 numpy = "^2.3.1"
 pillow = "^11.3.0"
