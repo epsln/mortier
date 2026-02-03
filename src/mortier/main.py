@@ -55,6 +55,8 @@ with open('data/database.json', 'r') as file:
               help='Number of sides and number of neighbors of Hyperbolic Tesselation')
 @click.option('--depth', default = 4, type = click.IntRange(min = 2),
               help='Inflation depth')
+@click.option('--half_plane', is_flag = True, help='Inflation depth')
+@click.option('--refine', default = 0, type = click.IntRange(min = 0), help='Inflation depth')
 @click.option('--assym_angle', default = False, type = click.FloatRange(min = 0),
               help='Use an assymetrical angle for ray projection')
 @click.option('--separated_sites', default = 2, type = click.IntRange(min = 2, max = 10),
@@ -64,7 +66,7 @@ def tess_param(tesselation_type, tess_id,
                scale, angle, parametrised, 
                bands, lace, bands_width, bezier, 
                hatch_type, hatch_angle, hatch_spacing, cross_hatch, 
-               pq, depth, assym_angle, separated_sites):
+               pq, depth, refine, half_plane, assym_angle, separated_sites):
     tess = js[tess_id]
     if file_type == FileType.bitmap:
         writer = BitmapWriter(f"{output}")
@@ -86,6 +88,8 @@ def tess_param(tesselation_type, tess_id,
         tesselation = RegularTesselation(writer, tess, tess_id)
     elif tesselation_type == TesselationType.hyperbolic:
         tesselation = HyperbolicTesselation(writer, pq[0], pq[1], depth)
+        tesselation.half_plane = half_plane
+        tesselation.refine_tiling(refine)
     else:
         tesselation = PenroseTesselation(writer, level = depth)
     tesselation.set_angle(angle)
