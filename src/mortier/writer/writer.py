@@ -14,7 +14,8 @@ class Writer():
         self.bands_width = bands_width 
         self.bands_angle = bands_angle 
         self.bezier_curve = False 
-        self.hatch_fill_parameters = {"angle": None, "spacing": 20, "crosshatch": False} 
+        self.hatch_fill_parameters = {"angle": None, "spacing": 5, 
+                                      "crosshatch": False, "dot": False} 
         assert not (self.bezier_curve and self.hatch_fill_parameters["angle"])
         assert not (self.lacing_mode and self.bands_mode)
 
@@ -138,7 +139,7 @@ class Writer():
         if self.bands_mode:
             add_length = cut_length
         return cut_length, add_length
-
+    
     def hatch_fill(self, vertices, cross_hatch = False):
         lines = []
         angle = self.hatch_fill_parameters["angle"]
@@ -169,14 +170,21 @@ class Writer():
             xs.sort()
 
             for k in range(0, len(xs), 2):
-                if k + 1 < len(xs):
-                    p_start = EuclideanCoords([xs[k], y])
-                    p_end   = EuclideanCoords([xs[k + 1], y])
-                    p_start = p_start.rotate(angle)
-                    p_end   = p_end.rotate(angle)
-        
-                    lines.append((p_start, p_end))
-                    self.line(p_start, p_end)
+                if k + 1 >= len(xs):
+                    continue
+
+                x0, x1 = xs[k], xs[k + 1]
+
+                if not self.hatch_fill_parameters["cross"]:
+                    a = EuclideanCoords([x0, y]).rotate(angle)
+                    b = EuclideanCoords([x1, y]).rotate(angle)
+                    self.line(a, b)
+                else:
+                    x = x0 + self.hatch_fill_parameters["spacing"] / 2
+                    while x < x1:
+                        c = EuclideanCoords([x, y]).rotate(angle)
+                        self.point(c)
+                        x += self.hatch_fill_parameters["spacing"] 
 
             y += self.hatch_fill_parameters["spacing"]
 
