@@ -100,7 +100,6 @@ class Tesselation():
 
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
-        self.writer.api_mode = True
         output = self.writer.write()
         return output 
 
