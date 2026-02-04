@@ -31,7 +31,7 @@ class Writer():
 
     def hatch_fill(self, vertices, cross_hatch = False):
         lines = []
-        angle = hatch_fill_parameters["angle"]
+        angle = self.hatch_fill_parameters["angle"]
         if cross_hatch:
             angle += np.pi/2
         
@@ -64,7 +64,7 @@ class Writer():
 
                 x0, x1 = xs[k], xs[k + 1]
 
-                if not self.hatch_fill_parameters["type"] == HatchType.dot:
+                if not self.hatch_fill_parameters["type"] == HatchType.DOT:
                     a = EuclideanCoords([x0, y]).rotate(angle)
                     b = EuclideanCoords([x1, y]).rotate(angle)
                     self.line(a, b)
