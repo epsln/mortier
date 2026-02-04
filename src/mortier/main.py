@@ -54,7 +54,7 @@ with open("data/database.json", "r") as file:
 @click.option("--bands", is_flag=True, help="Bands mode")
 @click.option("--lace", is_flag=True, help="Lace mode")
 @click.option("--bezier", is_flag=True, help="Sides are drawn as bezier curves")
-@click.option("--bands_width", type=click.FloatRange(0, clamp=True), help="Bands width")
+@click.option("--bands_width", default = 2, type=click.FloatRange(0, clamp=True), help="Bands width")
 @click.option(
     "--hatch_type",
     default=None,
