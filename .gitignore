@@ -1,5 +1,8 @@
 *.swp
 *.swo
 *.svg
+*.png
+*.mp4
+figures/
 data/
 *.pyc
