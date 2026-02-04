@@ -45,7 +45,7 @@ class Line(Coords):
             Midpoint as a Euclidean coordinate.
         """
         midpoint = self.beg_pt.translate(self.end_pt).scale(0.5)
-        return midpoint.toEuclidean()
+        return midpoint.to_euclidean()
 
     def get_pq_point(self, p, q):
         """
