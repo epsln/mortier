@@ -1,9 +1,6 @@
-import random
 
-import numpy as np
 from PIL import Image, ImageDraw
 
-from mortier.coords import EuclideanCoords
 from mortier.writer.writer import Writer
 
 

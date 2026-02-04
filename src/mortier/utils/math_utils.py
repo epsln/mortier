@@ -1,5 +1,3 @@
-import random
-
 import numpy as np
 from noise import pnoise3, snoise3
 

@@ -1,11 +1,7 @@
-import math
-import random
 
-import numpy as np
 
-from mortier.coords import EuclideanCoords, LatticeCoords, Line
+from mortier.coords import EuclideanCoords, LatticeCoords
 from mortier.face.face import Face
-from mortier.utils.math_utils import in_bounds, planeCoords, planeToTileCoords
 
 
 class Tesselation:
@@ -67,7 +63,6 @@ class Tesselation:
         if self.show_base:
             self.draw_cell()
 
-        tess_arr = []
         for f in self.faces:
             if self.show_underlying:
                 self.writer.face(f, dotted=True)

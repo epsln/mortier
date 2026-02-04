@@ -1,11 +1,9 @@
-import numpy as np
 from hypertiling import HyperbolicTiling
-from hypertiling.graphics.plot import convert_polygons_to_patches, plot_tiling
+from hypertiling.graphics.plot import convert_polygons_to_patches
 
 from mortier.coords import EuclideanCoords
 from mortier.face.face import Face
 from mortier.tesselation.tesselation import Tesselation
-from mortier.utils.math_utils import map_num
 
 
 class HyperbolicTesselation(Tesselation):
@@ -42,7 +40,7 @@ class HyperbolicTesselation(Tesselation):
     def tesselate_face(self):
         # Extract faces from a Matplotlib polygoncollection
         z_point = EuclideanCoords([self.writer.size[2] / 2, self.writer.size[3] / 2])
-        pgoncollec = convert_polygons_to_patches(self.T)
+        convert_polygons_to_patches(self.T)
         faces = []
         for polygon in self.T:
             u = polygon[1:]

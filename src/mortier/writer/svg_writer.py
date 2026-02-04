@@ -1,7 +1,6 @@
 import io
 
 import svgwrite
-from svgwrite import cm, mm
 
 from mortier.writer.writer import Writer
 

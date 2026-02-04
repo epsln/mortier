@@ -4,7 +4,7 @@ import random
 import numpy as np
 from penrose import Penrose
 from tesselation import Tesselate
-from writer import BitmapWriter, TikzWriter
+from writer import TikzWriter
 
 ROOT_DIR = "/home/epsilon/misc/tesselation_alt_layout/"
 BROKEN_FIGS = [36]

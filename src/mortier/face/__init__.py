@@ -1,1 +1,1 @@
-from mortier.face.face import Face
+from mortier.face.face import Face as Face

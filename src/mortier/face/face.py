@@ -1,12 +1,9 @@
 import copy
-import math
-import random
 
-import noise
 import numpy as np
 
-import mortier.utils.math_utils
 from mortier.coords import EuclideanCoords, LatticeCoords, Line
+from mortier.math_utils import angle_parametrisation
 
 
 class Face:
@@ -109,7 +106,7 @@ class Face:
         mid_points = []
 
         if self.param_mode:
-            angle = math_utils.angle_parametrisation(
+            angle = angle_parametrisation(
                 self.vertices[0], self.param_mode, bounds, frame_num
             )
 
@@ -157,7 +154,7 @@ class Face:
             if self.separated_site_mode:
                 vertices.append(p_mid_1)
                 if self.assym_mode:
-                    mid_points.append((p_mid_1, assym_mode))
+                    mid_points.append((p_mid_1, self.assym_mode))
                 else:
                     mid_points.append((p_mid_1, angle))
 
@@ -191,15 +188,14 @@ class P2Penrose(Face):
         self.code = code
 
     @staticmethod
-    def initialise(code=2, l=70, x_offset=-15, y_offset=-5):
+    def initialise(code=2, length=70, x_offset=-15, y_offset=-5):
         p0 = -0
         y = -0
         A = EuclideanCoords([p0, y])
-        B = EuclideanCoords([l, y])
-        C = EuclideanCoords([(l) / 2, y + np.tan(0.62) * (l) / 2])
-        C0 = EuclideanCoords([(l) / 2, y + np.tan(0.62) * (l) / 2])
+        B = EuclideanCoords([length, y])
+        C = EuclideanCoords([length / 2, y + np.tan(0.62) * length / 2])
         C1 = EuclideanCoords(
-            [l * np.cos(72 / 360 * 2 * np.pi), l * np.sin(72 / 360 * 2 * np.pi)]
+            [length * np.cos(72 / 360 * 2 * np.pi), length * np.sin(72 / 360 * 2 * np.pi)]
         )
         A = A.translate(EuclideanCoords([x_offset, y_offset]))
         B = B.translate(EuclideanCoords([x_offset, y_offset]))
@@ -254,13 +250,13 @@ class P3Penrose(P2Penrose):
         self.code = code
 
     @staticmethod
-    def initialise(code=2, l=60, x_offset=-5, y_offset=2):
+    def initialise(code=2, length=60, x_offset=-5, y_offset=2):
         p0 = -0
         y = 0
         A = EuclideanCoords([p0, y])
-        B = EuclideanCoords([(l) / 2, y - np.tan(0.62) * (l) / 2])
-        B0 = EuclideanCoords([(l) / 2, y + np.tan(0.62) * (l) / 2])
-        C = EuclideanCoords([l, y])
+        B = EuclideanCoords([length / 2, y - np.tan(0.62) * length / 2])
+        B0 = EuclideanCoords([length / 2, y + np.tan(0.62) * length / 2])
+        C = EuclideanCoords([length, y])
         A = A.translate(EuclideanCoords([x_offset, y_offset]))
         B = B.translate(EuclideanCoords([x_offset, y_offset]))
         B0 = B0.translate(EuclideanCoords([x_offset, y_offset]))

@@ -1,7 +1,6 @@
 import math
 
 import numpy as np
-from hypertiling.graphics.plot import geodesic_arc
 
 from mortier.coords import EuclideanCoords
 from mortier.enums import HatchType
@@ -41,7 +40,7 @@ class Writer:
         self.bands_angle = bands_angle
 
     def set_hatch_fill(self, hatch_fill_parameters):
-        assert not (self.bezier_curve and hatch_fill_angle["angle"])
+        assert not (self.bezier_curve and hatch_fill_parameters["angle"])
         self.hatch_fill_parameters = hatch_fill_parameters
 
     def line_offset(self, p1, p2, d):
@@ -147,7 +146,6 @@ class Writer:
         n = self.normalize(self.perp(dir_vec))
         d = self.normalize(dir_vec)
         off = n * (self.bands_width / 2)
-        l = p0 - p1
         if not end_cut:
             p0_cut = p0 + d * cut_length
             return EuclideanCoords(p0_cut - off)
@@ -169,7 +167,6 @@ class Writer:
         return cut_length, add_length
 
     def hatch_fill(self, vertices, cross_hatch=False):
-        lines = []
         angle = self.hatch_fill_parameters["angle"]
         if cross_hatch:
             angle += np.pi / 2
@@ -307,9 +304,9 @@ class Writer:
             p2 = pos_ring[(i + 2) % len(pos_ring)]
 
             if self.bezier_curve:
-                l = self.quadratic_bezier(p0, p1, p2)
-                for j in range(len(l) - 1):
-                    self.line(l[j], l[j + 1])
+                curve_pts = self.quadratic_bezier(p0, p1, p2)
+                for j in range(len(curve_pts) - 1):
+                    self.line(curve_pts[j], curve_pts[j + 1])
             else:
                 self.line(p0, p1)
                 self.line(p1, p2)
@@ -320,9 +317,9 @@ class Writer:
             p2 = neg_ring[i + 2]
 
             if self.bezier_curve:
-                l = self.quadratic_bezier(p0, p1, p2)
-                for j in range(len(l) - 1):
-                    self.line(l[j], l[j + 1])
+                curve_pts = self.quadratic_bezier(p0, p1, p2)
+                for j in range(len(curve_pts) - 1):
+                    self.line(curve_pts[j], curve_pts[j + 1])
             else:
                 self.line(p0, p1)
                 self.line(p1, p2)
@@ -370,13 +367,11 @@ class Writer:
             p0 = face.vertices[i]
             p1 = face.vertices[i + 1]
             p2 = face.vertices[i + 2]
-            l = self.quadratic_bezier(p0, p1, p2)
-            for j in range(len(l) - 1):
-                self.line(l[j], l[j + 1])
+            curve_pts = self.quadratic_bezier(p0, p1, p2)
+            for j in range(len(curve_pts) - 1):
+                self.line(curve_pts[j], curve_pts[j + 1])
 
     def face(self, face, dotted=False, color=(255, 255, 255)):
-        t = []
-        pattern = ""
         n_vert = len(face.vertices)
 
         self.fill_intersect_points(face)
@@ -388,9 +383,9 @@ class Writer:
             if self.bezier_curve:
                 self.draw_bezier_curves(face)
             else:
-                for i in range(len(face.vertices)):
+                for i in range(n_vert):
                     self.line(
-                        face.vertices[i], face.vertices[(i + 1) % len(face.vertices)]
+                        face.vertices[i], face.vertices[(i + 1) % n_vert]
                     )
         if self.hatch_fill_parameters["type"] is not None:
             self.hatch_fill(inside_vertices)

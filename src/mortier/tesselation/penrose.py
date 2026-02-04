@@ -1,12 +1,7 @@
-import math
-import random
 
-import numpy as np
 
-from mortier.coords import EuclideanCoords, LatticeCoords, Line
 from mortier.face.face import Face, P2Penrose, P3Penrose
 from mortier.tesselation.tesselation import Tesselation
-from mortier.utils.math_utils import in_bounds, planeCoords, planeToTileCoords
 
 
 class PenroseTesselation(Tesselation):

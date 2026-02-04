@@ -1,12 +1,10 @@
 import math
-import random
 
-import numpy as np
 
-from mortier.coords import EuclideanCoords, LatticeCoords, Line
+from mortier.coords import LatticeCoords
 from mortier.face.face import Face
 from mortier.tesselation.tesselation import Tesselation
-from mortier.utils.math_utils import in_bounds, planeCoords, planeToTileCoords
+from mortier.utils.math_utils import planeToTileCoords
 
 
 class RegularTesselation(Tesselation):
@@ -86,7 +84,8 @@ class RegularTesselation(Tesselation):
 
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]:
-                f_ = self.cell.translate(self.T1, self.T2, x, y)
+                f = self.cell.translate(self.T1, self.T2, x, y)
+                self.writer.face(f)
 
                 for s in self.seed:
                     s = LatticeCoords(s)
@@ -194,7 +193,6 @@ class RegularTesselation(Tesselation):
             self.writer.size[3] * 1j,
             (self.writer.size[2] + self.writer.size[3] * 1j),
         ]
-        lines = []
 
         for z in corners:
             z_ = planeToTileCoords(

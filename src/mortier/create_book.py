@@ -5,7 +5,7 @@ import numpy as np
 
 from mortier.penrose import Penrose
 from mortier.tesselation.tesselation import Tesselate
-from mortier.writer import BitmapWriter, TikzWriter
+from mortier.writer import TikzWriter
 
 ROOT_DIR = "/home/epsilon/misc/tesselation_alt_layout/"
 
@@ -30,8 +30,8 @@ text = (
 text += "&".join([str(c) for c in tess["T1"]]) + "\\\\ \n"
 text += "&".join([str(c) for c in tess["T2"]]) + "\\\\ \hline \n"
 
-for l in tess["Seed"]:
-    text += "&".join([str(c) for c in l]) + "\\\\ \n"
+for tesselation in tess["Seed"]:
+    text += "&".join([str(c) for c in tesselation]) + "\\\\ \n"
 
 text += "\end{tabular}\n\end{table}"
 

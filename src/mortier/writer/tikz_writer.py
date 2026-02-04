@@ -36,7 +36,7 @@ class TikzWriter(Writer):
 
     def line(self, p0, p1, dotted=False, color="black"):
         pattern = ""
-        if dotted == True:
+        if dotted:
             pattern = ", dotted"
         if self.in_bounds(p0) and self.in_bounds(p1):
             self.output.append(

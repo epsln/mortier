@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 
 from mortier.coords.coords import Coords
@@ -12,9 +10,6 @@ class Line(Coords):
         self.beg_pt = p0
         self.end_pt = p1
         self.vec = p1.translate(p0.scale(-1))
-
-    def heading(self):
-        return np.atan2(self.vec.y, self.vec.x)
 
     def len(self):
         return self.vec.len()
