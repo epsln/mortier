@@ -36,6 +36,7 @@ class Tesselation:
         self.separated_site_mode = False
         self.lacing_mode = False
         self.tile = None
+        self.tess_id = None
 
     def fill_neighbor(self, faces):
         """
