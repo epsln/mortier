@@ -10,7 +10,6 @@ class TikzWriter(Writer):
         size=(0, 0, 14, 20),
         n_tiles=1,
         lacing_mode=False,
-        lacing_angle=False,
         bands_mode=False,
         bands_width=10,
         bands_angle=0,
@@ -28,7 +27,7 @@ class TikzWriter(Writer):
         self.bands_width = 1
         self.seen_line = {}
 
-    def circle(self, p, r):
+    def circle(self, p, r, color = "black"):
         self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});")
 
     def point(self, p):
@@ -43,7 +42,7 @@ class TikzWriter(Writer):
                 f"\\draw [draw={color}{pattern}] ({np.round(p0.x, 2)}, {np.round(p0.y, 2)}) -- ({np.round(p1.x, 2)}, {np.round(p1.y, 2)});"
             )
 
-    def face(self, face, dotted=False, outline=False):
+    def face(self, face, dotted=False):
         t = []
         pattern = ""
         if dotted:
@@ -59,16 +58,15 @@ class TikzWriter(Writer):
         if self.lacing_mode or self.bands_mode:
             self.draw_outline_lines(face.vertices, face.mid_points)
         else:
-            for i, v in enumerate(face.vertices):
+            for _, v in enumerate(face.vertices):
                 if not self.in_bounds(v):
                     t0 = "--".join(t)
                     self.output.append(f"\\draw[{self.color} {pattern}] {t0};")
                     t = []
                     continue
                 t.append(f"({np.round(v.x, 2)}, {np.round(v.y, 2)})")
-            if (
-                dotted
-            ):  # We are probably drawing the base cell so connect all sides (WRONG)
+            if (dotted):  
+                # We are probably drawing the base cell so connect all sides (WRONG)
                 # t.append(f"({np.round(face.vertices[0].x, 2)}, {np.round(face.vertices[0].y, 2)})")
                 pattern = ",dotted"
             t0 = "--".join(t)
@@ -100,7 +98,7 @@ class TikzWriter(Writer):
     def no_clip(self):
         self.header = "\\begin{tikzpicture}\n"
 
-    def write(self, caption=None, label=None):
+    def write(self):
         self.output = "\n".join(list(set(self.output)))
         with open(self.filename, "w+") as f:
             f.write(self.header)

@@ -2,5 +2,5 @@ import enum
 
 
 class HatchType(enum.Enum):
-    line = enum.auto()
-    dot = enum.auto()
+    LINE = enum.auto()
+    DOT = enum.auto()

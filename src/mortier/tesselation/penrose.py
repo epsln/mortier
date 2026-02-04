@@ -1,6 +1,5 @@
-
-
 from mortier.face.face import Face, P2Penrose, P3Penrose
+from mortier.enums import TileType 
 from mortier.tesselation.tesselation import Tesselation
 
 
@@ -10,27 +9,22 @@ class PenroseTesselation(Tesselation):
         writer,
         tile="P2",
         level=8,
-        param_mode=False,
-        assym=False,
-        separated_site_mode=False,
     ):
         super().__init__(writer)
         self.level = level
         self.tile = tile
         self.tess_id = None
-        if tile == "P2":
+        if tile == TileType.P2:
             self.pen = P2Penrose.initialise(
-                0,
-                l=writer.size[2] * 2.5,
-                x_offset=-writer.size[2] / 2,
-                y_offset=-writer.size[3] / 4,
+                length=writer.size[2] * (2.0 + writer.n_tiles/10),
+                x_offset=-writer.size[2] / 5,
+                y_offset=-writer.size[3] / 6,
             )
         else:
             self.pen = P3Penrose.initialise(
-                0,
-                l=writer.size[2] * 3.5,
-                x_offset=-writer.size[2] / 1,
-                y_offset=-writer.size[3] / 4,
+                length=writer.size[2] * (3.5 + writer.n_tiles/10),
+                x_offset=-writer.size[2] / 2,
+                y_offset=writer.size[3] / 2,
             )
         self.faces = []
 

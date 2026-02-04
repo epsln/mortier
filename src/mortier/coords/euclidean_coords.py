@@ -7,13 +7,9 @@ class EuclideanCoords(Coords):
     def __init__(self, p):
         self.x = p[0]
         self.y = p[1]
-        # TODO: Return x,y as tuple for easy access
 
     def isclose(self, p):
-        if abs(self.x - p.x) < 0.0001 and abs(self.y - p.y) < 0.0001:
-            return True
-        else:
-            return False
+        return abs(self.x - p.x) < 0.0001 and abs(self.y - p.y) < 0.0001
 
     def translate(self, wc):
         return EuclideanCoords([self.x + wc.x, self.y + wc.y])

@@ -5,6 +5,10 @@ import numpy as np
 
 
 class Coords:
+    def __init__():
+        self.x = 0
+        self.y = 0
+
     def translate(self, wc):
         pass
 
@@ -29,5 +33,5 @@ class Coords:
         new_c.y = self.x
         return new_c
 
-    def toEuclidean(self):
+    def to_euclidean(self):
         pass

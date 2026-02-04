@@ -14,7 +14,6 @@ class LatticeCoords(Coords):
 
         self.x = w[0] + 0.5 * 3**0.5 * w[1] + 0.5 * w[2]
         self.y = 0.5 * w[1] + 0.5 * 3**0.5 * w[2] + w[3]
-        # TODO: Return x,y as tuple for easy access
 
     def translate(self, wc):
         c = [(w_ + wc_) for w_, wc_ in zip(self.w, wc.w)]
@@ -32,5 +31,5 @@ class LatticeCoords(Coords):
         y_rotated = self.x * np.sin(angle) + self.y * np.cos(angle)
         return EuclideanCoords([x_rotated, y_rotated])
 
-    def toEuclidean(self):
+    def to_euclidean(self):
         return EuclideanCoords([self.x, self.y])

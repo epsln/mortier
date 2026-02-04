@@ -3,7 +3,7 @@ import copy
 import numpy as np
 
 from mortier.coords import EuclideanCoords, LatticeCoords, Line
-from mortier.math_utils import angle_parametrisation
+from mortier.utils.math_utils import angle_parametrisation
 
 
 class Face:
@@ -11,14 +11,12 @@ class Face:
         self,
         vertices,
         mid_points=[],
-        barycenter=None,
         param_mode=False,
         assym_mode=False,
         separated_site_mode=False,
     ):
         self.vertices = vertices
         self.mid_points = mid_points
-        self.barycenter = barycenter
         self.param_mode = param_mode
         self.assym_mode = assym_mode
 
@@ -58,34 +56,22 @@ class Face:
             separated_site_mode=separated_site_mode,
         )
 
-    def translate(self, T1, T2=None, i=None, j=None):
+    def translate(self, dir_vec_1, dir_vec_2=None, mult_i=None, mult_j=None):
         new_face = copy.copy(self)
         if type(self.vertices[0]).__name__ == "LatticeCoords":
-            TI = T1.scale(i)
-            TIJ = TI.translate(T2.scale(j))
-            new_face.vertices = [v.translate(TIJ) for v in self.vertices]
+            vec_1 = dir_vec_1.scale(mult_i)
+            vec_2= vec_1.translate(dir_vec_2.scale(mult_j))
+            new_face.vertices = [v.translate(vec_2) for v in self.vertices]
         else:
-            new_face.vertices = [v.translate(T1) for v in self.vertices]
+            new_face.vertices = [v.translate(dir_vec_1) for v in self.vertices]
 
-        if self.barycenter:
-            # TODO: Remove me
-            b = self.barycenter.translate(TIJ)
-            new_face.barycenter = b
-            return new_face
-        else:
-            return new_face
+        return new_face
 
     def scale(self, n):
         new_face = copy.copy(self)
         new_face.vertices = [v.scale(n) for v in self.vertices]
 
-        if self.barycenter:
-            # TODO: Remove
-            b = self.barycenter.scale(n)
-            new_face.barycenter = b
-            return new_face
-        else:
-            return new_face
+        return new_face
 
     def rotate(self, theta):
         new_face = copy.copy(self)
@@ -100,7 +86,7 @@ class Face:
     def add_neigbors(self, face):
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
-    def ray_transform(self, angle, bounds=[], frame_num=0):
+    def ray_transform(self, angle, bounds=[0, 0, 1, 1], frame_num=0):
         new_face = copy.copy(self)
         vertices = []
         mid_points = []
@@ -296,3 +282,5 @@ class P3Penrose(P2Penrose):
             result.append(P3Penrose(self.B, p1, p0, 1))
             result.append(P3Penrose(p1, p0, self.C, 2))
             return result
+
+        raise ValueError("No code found... Check your initialisation !")

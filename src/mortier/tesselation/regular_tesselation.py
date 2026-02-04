@@ -4,16 +4,17 @@ import math
 from mortier.coords import LatticeCoords
 from mortier.face.face import Face
 from mortier.tesselation.tesselation import Tesselation
-from mortier.utils.math_utils import planeToTileCoords
+from mortier.utils.math_utils import plane_to_tile_coords
 
 
 class RegularTesselation(Tesselation):
-    # TODO: Make class more generic removing tess parameters
     def __init__(self, writer, tess, tess_id):
         super().__init__(writer)
         self.writer = writer
         self.tess = tess
         self.tess_id = tess_id
+        self.seed = None
+        self.cell = None
         self.wpow = []
 
         self.wpow.append(LatticeCoords([1, 0, 0, 0]))
@@ -195,7 +196,7 @@ class RegularTesselation(Tesselation):
         ]
 
         for z in corners:
-            z_ = planeToTileCoords(
+            z_ = plane_to_tileCoords(
                 self.tess, W, z.real / self.writer.n_tiles, z.imag / self.writer.n_tiles
             )
 

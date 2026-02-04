@@ -11,7 +11,6 @@ class BitmapWriter(Writer):
         size=(0, 0, 1920, 1080),
         n_tiles=100,
         lacing_mode=False,
-        lacing_angle=False,
         bands_mode=False,
         bands_width=10,
         bands_angle=0,

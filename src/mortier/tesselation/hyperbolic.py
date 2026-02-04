@@ -13,7 +13,7 @@ class HyperbolicTesselation(Tesselation):
         self.q = q
         self.tess_id = f"{p}-gone, {q}-voisins"
         self.n_layers = n_layers
-        self.T = HyperbolicTiling(self.p, self.q, self.n_layers, kernel="SRS")
+        self.tess = HyperbolicTiling(self.p, self.q, self.n_layers, kernel="SRS")
         self.faces = []
         self.angle = angle
         self.scale = min(self.writer.size[3], self.writer.size[2]) / 2
@@ -34,15 +34,15 @@ class HyperbolicTesselation(Tesselation):
         self.draw_unit_circle = draw
 
     def refine_tiling(self, iterations):
-        self.T.refine_lattice(iterations)
+        self.tess.refine_lattice(iterations)
         self.tesselate_face()
 
     def tesselate_face(self):
         # Extract faces from a Matplotlib polygoncollection
         z_point = EuclideanCoords([self.writer.size[2] / 2, self.writer.size[3] / 2])
-        convert_polygons_to_patches(self.T)
+        convert_polygons_to_patches(self.tess)
         faces = []
-        for polygon in self.T:
+        for polygon in self.tess:
             u = polygon[1:]
             v = [EuclideanCoords([p.real, p.imag]) for p in u]
             f = Face(v)

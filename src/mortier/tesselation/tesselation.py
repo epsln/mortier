@@ -20,6 +20,7 @@ class Tesselation:
         self.show_underlying = False
         self.separated_site_mode = False
         self.lacing_mode = False
+        self.tile = None
 
     def fill_neighbor(self, faces):
         pass
@@ -76,6 +77,7 @@ class Tesselation:
                 self.scale,
             )
 
+        caption = ""
         if self.tess_id:
             caption = f"Pavage ${self.tess_id}$"
         elif self.tile:
@@ -91,7 +93,8 @@ class Tesselation:
         if self.param_mode == "simplex":
             caption += ", angle paramétrisé (bruit Simplex)"
         if self.assym_angle:
-            caption += f", angles assymétrique $\\theta_0 \\approx {round(self.angle, 3)}, \\theta_1 \\approx {round(self.assym_angle, 3)}$"
+            caption += f", angles assymétrique $\\theta_0 \\approx {round(self.angle, 3)},"
+            caption += f"\\theta_1 \\approx {round(self.assym_angle, 3)}$"
         if self.writer.lacing_mode:
             caption += ", entrelacements"
         if self.writer.bands_mode:
@@ -102,15 +105,8 @@ class Tesselation:
         output = self.writer.write()
         return output
 
-    def set_tesselation(self, tess, tess_id):
-        self.tess = tess
-        self.tess_id = tess_id
-        self.T0 = LatticeCoords([0, 0, 0, 0])
-        self.T1 = LatticeCoords(tess["T1"])
-        self.T2 = LatticeCoords(tess["T2"])
-        self.T3 = self.T1.translate(self.T2)
-        self.seed = self.tess["Seed"]
-        self.cell = Face([self.T0, self.T1, self.T3, self.T2])
+    def set_tesselation(self):
+        pass
 
     def set_writer(self, writer):
         self.writer = writer

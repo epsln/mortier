@@ -12,7 +12,6 @@ class SVGWriter(Writer):
         size=(0, 0, 210, 297),
         n_tiles=1,
         lacing_mode=False,
-        lacing_angle=False,
         bands_mode=False,
         bands_width=10,
         bands_angle=0,
@@ -31,7 +30,7 @@ class SVGWriter(Writer):
         self.dwg.viewbox(width=size[2], height=size[3])
         self.api_mode = False
 
-    def circle(self, c, r):
+    def circle(self, c, r, color ="black"):
         if not self.in_bounds(c):
             return
         self.dwg.add(
@@ -52,12 +51,11 @@ class SVGWriter(Writer):
             buf = io.StringIO()
             self.dwg.write(buf)
             return buf.getvalue()
-        else:
-            self.dwg.save()
+        self.dwg.save()
 
     def new(self, filename, size=None, n_tiles=None):
         if not size:
-            size = self.svg_size
+            size = self.size
             svg_size = (
                 size[0],
                 size[1],

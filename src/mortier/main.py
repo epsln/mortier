@@ -89,7 +89,7 @@ with open("data/database.json", "r") as file:
     "--separated_sites",
     default=None,
     type=click.IntRange(min=2, max=10),
-    help="Use separated ray projection sites. Position of the sites in terms of fraction of the sides.",
+    help="Use separated ray projection sites",
 )
 def tess_param(
     tesselation_type,
@@ -117,15 +117,15 @@ def tess_param(
     separated_sites,
 ):
     tess = js[tess_id]
-    if file_type == FileType.bitmap:
+    if file_type == FileType.BITMAP:
         writer = BitmapWriter(f"{output}")
-    elif file_type == FileType.svg:
+    elif file_type == FileType.SVG:
         writer = SVGWriter(f"{output}")
     else:
         writer = TikzWriter(f"{output}")
     writer.n_tiles = scale
     writer.output_size = (0, 0, output_size[0], output_size[1])
-    writer.bands_mode = False
+    writer.bands_mode = bands 
     writer.lacing_mode = lace
     writer.bands_width = bands_width
     writer.bezier_curve = bezier
@@ -134,19 +134,20 @@ def tess_param(
     writer.hatch_fill_parameters["crosshatch"] = cross_hatch
     writer.hatch_fill_parameters["type"] = hatch_type
 
-    if tesselation_type == TesselationType.regular:
+    if tesselation_type == TesselationType.REGULAR:
         tesselation = RegularTesselation(writer, tess, tess_id)
-    elif tesselation_type == TesselationType.hyperbolic:
+    elif tesselation_type == TesselationType.HYPERBOLIC:
         tesselation = HyperbolicTesselation(writer, pq[0], pq[1], depth)
         tesselation.half_plane = half_plane
         tesselation.refine_tiling(refine)
     else:
         tesselation = PenroseTesselation(writer, tile=tile, level=depth)
     tesselation.set_angle(angle)
+    tesselation.set_param_mode(parametrised)
     tesselation.set_assym_angle = assym_angle
     tesselation.set_separated_site_mode(separated_sites)
     tesselation.draw_tesselation()
 
 
 if __name__ == "__main__":
-    tesselation = tess_param()
+    tess_param()
