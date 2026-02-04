@@ -1,8 +1,12 @@
-from mortier.coords.coords import Coords
-from .euclidean_coords import EuclideanCoords 
-
 import math
+
 import numpy as np
+
+from mortier.coords.coords import Coords
+
+from .euclidean_coords import EuclideanCoords
+
+
 class Line(Coords):
   def __init__(self, p0, p1):
       self.beg_pt = p0

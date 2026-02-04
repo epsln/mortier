@@ -1,6 +1,8 @@
-import math
-import numpy as np
 import copy
+import math
+
+import numpy as np
+
 
 class Coords:
   def translate(self, wc):

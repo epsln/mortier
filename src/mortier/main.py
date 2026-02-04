@@ -1,18 +1,17 @@
-from mortier.tesselation import RegularTesselation
-from mortier.tesselation import HyperbolicTesselation 
-from mortier.tesselation import PenroseTesselation 
-from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
-from mortier.enums import TesselationType, HatchType, ParamType, FileType, TileType 
-
+import configparser
+import enum
 import json
 import math
-import numpy as np
-
-import configparser 
 import random
 
 import click
-import enum
+import numpy as np
+
+from mortier.enums import (FileType, HatchType, ParamType, TesselationType,
+                           TileType)
+from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
+                                 RegularTesselation)
+from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 
 with open('data/database.json', 'r') as file:
     js = json.load(file)

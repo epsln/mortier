@@ -1,7 +1,10 @@
-from mortier.writer.writer import Writer 
 import io
+
 import svgwrite
-from svgwrite import cm, mm   
+from svgwrite import cm, mm
+
+from mortier.writer.writer import Writer
+
 
 class SVGWriter(Writer):
     def __init__(self, filename, size = (0, 0, 210, 297), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):

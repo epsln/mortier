@@ -1,11 +1,13 @@
-from mortier.coords import LatticeCoords, EuclideanCoords, Line
-import mortier.utils.math_utils
-
 import copy
 import math
 import random
+
 import noise
 import numpy as np
+
+import mortier.utils.math_utils
+from mortier.coords import EuclideanCoords, LatticeCoords, Line
+
 
 class Face():
     def __init__(self, vertices, mid_points = [], barycenter = None, param_mode = False, assym_mode = False, separated_site_mode = False):

@@ -1,8 +1,11 @@
-from mortier.writer.writer import Writer 
-from mortier.coords import EuclideanCoords
-from PIL import Image, ImageDraw
 import random
+
 import numpy as np
+from PIL import Image, ImageDraw
+
+from mortier.coords import EuclideanCoords
+from mortier.writer.writer import Writer
+
 
 class BitmapWriter(Writer):
     def __init__(self, filename, size = (0, 0, 1920, 1080), n_tiles = 100, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):

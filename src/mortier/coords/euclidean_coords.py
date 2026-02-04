@@ -1,6 +1,8 @@
+import numpy as np
+
 from mortier.coords.coords import Coords
 
-import numpy as np
+
 class EuclideanCoords(Coords):
   def __init__(self, p): 
     self.x = p[0] 

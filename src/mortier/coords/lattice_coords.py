@@ -1,6 +1,8 @@
+import numpy as np
+
 from mortier.coords import Coords
 from mortier.coords.euclidean_coords import EuclideanCoords
-import numpy as np
+
 
 class LatticeCoords(Coords):
     def __init__(self, w): 

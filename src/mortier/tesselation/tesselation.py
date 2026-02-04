@@ -1,10 +1,12 @@
-from mortier.coords import LatticeCoords, EuclideanCoords, Line
-from mortier.utils.math_utils import in_bounds, planeToTileCoords, planeCoords
-from mortier.face.face import Face
-
-import numpy as np
 import math
 import random
+
+import numpy as np
+
+from mortier.coords import EuclideanCoords, LatticeCoords, Line
+from mortier.face.face import Face
+from mortier.utils.math_utils import in_bounds, planeCoords, planeToTileCoords
+
 
 class Tesselation():
     def __init__(self, writer):

@@ -1,11 +1,12 @@
-from mortier.coords import EuclideanCoords
-from mortier.utils.math_utils import map_num
-from mortier.face.face import Face
-from mortier.tesselation.tesselation import Tesselation 
-
 import numpy as np
 from hypertiling import HyperbolicTiling
-from hypertiling.graphics.plot import plot_tiling, convert_polygons_to_patches
+from hypertiling.graphics.plot import convert_polygons_to_patches, plot_tiling
+
+from mortier.coords import EuclideanCoords
+from mortier.face.face import Face
+from mortier.tesselation.tesselation import Tesselation
+from mortier.utils.math_utils import map_num
+
 
 class HyperbolicTesselation(Tesselation):
     def __init__(self, writer, p, q, n_layers = 7, angle = None):

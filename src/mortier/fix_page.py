@@ -1,9 +1,10 @@
 import json
-from tesselation import Tesselate 
-from writer import TikzWriter, BitmapWriter 
-from penrose import Penrose
 import random
+
 import numpy as np
+from penrose import Penrose
+from tesselation import Tesselate
+from writer import BitmapWriter, TikzWriter
 
 ROOT_DIR = "/home/epsilon/misc/tesselation_alt_layout/"
 BROKEN_FIGS = [36]

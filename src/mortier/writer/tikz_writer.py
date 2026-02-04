@@ -1,5 +1,7 @@
-from mortier.writer.writer import Writer 
 import numpy as np
+
+from mortier.writer.writer import Writer
+
 
 class TikzWriter(Writer):
     def __init__(self, filename, size = (0, 0, 14, 20), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0, draw_borders = False):
