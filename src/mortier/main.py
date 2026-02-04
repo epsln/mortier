@@ -2,7 +2,7 @@ from mortier.tesselation import RegularTesselation
 from mortier.tesselation import HyperbolicTesselation 
 from mortier.tesselation import PenroseTesselation 
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
-from mortier.enums import TesselationType, HatchType, ParamType, FileType 
+from mortier.enums import TesselationType, HatchType, ParamType, FileType, TileType 
 
 import json
 import math
@@ -53,19 +53,20 @@ with open('data/database.json', 'r') as file:
 @click.option('--cross_hatch', is_flag = True, help='Cross hatching')
 @click.option('--pq', default = (3, 7), type = (int, int),
               help='Number of sides and number of neighbors of Hyperbolic Tesselation')
+@click.option('--tile', default = "P2", type = click.Choice(TileType, case_sensitive = False))
 @click.option('--depth', default = 4, type = click.IntRange(min = 2),
               help='Inflation depth')
 @click.option('--half_plane', is_flag = True, help='Inflation depth')
 @click.option('--refine', default = 0, type = click.IntRange(min = 0), help='Inflation depth')
-@click.option('--assym_angle', default = False, type = click.FloatRange(min = 0),
+@click.option('--assym_angle', default = None, type = click.FloatRange(min = 0),
               help='Use an assymetrical angle for ray projection')
-@click.option('--separated_sites', default = 2, type = click.IntRange(min = 2, max = 10),
+@click.option('--separated_sites', default = None, type = click.IntRange(min = 2, max = 10),
               help='Use separated ray projection sites. Position of the sites in terms of fraction of the sides.')
 def tess_param(tesselation_type, tess_id, 
                file_type, output, output_size, 
                scale, angle, parametrised, 
                bands, lace, bands_width, bezier, 
-               hatch_type, hatch_angle, hatch_spacing, cross_hatch, 
+               hatch_type, hatch_angle, hatch_spacing, cross_hatch, tile,
                pq, depth, refine, half_plane, assym_angle, separated_sites):
     tess = js[tess_id]
     if file_type == FileType.bitmap:
@@ -76,8 +77,9 @@ def tess_param(tesselation_type, tess_id,
         writer = TikzWriter(f"{output}")
     writer.n_tiles = scale
     writer.output_size = (0, 0, output_size[0], output_size[1]) 
-    writer.bands_mode = bands
-    writer.lace_mode = lace 
+    writer.bands_mode = False 
+    writer.lacing_mode = lace 
+    writer.bands_width = bands_width 
     writer.bezier_curve = bezier 
     writer.hatch_fill_parameters["angle"] = hatch_angle
     writer.hatch_fill_parameters["spacing"] = hatch_spacing
@@ -91,7 +93,7 @@ def tess_param(tesselation_type, tess_id,
         tesselation.half_plane = half_plane
         tesselation.refine_tiling(refine)
     else:
-        tesselation = PenroseTesselation(writer, level = depth)
+        tesselation = PenroseTesselation(writer, tile = tile, level = depth)
     tesselation.set_angle(angle)
     tesselation.set_assym_angle = assym_angle 
     tesselation.set_separated_site_mode(separated_sites)
