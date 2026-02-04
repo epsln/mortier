@@ -180,3 +180,22 @@ def outline_lines(points, intersect_points, bands_width, bands_angle, bands_mode
     pos_ring[0] = x 
     pos_ring[-1] = x 
     return pos_ring, neg_ring
+
+def quadratic_bezier(p0, p1, p2, steps=10):
+    #TODO: Maybe N order bezier with all vertices ?
+    points = []
+    for i in range(steps + 1):
+        t = i / steps
+        x = (1 - t)**2 * p0.x + 2 * (1 - t) * t * p1.x + t**2 * p2.x
+        y = (1 - t)**2 * p0.y + 2 * (1 - t) * t * p1.y + t**2 * p2.y
+        points.append(EuclideanCoords([x, y]))
+    return points
+
+def fill_intersect_points(face, intersect_points):
+    for p, angle in face.mid_points:
+        if str(p) not in intersect_points:
+            intersect_points[str(p)] = {"state": np.random.randint(2, size = 2),
+                                             "angle": angle}
+        elif intersect_points[str(p)]["state"].sum() % 2 == 0:
+            intersect_points[str(p)] = {"state": np.array([(x + 1) % 2 for x in intersect_points[str(p)]["state"]]),
+                                             "angle": angle} 

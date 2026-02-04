@@ -2,7 +2,7 @@ import math
 import numpy as np
 from mortier.coords import EuclideanCoords
 from mortier.enums import HatchType 
-from mortier.utils.geometry import outline_lines 
+from mortier.utils.geometry import outline_lines, fill_intersect_points, quadratic_bezier 
 
 from hypertiling.graphics.plot import geodesic_arc
 
@@ -86,7 +86,7 @@ class Writer():
             p2 = pos_ring[(i + 2) % len(pos_ring)]
             
             if self.bezier_curve:
-                l = self.quadratic_bezier(p0, p1, p2)
+                l = quadratic_bezier(p0, p1, p2)
                 for j in range(len(l)- 1):
                     self.line(l[j], l[j + 1]) 
             else:
@@ -117,24 +117,6 @@ class Writer():
     def line(self, p0, p1):
         pass
 
-    def quadratic_bezier(self, p0, p1, p2, steps=10):
-        #TODO: Maybe N order bezier with all vertices ?
-        points = []
-        for i in range(steps + 1):
-            t = i / steps
-            x = (1 - t)**2 * p0.x + 2 * (1 - t) * t * p1.x + t**2 * p2.x
-            y = (1 - t)**2 * p0.y + 2 * (1 - t) * t * p1.y + t**2 * p2.y
-            points.append(EuclideanCoords([x, y]))
-        return points
-
-    def fill_intersect_points(self, face):
-        for p, angle in face.mid_points:
-            if str(p) not in self.intersect_points:
-                self.intersect_points[str(p)] = {"state": np.random.randint(2, size = 2),
-                                                 "angle": angle}
-            elif self.intersect_points[str(p)]["state"].sum() % 2 == 0:
-                self.intersect_points[str(p)] = {"state": np.array([(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]]),
-                                                 "angle": angle} 
     def draw_bezier_curves(self, face):
         for i in range(0, len(face.vertices) - 2, 2):
             p0 = face.vertices[i] 
@@ -149,7 +131,7 @@ class Writer():
         pattern = ""
         n_vert = len(face.vertices)
 
-        self.fill_intersect_points(face)
+        fill_intersect_points(face, self.intersect_points)
         inside_vertices = face.vertices
 
         if self.lacing_mode or self.bands_mode:
