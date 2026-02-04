@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mortier"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 authors = ["Epsilon"]
 packages = [{ include = "mortier", from = "src" }]
@@ -20,6 +20,8 @@ isort = "^7.0.0"
 ruff = "^0.15.0"
 pylint = "^4.0.4"
 
+[tool.poetry.scripts]
+mortier = "mortier.main:tess_param"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
