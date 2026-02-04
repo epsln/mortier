@@ -10,8 +10,8 @@ class BitmapWriter(Writer):
         self.image = Image.new("RGB", (size[2], size[3]))
         self.output = ImageDraw.Draw(self.image)
        
-    def point(self, p):
-        self.output.point((p.x, p.y))
+    def point(self, p, color = (255, 255, 255)):
+        self.output.point((p.x, p.y), color = color)
 
     def arc(self, bbox, start, end):
         self.output.arc(bbox, start = start, end = end)
