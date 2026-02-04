@@ -1,4 +1,4 @@
-from mortier.face.face import Face, P2Penrose, P3Penrose
+from mortier.face import Face, P2Penrose, P3Penrose
 from mortier.enums import TileType
 from mortier.tesselation.tesselation import Tesselation
 

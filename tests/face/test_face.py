@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 
 from mortier.coords import LatticeCoords, EuclideanCoords, Line
-from mortier.face.face import Face, P2Penrose, P3Penrose
+from mortier.face import Face, P2Penrose, P3Penrose
 
 def approx_point(p, q, eps=1e-6):
     return abs(p.x - q.x) < eps and abs(p.y - q.y) < eps
