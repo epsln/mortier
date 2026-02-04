@@ -1,5 +1,6 @@
-# Mortier 
-![alt text](data/img.png)
+# 🧱 Mortier 🧱 
+![A nice tiling](data/img.png)
+
 ## A Python-based tiling generator
 Mortier is a powerful Python-based tiling generator. Mortier can generate regular, aperiodic and hyperbolic tilings. It is also able to generate an infnity of other tilings based on the ["Polygon in Contact"](https://dl.acm.org/doi/10.5555/1089508.1089538) technique. Mortier can output your tiling as a vector SVG, or a nice PNG. It even has support for Tikz figure generation.
 
