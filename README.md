@@ -58,9 +58,8 @@ Now, to add some complexity (breathe in now):
 
 Generate a random semi-regular paving, output on a file named foo.svg sized as 297x210mm, zoomed out slightly, with the Polygon in Contact method used with an angle equals 0.2, with sides represented as bands with a width of 1mm and hatch the faces with lines which are angled by 0.4 radians. 
 ```
-poetry run python src/mortier/main.py --tesselation_type regular --tess_id "example_id" \
-               --file_type svg --output foo \
-               --output_size 1920 1080 --scale 50 \
+poetry run python src/mortier/main.py --file_type svg --output foo \
+               --output_size 297 210 --scale 50 \
                --angle 0.2 --bands --hatch_type line --hatch_angle 0.4 
 ```
 
