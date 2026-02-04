@@ -42,6 +42,12 @@ cd mortier
 poetry install
 ```
 
+If you really love Mortier and want to use it globally, first build the package, then install it using pip:
+```
+poetry build
+sudo pip install dist/
+```
+
 ## Usage 
 Running mortier without any argument will generate a random semi-regular tesselation:
 ```
