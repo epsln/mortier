@@ -154,7 +154,7 @@ class EuclideanCoords(Coords):
         y_rotated = ((self.x - dx) * np.sin(angle)) + ((self.y - dy) * np.cos(angle)) + dy
         return EuclideanCoords([x_rotated, y_rotated])
 
-    def toEuclidean(self):
+    def to_euclidean(self):
         """
         Return self (compatibility with other coordinate systems).
 
