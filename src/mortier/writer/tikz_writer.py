@@ -4,6 +4,13 @@ from mortier.writer.writer import Writer
 
 
 class TikzWriter(Writer):
+    """
+    TikZ-based writer for vector graphics output.
+
+    This writer generates LaTeX/TikZ code for rendering tessellations
+    as vector graphics.
+    """
+
     def __init__(
         self,
         filename,
@@ -15,9 +22,38 @@ class TikzWriter(Writer):
         bands_angle=0,
         draw_borders=False,
     ):
+        """
+        Initialize a TikZ writer.
+
+        Parameters
+        ----------
+        filename : str
+            Output .tex filename.
+        size : tuple of float, optional
+            Drawing bounds as (x, y, width, height).
+        n_tiles : int, optional
+            Number of tiles used for scaling or repetition.
+        lacing_mode : bool, optional
+            Enable lacing mode.
+        bands_mode : bool, optional
+            Enable band rendering mode.
+        bands_width : float, optional
+            Width of rendered bands.
+        bands_angle : float, optional
+            Angle used for band rendering.
+        draw_borders : bool, optional
+            Whether to draw bounding borders.
+        """
         super().__init__(
-            filename, size, n_tiles, lacing_mode, bands_angle, bands_mode, bands_width
+            filename,
+            size,
+            n_tiles,
+            lacing_mode,
+            bands_angle,
+            bands_mode,
+            bands_width,
         )
+
         self.output = []
         self.header = "\\begin{tikzpicture}\n"
         self.footer = "\n\\end{tikzpicture}\n"
@@ -27,26 +63,90 @@ class TikzWriter(Writer):
         self.bands_width = 1
         self.seen_line = {}
 
-    def circle(self, p, r, color = "black"):
-        self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});")
+    def circle(self, p, r, color="black"):
+        """
+        Draw a circle.
+
+        Parameters
+        ----------
+        p : EuclideanCoords
+            Center of the circle.
+        r : float
+            Radius of the circle.
+        color : str, optional
+            TikZ color name.
+
+        Returns
+        -------
+        None
+        """
+        self.output.append(
+            f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});"
+        )
 
     def point(self, p):
-        self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle (2pt);")
+        """
+        Draw a point.
+
+        Parameters
+        ----------
+        p : EuclideanCoords
+            Point location.
+
+        Returns
+        -------
+        None
+        """
+        self.output.append(
+            f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle (2pt);"
+        )
 
     def line(self, p0, p1, dotted=False, color="black"):
-        pattern = ""
-        if dotted:
-            pattern = ", dotted"
+        """
+        Draw a line segment.
+
+        Parameters
+        ----------
+        p0 : EuclideanCoords
+            Starting point.
+        p1 : EuclideanCoords
+            Ending point.
+        dotted : bool, optional
+            Draw the line as dotted.
+        color : str, optional
+            TikZ color name.
+
+        Returns
+        -------
+        None
+        """
+        pattern = ", dotted" if dotted else ""
+
         if self.in_bounds(p0) and self.in_bounds(p1):
             self.output.append(
-                f"\\draw [draw={color}{pattern}] ({np.round(p0.x, 2)}, {np.round(p0.y, 2)}) -- ({np.round(p1.x, 2)}, {np.round(p1.y, 2)});"
+                "\\draw [draw="
+                f"{color}{pattern}] "
+                f"({np.round(p0.x, 2)}, {np.round(p0.y, 2)}) -- "
+                f"({np.round(p1.x, 2)}, {np.round(p1.y, 2)});"
             )
 
     def face(self, face, dotted=False):
-        t = []
-        pattern = ""
-        if dotted:
-            pattern = ",dotted"
+        """
+        Draw a polygonal face.
+
+        Parameters
+        ----------
+        face : Face
+            Face to draw.
+        dotted : bool, optional
+            Draw the face edges as dotted.
+
+        Returns
+        -------
+        None
+        """
+        path = []
+        pattern = ",dotted" if dotted else ""
 
         for p in face.mid_points:
             if str(p) not in self.intersect_points:
@@ -55,64 +155,147 @@ class TikzWriter(Writer):
                 self.intersect_points[str(p)] = np.array(
                     [(x + 1) % 2 for x in self.intersect_points[str(p)]]
                 )
+
         if self.lacing_mode or self.bands_mode:
             self.draw_outline_lines(face.vertices, face.mid_points)
         else:
-            for _, v in enumerate(face.vertices):
+            for v in face.vertices:
                 if not self.in_bounds(v):
-                    t0 = "--".join(t)
-                    self.output.append(f"\\draw[{self.color} {pattern}] {t0};")
-                    t = []
+                    if path:
+                        self.output.append(
+                            f"\\draw[{self.color} {pattern}] {'--'.join(path)};"
+                        )
+                        path = []
                     continue
-                t.append(f"({np.round(v.x, 2)}, {np.round(v.y, 2)})")
-            if (dotted):  
-                # We are probably drawing the base cell so connect all sides (WRONG)
-                # t.append(f"({np.round(face.vertices[0].x, 2)}, {np.round(face.vertices[0].y, 2)})")
-                pattern = ",dotted"
-            t0 = "--".join(t)
-            self.output.append(f"\\draw[{self.color} {pattern}] {t0};")
+
+                path.append(f"({np.round(v.x, 2)}, {np.round(v.y, 2)})")
+
+            if path:
+                self.output.append(
+                    f"\\draw[{self.color} {pattern}] {'--'.join(path)};"
+                )
 
     def set_scale(self, scale):
-        self.header = "\\begin{tikzpicture}[scale = " + str(scale) + "]\n"
+        """
+        Set the TikZ scale factor.
+
+        Parameters
+        ----------
+        scale : float
+            Scaling factor.
+
+        Returns
+        -------
+        None
+        """
+        self.header = f"\\begin{{tikzpicture}}[scale = {scale}]\n"
 
     def set_caption(self, caption):
-        self.footer += "\\caption{" + caption + "}\n"
+        """
+        Add a LaTeX caption.
+
+        Parameters
+        ----------
+        caption : str
+            Caption text.
+
+        Returns
+        -------
+        None
+        """
+        self.footer += f"\\caption{{{caption}}}\n"
 
     def set_label(self, label):
-        self.footer += "\\label{fig:" + label + "}\n"
+        """
+        Add a LaTeX label.
+
+        Parameters
+        ----------
+        label : str
+            Label identifier.
+
+        Returns
+        -------
+        None
+        """
+        self.footer += f"\\label{{fig:{label}}}\n"
 
     def set_bounds(self, size):
+        """
+        Define drawing bounds and clipping region.
+
+        Parameters
+        ----------
+        size : tuple of float
+            Bounds as (x, y, width, height).
+
+        Returns
+        -------
+        None
+        """
         if self.draw_borders:
             self.header += (
                 "\\draw (0, 0) rectangle + ("
-                + str(size[2] - 2)
-                + ","
-                + str(size[3] - 2)
-                + ");\n"
+                f"{size[2] - 2},{size[3] - 2});\n"
             )
-        self.header += "\\clip (" + str(size[0] + 1) + "," + str(size[1] + 1) + ")"
+
         self.header += (
-            "rectangle + (" + str(size[2] - 2) + "," + str(size[3] - 2) + ");\n"
+            f"\\clip ({size[0] + 1},{size[1] + 1}) rectangle + "
+            f"({size[2] - 2},{size[3] - 2});\n"
         )
 
     def no_clip(self):
+        """
+        Disable clipping.
+
+        Returns
+        -------
+        None
+        """
         self.header = "\\begin{tikzpicture}\n"
 
     def write(self):
-        self.output = "\n".join(list(set(self.output)))
-        with open(self.filename, "w+") as f:
+        """
+        Write the TikZ output to file.
+
+        Returns
+        -------
+        None
+        """
+        self.output = "\n".join(set(self.output))
+
+        with open(self.filename, "w+", encoding="utf-8") as f:
             f.write(self.header)
             f.write(self.output)
             f.write(self.footer)
 
     def new(self, filename, size=None, n_tiles=None):
+        """
+        Reset the writer for a new output file.
+
+        Parameters
+        ----------
+        filename : str
+            New output filename.
+        size : tuple of float, optional
+            New drawing bounds.
+        n_tiles : int, optional
+            Updated tile count.
+
+        Returns
+        -------
+        None
+        """
         self.header = "\\begin{tikzpicture}\n"
         self.footer = "\n\\end{tikzpicture}\n"
-        if not size:
+
+        if size is None:
             size = self.size
-        if not n_tiles:
+        if n_tiles is None:
             n_tiles = self.n_tiles
+
         super().__init__(filename, size, n_tiles)
         self.set_bounds(size)
         self.seen_line = {}
         self.output = []
+

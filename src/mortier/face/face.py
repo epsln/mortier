@@ -6,7 +6,10 @@ from mortier.coords import EuclideanCoords, LatticeCoords, Line
 from mortier.utils.math_utils import angle_parametrisation
 
 
-class Face:
+class Face:    
+    """
+    Class representing a closed Polygon, used to tile the space.
+    """
     def __init__(
         self,
         vertices,
@@ -15,6 +18,22 @@ class Face:
         assym_mode=False,
         separated_site_mode=False,
     ):
+        """
+        Initialize a face with a list of points.
+
+        Parameters
+        ----------
+        vertices : List[Coords]
+            List of vertices defining a polygon.
+        mid_points: List[EuclideanCoords]
+            List of points that lies in the middle of each segment
+        param_mode: ParamType
+            Type of angle parametrisation to be used
+        assym_mode: bool
+            If true, induce an assymetry in the ray angles
+        separated_site_mode: bool
+            If True, separate the launch sites of the rays 
+        """
         self.vertices = vertices
         self.mid_points = mid_points
         self.param_mode = param_mode
@@ -29,6 +48,28 @@ class Face:
     def generate(
         v, k, m, param_mode=False, assym_mode=False, separated_site_mode=False
     ):
+        """
+        Generate a face using the Soto-Sanchez method.
+
+        Parameters
+        ----------
+        v: LatticeCoords 
+           Anchor point 
+        k: int
+        m: int
+            Number of vertex in the face
+        param_mode: ParamType
+            Type of angle parametrisation to be used
+        assym_mode: bool
+            If true, induce an assymetry in the ray angles
+        separated_site_mode: bool
+            If True, separate the launch sites of the rays 
+        Returns
+        -------
+        new_face: Face
+            Generated face
+        """
+        vertices : List[Coords]
         wpow = []
         wpow.append(LatticeCoords([1, 0, 0, 0]))
         wpow.append(LatticeCoords([0, 1, 0, 0]))
@@ -57,6 +98,24 @@ class Face:
         )
 
     def translate(self, dir_vec_1, dir_vec_2=None, mult_i=None, mult_j=None):
+        """
+        Translate a face. Works with both Euclidean and Lattice Coordinates.
+
+        Parameters
+        ----------
+        dir_vec_1: Coords
+            Unity vector to translate with
+        dir_vec_2: Coords
+            Unity vector to translate with
+        multi_i: int
+            Multiplication factor to use with the first unity vector
+        multi_j: int
+            Multiplication factor to use with the second unity vector
+        Returns
+        -------
+        new_face: Face
+            Translated face
+        """
         new_face = copy.copy(self)
         if type(self.vertices[0]).__name__ == "LatticeCoords":
             vec_1 = dir_vec_1.scale(mult_i)
@@ -68,12 +127,36 @@ class Face:
         return new_face
 
     def scale(self, n):
+        """
+        Scale a face. Works with both Euclidean and Lattice Coordinates.
+
+        Parameters
+        ----------
+        n: float 
+            Scaling factor
+        Returns
+        -------
+        new_face: Face
+            Scaled face
+        """
         new_face = copy.copy(self)
         new_face.vertices = [v.scale(n) for v in self.vertices]
 
         return new_face
 
     def rotate(self, theta):
+        """
+        Rotate a face. Works with both Euclidean and Lattice Coordinates.
+
+        Parameters
+        ----------
+        theta: float 
+            Angle by which to rotate the face
+        Returns
+        -------
+        new_face: Face
+            Rotated face
+        """
         new_face = copy.copy(self)
         vertices = []
         for v in self.vertices:
@@ -84,9 +167,37 @@ class Face:
         return new_face
 
     def add_neigbors(self, face):
+        """
+        Add direct neighbors of the face in the tesselation
+
+        Parameters
+        ----------
+        face: Face 
+            Current face 
+        """
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
     def ray_transform(self, angle, bounds=[0, 0, 1, 1], frame_num=0):
+        """
+        Apply the Polygon In Contact technique to the face.
+        (https://dl.acm.org/doi/10.5555/1089508.1089538)
+        This techniques creates a new face by shooting two "rays" from each sides 
+        with an angle and finding the intersection. The new face vertices are composed of the 
+        shooting sites and the ray intersection. 
+
+        Parameters
+        ----------
+        angle: float 
+            Angle from the normal of the side, toward which the rays are shot. 
+        bounds: list[float] 
+            Bounds of the images. Should be the same as writer.size
+        frame_num: int
+            Num of the generated images, useful to create animation
+        Returns
+        -------
+        face: Face
+            Computed face.
+        """
         new_face = copy.copy(self)
         vertices = []
         mid_points = []
@@ -150,6 +261,15 @@ class Face:
         return new_face
 
     def half_plane(self):
+        """
+        Transform a Hyperbolic Face from the disk model to the half plane model
+        Returns
+        -------
+        face: Face
+            Computed face.
+        """
+        new_face = copy.copy(self)
+
         vertices = []
         for v in self.vertices:
             z = v.x + 1j * v.y
@@ -159,6 +279,14 @@ class Face:
         return self
 
     def __str__(self):
+        """
+        Helper function to print a face vertices.
+
+        Returns
+        -------
+        str:
+            The vertices of the current faces, with the euclidean coordinates rounded.    
+        """
         t = []
         for v in self.vertices:
             t.append(f"({round(v.x, 2)},{round(v.y, 3)})")
@@ -166,7 +294,23 @@ class Face:
 
 
 class P2Penrose(Face):
+    """
+    Class that implement the P2 tile from Penrose
+    """
     def __init__(self, A, B, C, code):
+        #TODO: Use the normal face vertices.
+        """
+        Parameters
+        ----------
+        A: EuclideanCoords
+            First Point of the tile
+        B: EuclideanCoords
+            Second Point of the tile
+        C: EuclideanCoords
+            Second Point of the tile
+        code: int
+            Indicates which sub-tile this face belongs to. 
+        """
         self.A = A
         self.B = B
         self.C = C
@@ -175,6 +319,19 @@ class P2Penrose(Face):
 
     @staticmethod
     def initialise(code=2, length=70, x_offset=-15, y_offset=-5):
+        """
+        Generate a base level 0 tiling, using two P2 tiles.
+        Parameters
+        ----------
+        length: float 
+            Length of the side 
+        x_offset: float 
+            Offset the tiling in the x axis 
+        y_offset: float 
+            Offset the tiling in the y axis 
+        code: int
+            Indicates which sub-tile this face belongs to. 
+        """
         p0 = -0
         y = -0
         A = EuclideanCoords([p0, y])
@@ -190,9 +347,25 @@ class P2Penrose(Face):
         return [P2Penrose(A, B, C, 3), P2Penrose(A, C1, C, 2)]
 
     def __str__(self):
+        """
+        Helper function to print a face vertices.
+
+        Returns
+        -------
+        str:
+            The vertices of the current faces, with the euclidean coordinates rounded.    
+        """
         return f"{self.A} -> {self.B} -> {self.C} ({self.code})"
 
     def inflate(self):
+        """
+        Inflate the current tile, which subdivide it into different tiles. 
+        The specific tilings are based on the current tile code.
+        Returns
+        -------
+        result: List[P2Penrose]
+            List of subtiles 
+        """
         result = []
         if self.code == 0:
             p0 = Line(self.B, self.A).get_pq_point(2, (1 + np.sqrt(5)))
@@ -228,7 +401,22 @@ class P2Penrose(Face):
 
 
 class P3Penrose(P2Penrose):
+    """
+    Class that implement the P3 tile from Penrose
+    """
     def __init__(self, A, B, C, code):
+        """
+        Parameters
+        ----------
+        A: EuclideanCoords
+            First Point of the tile
+        B: EuclideanCoords
+            Second Point of the tile
+        C: EuclideanCoords
+            Second Point of the tile
+        code: int
+            Indicates which sub-tile this face belongs to. 
+        """
         self.A = A
         self.B = B
         self.C = C
@@ -237,6 +425,19 @@ class P3Penrose(P2Penrose):
 
     @staticmethod
     def initialise(code=2, length=60, x_offset=-5, y_offset=2):
+        """
+        Generate a base level 0 tiling, using two P2 tiles.
+        Parameters
+        ----------
+        length: float 
+            Length of the side 
+        x_offset: float 
+            Offset the tiling in the x axis 
+        y_offset: float 
+            Offset the tiling in the y axis 
+        code: int
+            Indicates which sub-tile this face belongs to. 
+        """
         p0 = -0
         y = 0
         A = EuclideanCoords([p0, y])
@@ -250,6 +451,14 @@ class P3Penrose(P2Penrose):
         return [P3Penrose(A, B, C, 2), P3Penrose(A, B0, C, 2)]
 
     def inflate(self):
+        """
+        Inflate the current tile, which subdivide it into different tiles. 
+        The specific tilings are based on the current tile code.
+        Returns
+        -------
+        result: List[P2Penrose]
+            List of subtiles 
+        """
         result = []
         if self.code == 0:
             p0 = Line(self.B, self.A).get_pq_point(2, (1 + np.sqrt(5)))
