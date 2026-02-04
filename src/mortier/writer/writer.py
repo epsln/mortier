@@ -7,19 +7,33 @@ from mortier.coords import EuclideanCoords
 from mortier.enums import HatchType
 
 
-class Writer():
-    def __init__(self, filename, size = (0, 0, 1920, 1080), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):
+class Writer:
+    def __init__(
+        self,
+        filename,
+        size=(0, 0, 1920, 1080),
+        n_tiles=1,
+        lacing_mode=False,
+        lacing_angle=False,
+        bands_mode=False,
+        bands_width=10,
+        bands_angle=0,
+    ):
         self.filename = filename
         self.n_tiles = int(n_tiles)
         self.size = size
         self.intersect_points = {}
-        self.lacing_mode = lacing_mode 
+        self.lacing_mode = lacing_mode
         self.bands_mode = bands_mode
-        self.bands_width = bands_width 
-        self.bands_angle = bands_angle 
-        self.bezier_curve = False 
-        self.hatch_fill_parameters = {"angle": None, "spacing": 5, 
-                                      "crosshatch": False, "type": None} 
+        self.bands_width = bands_width
+        self.bands_angle = bands_angle
+        self.bezier_curve = False
+        self.hatch_fill_parameters = {
+            "angle": None,
+            "spacing": 5,
+            "crosshatch": False,
+            "type": None,
+        }
         assert not (self.bezier_curve and self.hatch_fill_parameters["angle"])
         assert not (self.lacing_mode and self.bands_mode)
 
@@ -36,8 +50,10 @@ class Writer():
         if dir_vec.len() < 1e-9:
             return (p1, p2), (p1, p2)
         perp = EuclideanCoords([-dir_vec.y, dir_vec.x]).normalise()
-        return (p1.translate(perp.scale(d)), p2.translate(perp.scale(d))), \
-               (p1.translate(perp.scale(-d)), p2.translate(perp.scale(-d)))
+        return (p1.translate(perp.scale(d)), p2.translate(perp.scale(d))), (
+            p1.translate(perp.scale(-d)),
+            p2.translate(perp.scale(-d)),
+        )
 
     def intersect(self, p1, p2, p3, p4):
         """Find intersection of two lines (p1,p2) and (p3,p4)."""
@@ -52,7 +68,7 @@ class Writer():
         det = A1 * B2 - A2 * B1
         if abs(det) < 1e-8:
             # Lines are parallel; return midpoint approximation
-            return p2.translate(p3).scale(1/2).numpy()
+            return p2.translate(p3).scale(1 / 2).numpy()
         x = (B2 * C1 - B1 * C2) / det
         y = (A1 * C2 - A2 * C1) / det
         return EuclideanCoords([x, y]).numpy()
@@ -76,7 +92,7 @@ class Writer():
                 out.append(p)
         return out
 
-    def vertex_miter(self, p_prev, p_curr, p_next, half_w, end = False):
+    def vertex_miter(self, p_prev, p_curr, p_next, half_w, end=False):
         """Compute offset points (left/right) at vertex p_curr using miter join."""
         p_prev = p_prev.numpy()
         p_curr = p_curr.numpy()
@@ -88,26 +104,34 @@ class Writer():
         EPS = 1e-9
 
         if np.linalg.norm(nv_prev) < EPS and np.linalg.norm(nv_next) < EPS:
-            return EuclideanCoords(p_curr + np.array([half_w, 0])), EuclideanCoords(p_curr - np.array([half_w, 0]))
+            return EuclideanCoords(p_curr + np.array([half_w, 0])), EuclideanCoords(
+                p_curr - np.array([half_w, 0])
+            )
 
         if np.linalg.norm(nv_prev) < EPS:
             n = self.normalize(self.perp(nv_next))
             d = self.normalize(nv_next)
-            cut = half_w/np.tan(end + np.pi/2)
-            return EuclideanCoords(p_curr + n * half_w - d * cut), EuclideanCoords(p_curr - n * half_w)
+            cut = half_w / np.tan(end + np.pi / 2)
+            return EuclideanCoords(p_curr + n * half_w - d * cut), EuclideanCoords(
+                p_curr - n * half_w
+            )
 
         if np.linalg.norm(nv_next) < EPS:
             n = self.normalize(self.perp(nv_prev))
             d = self.normalize(nv_prev)
-            cut = -half_w/np.tan(end + np.pi/2)
-            return EuclideanCoords(p_curr + n * half_w - d * cut), EuclideanCoords(p_curr - n * half_w)
+            cut = -half_w / np.tan(end + np.pi / 2)
+            return EuclideanCoords(p_curr + n * half_w - d * cut), EuclideanCoords(
+                p_curr - n * half_w
+            )
 
         n1 = self.normalize(self.perp(nv_prev))
         n2 = self.normalize(self.perp(nv_next))
         bis = n1 + n2
         bis_len = np.linalg.norm(bis)
         if bis_len < 1e-6:
-            return EuclideanCoords(p_curr + n2 * half_w), EuclideanCoords(p_curr - n2 * half_w)
+            return EuclideanCoords(p_curr + n2 * half_w), EuclideanCoords(
+                p_curr - n2 * half_w
+            )
         b = bis / bis_len
         denom = np.dot(b, n2)
         miter_len = half_w / denom
@@ -115,9 +139,9 @@ class Writer():
         neg = p_curr - b * miter_len
         return EuclideanCoords(pos), EuclideanCoords(neg)
 
-    def offset_segment(self, p0, p1, cut_length, end_cut = False):
+    def offset_segment(self, p0, p1, cut_length, end_cut=False):
         """Return outer and inner offset lines for a single segment."""
-        p0 = p0.numpy() 
+        p0 = p0.numpy()
         p1 = p1.numpy()
         dir_vec = p1 - p0
         n = self.normalize(self.perp(dir_vec))
@@ -132,30 +156,29 @@ class Writer():
             return EuclideanCoords(p1_cut - off)
 
     def compute_cut_length(self, theta, half_w):
-        if theta < np.pi/4:
-            theta_ = np.pi/2 - theta*2 
-            add_length = -(half_w/ np.cos(theta_) - half_w * np.tan(theta_))
-            cut_length = half_w / np.cos(theta_) + half_w* np.tan(theta_) 
+        if theta < np.pi / 4:
+            theta_ = np.pi / 2 - theta * 2
+            add_length = -(half_w / np.cos(theta_) - half_w * np.tan(theta_))
+            cut_length = half_w / np.cos(theta_) + half_w * np.tan(theta_)
         else:
-            theta_ = theta * 2 - np.pi/2 
+            theta_ = theta * 2 - np.pi / 2
             add_length = -(half_w / np.cos(theta_) + half_w * np.tan(theta_))
             cut_length = half_w / np.cos(theta_) - half_w * np.tan(theta_)
         if self.bands_mode:
             add_length = cut_length
         return cut_length, add_length
-    
-    def hatch_fill(self, vertices, cross_hatch = False):
+
+    def hatch_fill(self, vertices, cross_hatch=False):
         lines = []
         angle = self.hatch_fill_parameters["angle"]
         if cross_hatch:
-            angle += np.pi/2
-        
+            angle += np.pi / 2
+
         vertices_rotated = [v.rotate(-angle) for v in vertices]
         ys = [v.y for v in vertices_rotated]
         y_min, y_max = min(ys), max(ys)
 
-
-        y = y_min + self.hatch_fill_parameters["spacing"] 
+        y = y_min + self.hatch_fill_parameters["spacing"]
         while y < y_max:
             xs = []
 
@@ -188,7 +211,7 @@ class Writer():
                     while x < x1:
                         c = EuclideanCoords([x, y]).rotate(angle)
                         self.point(c)
-                        x += self.hatch_fill_parameters["spacing"] 
+                        x += self.hatch_fill_parameters["spacing"]
 
             y += self.hatch_fill_parameters["spacing"]
 
@@ -196,8 +219,8 @@ class Writer():
         """
         Compute pairs of offset polylines (outer and inner) for a given polyline.
         """
-        pts = points 
-        n = len(pts) 
+        pts = points
+        n = len(pts)
         if n < 2:
             return [], []
 
@@ -210,51 +233,70 @@ class Writer():
             p_curr = pts[i]
             p_next = pts[(i + 1) % n]
 
-            #p_curr = pts[i]
-            #p_prev = pts[i - 1] if i > 0 else pts[i]
-            #p_next = pts[i + 1] if i < n - 1 else pts[i]
+            # p_curr = pts[i]
+            # p_prev = pts[i - 1] if i > 0 else pts[i]
+            # p_next = pts[i + 1] if i < n - 1 else pts[i]
 
             if i == 0 or i == n - 1:
                 end = self.bands_angle
             else:
                 end = False
 
-            pos_midpoint, neg_midpoint = self.vertex_miter(p_prev, p_curr, p_next, half_w, end)
+            pos_midpoint, neg_midpoint = self.vertex_miter(
+                p_prev, p_curr, p_next, half_w, end
+            )
 
             if str(p_curr) in self.intersect_points:
                 inter_p = self.intersect_points[str(p_curr)]
-                cut_length, add_length = self.compute_cut_length(inter_p["angle"], half_w)
+                cut_length, add_length = self.compute_cut_length(
+                    inter_p["angle"], half_w
+                )
                 beg_point = self.offset_segment(p_curr, p_next, cut_length)
-                if inter_p['state'][0] == 1:
+                if inter_p["state"][0] == 1:
                     beg_point = self.offset_segment(p_curr, p_next, cut_length)
                 else:
                     beg_point = self.offset_segment(p_curr, p_next, add_length)
 
             elif str(p_next) in self.intersect_points:
                 inter_p = self.intersect_points[str(p_next)]
-                cut_length, add_length = self.compute_cut_length(inter_p["angle"], half_w)
-                end_point = self.offset_segment(p_curr, p_next, cut_length, end_cut = True)
-                if inter_p['state'][1] == 1:
-                    end_point = self.offset_segment(p_curr, p_next, cut_length, end_cut = True)
+                cut_length, add_length = self.compute_cut_length(
+                    inter_p["angle"], half_w
+                )
+                end_point = self.offset_segment(
+                    p_curr, p_next, cut_length, end_cut=True
+                )
+                if inter_p["state"][1] == 1:
+                    end_point = self.offset_segment(
+                        p_curr, p_next, cut_length, end_cut=True
+                    )
                 else:
-                    end_point = self.offset_segment(p_curr, p_next, add_length, end_cut = True)
+                    end_point = self.offset_segment(
+                        p_curr, p_next, add_length, end_cut=True
+                    )
 
                 neg_ring.append(beg_point)
                 neg_ring.append(neg_midpoint)
                 neg_ring.append(end_point)
 
             pos_ring.append(pos_midpoint)
-        
-        #Hacky way to get the closing of the inside polygon 
-        s0 = EuclideanCoords([pos_ring[0].x - pos_ring[1].x, pos_ring[0].y - pos_ring[1].y])
-        s1 = EuclideanCoords([pos_ring[-2].x - pos_ring[-1].x, pos_ring[-2].y - pos_ring[-1].y])
 
-        t = ( s1.x * (pos_ring[0].y - pos_ring[-2].y) - s1.y * (pos_ring[0].x - pos_ring[-2].x)) / (-s1.x * s0.y + s0.x * s1.y)
-        
+        # Hacky way to get the closing of the inside polygon
+        s0 = EuclideanCoords(
+            [pos_ring[0].x - pos_ring[1].x, pos_ring[0].y - pos_ring[1].y]
+        )
+        s1 = EuclideanCoords(
+            [pos_ring[-2].x - pos_ring[-1].x, pos_ring[-2].y - pos_ring[-1].y]
+        )
+
+        t = (
+            s1.x * (pos_ring[0].y - pos_ring[-2].y)
+            - s1.y * (pos_ring[0].x - pos_ring[-2].x)
+        ) / (-s1.x * s0.y + s0.x * s1.y)
+
         x = EuclideanCoords([pos_ring[0].x + (t * s0.x), pos_ring[0].y + (t * s0.y)])
 
-        pos_ring[0] = x 
-        pos_ring[-1] = x 
+        pos_ring[0] = x
+        pos_ring[-1] = x
         return pos_ring, neg_ring
 
     def draw_outline_lines(self, points, color="red"):
@@ -263,31 +305,31 @@ class Writer():
             p0 = pos_ring[i]
             p1 = pos_ring[i + 1]
             p2 = pos_ring[(i + 2) % len(pos_ring)]
-            
+
             if self.bezier_curve:
                 l = self.quadratic_bezier(p0, p1, p2)
-                for j in range(len(l)- 1):
-                    self.line(l[j], l[j + 1]) 
+                for j in range(len(l) - 1):
+                    self.line(l[j], l[j + 1])
             else:
                 self.line(p0, p1)
                 self.line(p1, p2)
-            
+
         for i in range(0, len(neg_ring) - 2, 3):
             p0 = neg_ring[i]
             p1 = neg_ring[i + 1]
             p2 = neg_ring[i + 2]
-            
+
             if self.bezier_curve:
                 l = self.quadratic_bezier(p0, p1, p2)
                 for j in range(len(l) - 1):
-                    self.line(l[j], l[j + 1]) 
+                    self.line(l[j], l[j + 1])
             else:
                 self.line(p0, p1)
                 self.line(p1, p2)
 
         return pos_ring
 
-    def circle(self, c, r, color = (255, 255, 255)):
+    def circle(self, c, r, color=(255, 255, 255)):
         pass
 
     def point(self, p):
@@ -297,35 +339,42 @@ class Writer():
         pass
 
     def quadratic_bezier(self, p0, p1, p2, steps=10):
-        #TODO: Maybe N order bezier with all vertices ?
+        # TODO: Maybe N order bezier with all vertices ?
         points = []
         for i in range(steps + 1):
             t = i / steps
-            x = (1 - t)**2 * p0.x + 2 * (1 - t) * t * p1.x + t**2 * p2.x
-            y = (1 - t)**2 * p0.y + 2 * (1 - t) * t * p1.y + t**2 * p2.y
+            x = (1 - t) ** 2 * p0.x + 2 * (1 - t) * t * p1.x + t**2 * p2.x
+            y = (1 - t) ** 2 * p0.y + 2 * (1 - t) * t * p1.y + t**2 * p2.y
             points.append(EuclideanCoords([x, y]))
         return points
 
     def fill_intersect_points(self, face):
-        #TODO: Put this in its own function
+        # TODO: Put this in its own function
         for p, angle in face.mid_points:
             if str(p) not in self.intersect_points:
-                self.intersect_points[str(p)] = {"state": np.random.randint(2, size = 2),
-                                                 "angle": angle}
+                self.intersect_points[str(p)] = {
+                    "state": np.random.randint(2, size=2),
+                    "angle": angle,
+                }
             elif self.intersect_points[str(p)]["state"].sum() % 2 == 0:
-                self.intersect_points[str(p)] = {"state": np.array([(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]]),
-                                                 "angle": angle} 
+                self.intersect_points[str(p)] = {
+                    "state": np.array(
+                        [(x + 1) % 2 for x in self.intersect_points[str(p)]["state"]]
+                    ),
+                    "angle": angle,
+                }
+
     def draw_bezier_curves(self, face):
-        #TODO: Also own function
+        # TODO: Also own function
         for i in range(0, len(face.vertices) - 2, 2):
-            p0 = face.vertices[i] 
-            p1 = face.vertices[i + 1] 
-            p2 = face.vertices[i + 2] 
+            p0 = face.vertices[i]
+            p1 = face.vertices[i + 1]
+            p2 = face.vertices[i + 2]
             l = self.quadratic_bezier(p0, p1, p2)
             for j in range(len(l) - 1):
-                self.line(l[j], l[j + 1]) 
- 
-    def face(self, face, dotted = False, color = (255, 255, 255)):
+                self.line(l[j], l[j + 1])
+
+    def face(self, face, dotted=False, color=(255, 255, 255)):
         t = []
         pattern = ""
         n_vert = len(face.vertices)
@@ -340,16 +389,23 @@ class Writer():
                 self.draw_bezier_curves(face)
             else:
                 for i in range(len(face.vertices)):
-                    self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
+                    self.line(
+                        face.vertices[i], face.vertices[(i + 1) % len(face.vertices)]
+                    )
         if self.hatch_fill_parameters["type"] is not None:
             self.hatch_fill(inside_vertices)
             if self.hatch_fill_parameters["crosshatch"]:
-                self.hatch_fill(inside_vertices, self.hatch_fill_parameters["crosshatch"])
+                self.hatch_fill(
+                    inside_vertices, self.hatch_fill_parameters["crosshatch"]
+                )
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
             return False
-        if not (self.size[0] < v.x < self.size[0] + self.size[2] and self.size[1] < v.y < self.size[1] + self.size[3]):
+        if not (
+            self.size[0] < v.x < self.size[0] + self.size[2]
+            and self.size[1] < v.y < self.size[1] + self.size[3]
+        ):
             return False
         return True
 
@@ -359,5 +415,5 @@ class Writer():
     def set_caption(self, caption):
         pass
 
-    def new(self, filename, size = None, n_tiles = None):
+    def new(self, filename, size=None, n_tiles=None):
         pass

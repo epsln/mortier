@@ -8,7 +8,7 @@ from mortier.face.face import Face
 from mortier.utils.math_utils import in_bounds, planeCoords, planeToTileCoords
 
 
-class Tesselation():
+class Tesselation:
     def __init__(self, writer):
         self.writer = writer
         self.faces = []
@@ -32,37 +32,37 @@ class Tesselation():
         pass
 
     def draw_cell(self):
-        pass  
-    
+        pass
+
     def draw_star(self):
-        pass 
+        pass
 
     def draw_edge(self):
-        pass 
+        pass
 
     def tesselate_face(self):
-        pass  
+        pass
 
     def find_corners(self):
         pass
 
-    def set_param_mode(self, mode = False):
-        self.param_mode = mode 
+    def set_param_mode(self, mode=False):
+        self.param_mode = mode
 
-    def set_angle(self, angle = False):
-        self.angle = angle 
+    def set_angle(self, angle=False):
+        self.angle = angle
         self.writer.set_band_angle(angle)
 
-    def set_assym_angle(self, angle = False):
-        self.assym_angle = angle 
+    def set_assym_angle(self, angle=False):
+        self.assym_angle = angle
 
-    def set_show_underlying(self, show_underlying = False):
-        self.show_underlying = show_underlying 
+    def set_show_underlying(self, show_underlying=False):
+        self.show_underlying = show_underlying
 
-    def set_separated_site_mode(self, separated_site = False):
+    def set_separated_site_mode(self, separated_site=False):
         self.separated_site_mode = separated_site
 
-    def draw_tesselation(self, frame_num = 0):
+    def draw_tesselation(self, frame_num=0):
         self.tesselate_face()
         if self.show_base:
             self.draw_cell()
@@ -70,22 +70,24 @@ class Tesselation():
         tess_arr = []
         for f in self.faces:
             if self.show_underlying:
-                self.writer.face(f, dotted = True)
+                self.writer.face(f, dotted=True)
             if self.angle:
                 f = f.ray_transform(self.angle, self.writer.size, frame_num)
             self.writer.face(f)
 
         if self.draw_unit_circle:
-            self.writer.circle(EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2]),
-                               self.scale)
+            self.writer.circle(
+                EuclideanCoords([self.writer.size[2] / 2, self.writer.size[3] / 2]),
+                self.scale,
+            )
 
-        if self.tess_id: 
-            caption = f"Pavage ${self.tess_id}$" 
+        if self.tess_id:
+            caption = f"Pavage ${self.tess_id}$"
         elif self.tile:
-            caption = f"Pavage ${self.tile}$" 
-        if self.angle and not self.assym_angle: 
+            caption = f"Pavage ${self.tile}$"
+        if self.angle and not self.assym_angle:
             caption += f", avec $\\theta \\approx {round(self.angle, 3)}$"
-        if self.separated_site_mode: 
+        if self.separated_site_mode:
             caption += ", sites séparés"
         if self.param_mode == "sin":
             caption += ", angle paramétrisé (sinus)"
@@ -103,7 +105,7 @@ class Tesselation():
         self.writer.set_caption(caption)
         self.writer.set_label(caption)
         output = self.writer.write()
-        return output 
+        return output
 
     def set_tesselation(self, tess, tess_id):
         self.tess = tess

@@ -9,22 +9,22 @@ from mortier.utils.math_utils import map_num
 
 
 class HyperbolicTesselation(Tesselation):
-    def __init__(self, writer, p, q, n_layers = 7, angle = None):
+    def __init__(self, writer, p, q, n_layers=7, angle=None):
         super().__init__(writer)
         self.p = p
         self.q = q
         self.tess_id = f"{p}-gone, {q}-voisins"
-        self.n_layers = n_layers 
-        self.T = HyperbolicTiling(self.p, self.q, self.n_layers, kernel = "SRS")
+        self.n_layers = n_layers
+        self.T = HyperbolicTiling(self.p, self.q, self.n_layers, kernel="SRS")
         self.faces = []
         self.angle = angle
-        self.scale = min(self.writer.size[3], self.writer.size[2])/2
+        self.scale = min(self.writer.size[3], self.writer.size[2]) / 2
         self.refine_level = 0
         self.half_plane = False
         self.draw_unit_circle = False
 
     def set_scale(self, scale):
-        self.scale = min(self.writer.size[3], self.writer.size[2])/2 * scale
+        self.scale = min(self.writer.size[3], self.writer.size[2]) / 2 * scale
 
     def convert_to_half_plane(self):
         faces = []
@@ -40,8 +40,8 @@ class HyperbolicTesselation(Tesselation):
         self.tesselate_face()
 
     def tesselate_face(self):
-        #Extract faces from a Matplotlib polygoncollection
-        z_point = EuclideanCoords([self.writer.size[2]/2, self.writer.size[3]/2])
+        # Extract faces from a Matplotlib polygoncollection
+        z_point = EuclideanCoords([self.writer.size[2] / 2, self.writer.size[3] / 2])
         pgoncollec = convert_polygons_to_patches(self.T)
         faces = []
         for polygon in self.T:
@@ -52,9 +52,9 @@ class HyperbolicTesselation(Tesselation):
 
         if self.half_plane:
             self.convert_to_half_plane()
-            z_point = EuclideanCoords([self.writer.size[2]/2, 0])
+            z_point = EuclideanCoords([self.writer.size[2] / 2, 0])
 
         for f in self.faces:
             f = f.scale(self.scale).translate(z_point)
             faces.append(f)
-        self.faces = faces 
+        self.faces = faces
