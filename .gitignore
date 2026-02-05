@@ -4,5 +4,6 @@
 *.png
 *.mp4
 figures/
-data/
 *.pyc
+create_book.py
+fix_page.py
