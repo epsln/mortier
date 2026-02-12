@@ -168,7 +168,7 @@ class Tesselation:
         """
         self.separated_site_mode = separated_site
 
-    def draw_tesselation(self, frame_num=0):
+    def draw_tesselation(self, frame_num=[0, 1]):
         """
         Draw the complete tessellation.
 
