@@ -17,8 +17,10 @@ class Writer():
         self.bands_width = bands_width 
         self.bands_angle = bands_angle 
         self.bezier_curve = False 
+        self.color_line = (255, 255, 255)
+        self.color_bg   = (0, 0, 0)
         self.hatch_fill_parameters = {"angle": None, "spacing": 5, 
-                                      "crosshatch": False, "type": None} 
+                                      "crosshatch": False, "type": None, "color": self.color_line} 
         assert not (self.bezier_curve and self.hatch_fill_parameters["angle"])
         assert not (self.lacing_mode and self.bands_mode)
 
@@ -67,17 +69,17 @@ class Writer():
                 if not self.hatch_fill_parameters["type"] == HatchType.DOT:
                     a = EuclideanCoords([x0, y]).rotate(angle)
                     b = EuclideanCoords([x1, y]).rotate(angle)
-                    self.line(a, b)
+                    self.line(a, b, self.hatch_fill_parameters["color"])
                 else:
                     x = x0 + self.hatch_fill_parameters["spacing"] / 2
                     while x < x1:
                         c = EuclideanCoords([x, y]).rotate(angle)
-                        self.point(c)
+                        self.point(c, self.hatch_fill_parameters["color"])
                         x += self.hatch_fill_parameters["spacing"] 
 
             y += self.hatch_fill_parameters["spacing"]
 
-    def draw_outline_lines(self, points, color="red"):
+    def draw_outline_lines(self, points):
         pos_ring, neg_ring = outline_lines(points, self.intersect_points, self.bands_width, self.bands_angle, self.bands_mode)
         
         for i in range(0, len(pos_ring) - 1, 2):
@@ -88,10 +90,10 @@ class Writer():
             if self.bezier_curve:
                 l = quadratic_bezier(p0, p1, p2)
                 for j in range(len(l)- 1):
-                    self.line(l[j], l[j + 1]) 
+                    self.line(l[j], l[j + 1], self.color_line) 
             else:
-                self.line(p0, p1)
-                self.line(p1, p2)
+                self.line(p0, p1, self.color_line)
+                self.line(p1, p2, self.color_line)
             
         for i in range(0, len(neg_ring) - 2, 3):
             p0 = neg_ring[i]
@@ -101,20 +103,20 @@ class Writer():
             if self.bezier_curve:
                 l = self.quadratic_bezier(p0, p1, p2)
                 for j in range(len(l) - 1):
-                    self.line(l[j], l[j + 1]) 
+                    self.line(l[j], l[j + 1], self.color_line) 
             else:
-                self.line(p0, p1)
-                self.line(p1, p2)
+                self.line(p0, p1, self.color_line)
+                self.line(p1, p2, self.color_line)
 
         return pos_ring
 
     def circle(self, c, r, color = (255, 255, 255)):
         pass
 
-    def point(self, p):
+    def point(self, p, color = (255, 255, 255)):
         pass
 
-    def line(self, p0, p1):
+    def line(self, p0, p1, color = (255, 255, 255)):
         pass
 
     def draw_bezier_curves(self, face):
@@ -126,7 +128,7 @@ class Writer():
             for j in range(len(l) - 1):
                 self.line(l[j], l[j + 1]) 
  
-    def face(self, face, dotted = False, color = (255, 255, 255)):
+    def face(self, face, dotted = False):
         t = []
         pattern = ""
         n_vert = len(face.vertices)
@@ -141,7 +143,7 @@ class Writer():
                 self.draw_bezier_curves(face)
             else:
                 for i in range(len(face.vertices)):
-                    self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)])
+                    self.line(face.vertices[i], face.vertices[(i + 1) % len(face.vertices)], self.color_line)
         if self.hatch_fill_parameters["type"] is not None:
             self.hatch_fill(inside_vertices)
             if self.hatch_fill_parameters["crosshatch"]:
@@ -158,6 +160,9 @@ class Writer():
         pass
 
     def set_caption(self, caption):
+        pass
+
+    def set_color_bg(self, color):
         pass
 
     def new(self, filename, size = None, n_tiles = None):

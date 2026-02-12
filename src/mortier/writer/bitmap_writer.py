@@ -111,6 +111,10 @@ class BitmapWriter(Writer):
         p1 = (c.x + r, c.y + r)
         self.output.ellipse([p0, p1], outline=color)
 
+    def set_color_bg(self, color):
+        if color:
+            self.image.paste(color, (0, 0, self.image.size[0], self.image.size[1]))
+
     def line(self, p0, p1, color=(255, 255, 255)):
         """
         Draw a line segment.

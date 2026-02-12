@@ -91,6 +91,24 @@ with open("data/database.json", "r") as file:
     type=click.IntRange(min=2, max=10),
     help="Use separated ray projection sites",
 )
+@click.option(
+    "--color",
+    default=(255, 255, 255),
+    type=(int, int, int),
+    help="Color of sides",
+)
+@click.option(
+    "--color_bg",
+    default=None,
+    type=(int, int, int),
+    help="Color of the background",
+)
+@click.option(
+    "--color_hatch",
+    default=None,
+    type=(int, int, int),
+    help="Color of the hatching",
+)
 def tess_param(
     tesselation_type,
     tess_id,
@@ -115,6 +133,9 @@ def tess_param(
     half_plane,
     assym_angle,
     separated_sites,
+    color,
+    color_bg,
+    color_hatch
 ):
     tess = js[tess_id]
     if file_type == FileType.BITMAP:
@@ -129,10 +150,14 @@ def tess_param(
     writer.lacing_mode = lace
     writer.bands_width = bands_width
     writer.bezier_curve = bezier
+    writer.color_line = color 
+    writer.set_color_bg(color_bg)
     writer.hatch_fill_parameters["angle"] = hatch_angle
     writer.hatch_fill_parameters["spacing"] = hatch_spacing
     writer.hatch_fill_parameters["crosshatch"] = cross_hatch
     writer.hatch_fill_parameters["type"] = hatch_type
+    if color_hatch:
+        writer.hatch_fill_parameters["color"] = color_hatch 
 
     if tesselation_type == TesselationType.REGULAR:
         tesselation = RegularTesselation(writer, tess, tess_id)
