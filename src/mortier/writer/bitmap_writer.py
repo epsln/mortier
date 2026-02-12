@@ -69,7 +69,7 @@ class BitmapWriter(Writer):
         -------
         None
         """
-        self.output.point((p.x, p.y), color=color)
+        self.output.point((p.x, p.y), fill=color)
 
     def arc(self, bbox, start, end):
         """
