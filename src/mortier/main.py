@@ -4,12 +4,10 @@ import random
 import click
 import numpy as np
 
-from mortier.enums import FileType, HatchType, ParamType, TesselationType, TileType
-from mortier.tesselation import (
-    HyperbolicTesselation,
-    PenroseTesselation,
-    RegularTesselation,
-)
+from mortier.enums import (FileType, HatchType, ParamType, TesselationType,
+                           TileType)
+from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
+                                 RegularTesselation)
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 
 with open("data/database.json", "r") as file:

@@ -3,8 +3,9 @@ import copy
 import numpy as np
 
 from mortier.coords import EuclideanCoords, LatticeCoords, Line
-from mortier.face.face import Face 
+from mortier.face.face import Face
 from mortier.utils.math_utils import angle_parametrisation
+
 
 class P2Penrose(Face):
     """

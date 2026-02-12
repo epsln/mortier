@@ -6,6 +6,7 @@ from mortier.coords import EuclideanCoords, LatticeCoords, Line
 from mortier.face.p2_tile import P2Penrose
 from mortier.utils.math_utils import angle_parametrisation
 
+
 class P3Penrose(P2Penrose):
     """
     Class that implement the P3 tile from Penrose

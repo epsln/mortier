@@ -138,15 +138,15 @@ class SVGWriter(Writer):
 
         self.dwg.save()
         return None
-    
+
     def set_color_bg(self, color):
         if color:
             self.color_bg = color
-            self.dwg.add(self.dwg.rect(insert=(0, 0), 
-                                       rx = None,
-                                       ry = None,
-                                       size=('100%', '100%'), 
-                                       fill=f'rgb({self.color_bg[0]}, {self.color_bg[1]}, {self.color_bg[2]})')) 
+            self.dwg.add(self.dwg.rect(insert=(0, 0),
+                           rx = None,
+                           ry = None,
+                           size=('100%', '100%'),
+                           fill=f'rgb({self.color_bg[0]}, {self.color_bg[1]}, {self.color_bg[2]})'))
 
     def new(self, filename, size=None, n_tiles=None):
         """
@@ -180,4 +180,3 @@ class SVGWriter(Writer):
             size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm"),
         )
         self.dwg.viewbox(width=size[2], height=size[3])
-

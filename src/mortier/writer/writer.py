@@ -1,10 +1,13 @@
 import math
-import numpy as np
-from mortier.coords import EuclideanCoords
-from mortier.enums import HatchType 
-from mortier.utils.geometry import outline_lines, fill_intersect_points, quadratic_bezier 
 
+import numpy as np
 from hypertiling.graphics.plot import geodesic_arc
+
+from mortier.coords import EuclideanCoords
+from mortier.enums import HatchType
+from mortier.utils.geometry import (fill_intersect_points, outline_lines,
+                                    quadratic_bezier)
+
 
 class Writer():
     def __init__(self, filename, size = (0, 0, 1920, 1080), n_tiles = 1, lacing_mode = False, lacing_angle = False, bands_mode = False, bands_width = 10, bands_angle = 0):

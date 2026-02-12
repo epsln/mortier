@@ -1,4 +1,5 @@
 import numpy as np
+
 from mortier.coords import Coords
 from mortier.coords.euclidean_coords import EuclideanCoords
 

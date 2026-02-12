@@ -2,6 +2,7 @@ import numpy as np
 
 from mortier.coords import EuclideanCoords
 
+
 def line_offset(p1, p2, d):
     """Return the two offset lines at distance ±d from the base line."""
     dir_vec = p2.translate(p1.scale(-1))

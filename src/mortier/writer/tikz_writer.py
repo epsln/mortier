@@ -298,4 +298,3 @@ class TikzWriter(Writer):
         self.set_bounds(size)
         self.seen_line = {}
         self.output = []
-
