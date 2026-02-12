@@ -1,10 +1,7 @@
 import io
 import pytest
 
-# Adjust to your real module path
 from mortier.writer import SVGWriter
-from mortier.coords import EuclideanCoords
-from mortier.face import Face
 
 
 class FakePoint:
@@ -50,11 +47,6 @@ def test_circle_out_of_bounds():
     # Nothing added
     assert len(w.dwg.elements) == 1  # only defs element exists
 
-
-# ------------------------------------------------------------------
-# line()
-# ------------------------------------------------------------------
-
 def test_line_drawn_if_one_point_in_bounds():
     w = SVGWriter("testfile", size=(0, 0, 100, 100))
 
@@ -79,10 +71,6 @@ def test_line_not_drawn_if_both_out_of_bounds():
 
     assert len(w.dwg.elements) == initial_len
 
-
-# ------------------------------------------------------------------
-# write()
-# ------------------------------------------------------------------
 
 def test_write_api_mode_returns_string():
     w = SVGWriter("testfile")
@@ -110,10 +98,6 @@ def test_write_file_mode(monkeypatch):
     assert called.get("saved") is True
 
 
-# ------------------------------------------------------------------
-# set_color_bg()
-# ------------------------------------------------------------------
-
 def test_set_color_bg_adds_rect():
     w = SVGWriter("testfile")
 
@@ -134,10 +118,6 @@ def test_set_color_bg_none():
 
     assert len(w.dwg.elements) == initial_len
 
-
-# ------------------------------------------------------------------
-# new()
-# ------------------------------------------------------------------
 
 def test_new_resets_drawing():
     w = SVGWriter("testfile", size=(0, 0, 100, 100))
