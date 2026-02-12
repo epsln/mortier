@@ -112,7 +112,7 @@ def plane_to_tile_coords(tiling, w, x, y):
     return complex(a_ * x + b_ * y, c_ * x + d_ * y)
 
 
-def angle_parametrisation(point, mode, bounds, frame_num=[]):
+def angle_parametrisation(point, mode, bounds, frame_num=[0, 1]):
     """
     Compute an angle value using different parametrisation modes.
 
@@ -147,7 +147,7 @@ def angle_parametrisation(point, mode, bounds, frame_num=[]):
         return (
             np.sin(map_num(point.y, bounds[1], bounds[3], 0, 2 * np.pi)) + 1
         ) / 2
-
+    
     if mode == ParamType.PERLIN:
         x = map_num(point.x, bounds[0], bounds[2], 0, 2)
         y = map_num(point.y, bounds[1], bounds[3], 1, 2)
