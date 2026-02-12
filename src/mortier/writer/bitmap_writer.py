@@ -113,6 +113,7 @@ class BitmapWriter(Writer):
 
     def set_color_bg(self, color):
         if color:
+            self.color_bg = color
             self.image.paste(color, (0, 0, self.image.size[0], self.image.size[1]))
 
     def line(self, p0, p1, color=(255, 255, 255)):

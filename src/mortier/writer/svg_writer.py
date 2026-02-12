@@ -63,7 +63,7 @@ class SVGWriter(Writer):
 
         self.api_mode = False
 
-    def circle(self, c, r, color="black"):
+    def circle(self, c, r, color=(0, 0, 0)):
         """
         Draw a circle.
 
@@ -88,11 +88,11 @@ class SVGWriter(Writer):
                 center=(c.x, c.y),
                 r=r,
                 fill="none",
-                stroke=color,
+                stroke=f'rgb({color[0]}, {color[1]}, {color[2]})',
             )
         )
 
-    def line(self, p0, p1, color="black"):
+    def line(self, p0, p1, color=(0, 0, 0)):
         """
         Draw a line segment.
 
@@ -116,7 +116,7 @@ class SVGWriter(Writer):
             self.dwg.line(
                 start=(p0.x, p0.y),
                 end=(p1.x, p1.y),
-                stroke=color,
+                stroke=f'rgb({color[0]}, {color[1]}, {color[2]})',
                 stroke_width=0.5,
             )
         )
@@ -138,6 +138,15 @@ class SVGWriter(Writer):
 
         self.dwg.save()
         return None
+    
+    def set_color_bg(self, color):
+        if color:
+            self.color_bg = color
+            self.dwg.add(self.dwg.rect(insert=(0, 0), 
+                                       rx = None,
+                                       ry = None,
+                                       size=('100%', '100%'), 
+                                       fill=f'rgb({self.color_bg[0]}, {self.color_bg[1]}, {self.color_bg[2]})')) 
 
     def new(self, filename, size=None, n_tiles=None):
         """
