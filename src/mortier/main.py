@@ -118,13 +118,13 @@ def tess_param(
 ):
     tess = js[tess_id]
     if file_type == FileType.BITMAP:
-        writer = BitmapWriter(f"{output}")
+        writer = BitmapWriter(f"{output}", size = (0, 0, output_size[0], output_size[1]))
     elif file_type == FileType.SVG:
-        writer = SVGWriter(f"{output}")
+        writer = SVGWriter(f"{output}", size = (0, 0, output_size[0], output_size[1]))
     else:
         writer = TikzWriter(f"{output}")
     writer.n_tiles = scale
-    writer.output_size = (0, 0, output_size[0], output_size[1])
+    writer.size = (0, 0, output_size[0], output_size[1])
     writer.bands_mode = bands 
     writer.lacing_mode = lace
     writer.bands_width = bands_width
