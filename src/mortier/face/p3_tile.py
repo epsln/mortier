@@ -1,16 +1,14 @@
-import copy
-
 import numpy as np
 
-from mortier.coords import EuclideanCoords, LatticeCoords, Line
+from mortier.coords import EuclideanCoords, Line
 from mortier.face.p2_tile import P2Penrose
-from mortier.utils.math_utils import angle_parametrisation
 
 
 class P3Penrose(P2Penrose):
     """
     Class that implement the P3 tile from Penrose
     """
+
     def __init__(self, A, B, C, code):
         """
         Parameters
@@ -22,7 +20,7 @@ class P3Penrose(P2Penrose):
         C: EuclideanCoords
             Second Point of the tile
         code: int
-            Indicates which sub-tile this face belongs to. 
+            Indicates which sub-tile this face belongs to.
         """
         self.A = A
         self.B = B
@@ -36,14 +34,14 @@ class P3Penrose(P2Penrose):
         Generate a base level 0 tiling, using two P2 tiles.
         Parameters
         ----------
-        length: float 
-            Length of the side 
-        x_offset: float 
-            Offset the tiling in the x axis 
-        y_offset: float 
-            Offset the tiling in the y axis 
+        length: float
+            Length of the side
+        x_offset: float
+            Offset the tiling in the x axis
+        y_offset: float
+            Offset the tiling in the y axis
         code: int
-            Indicates which sub-tile this face belongs to. 
+            Indicates which sub-tile this face belongs to.
         """
         p0 = -0
         y = 0
@@ -59,12 +57,12 @@ class P3Penrose(P2Penrose):
 
     def inflate(self):
         """
-        Inflate the current tile, which subdivide it into different tiles. 
+        Inflate the current tile, which subdivide it into different tiles.
         The specific tilings are based on the current tile code.
         Returns
         -------
         result: List[P2Penrose]
-            List of subtiles 
+            List of subtiles
         """
         result = []
         if self.code == 0:

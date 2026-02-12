@@ -63,9 +63,7 @@ class HyperbolicTesselation(Tesselation):
         scale : float
             Multiplicative scaling factor relative to the writer size.
         """
-        self.scale = (
-            min(self.writer.size[3], self.writer.size[2]) / 2 * scale
-        )
+        self.scale = min(self.writer.size[3], self.writer.size[2]) / 2 * scale
 
     def convert_to_half_plane(self):
         """
@@ -111,9 +109,7 @@ class HyperbolicTesselation(Tesselation):
         optionally converts them to the half-plane model.
         """
         # Reference translation point (center of the canvas)
-        z_point = EuclideanCoords(
-            [self.writer.size[2] / 2, self.writer.size[3] / 2]
-        )
+        z_point = EuclideanCoords([self.writer.size[2] / 2, self.writer.size[3] / 2])
 
         # Extract faces from a Matplotlib PolygonCollection
         convert_polygons_to_patches(self.tess)
@@ -121,17 +117,13 @@ class HyperbolicTesselation(Tesselation):
         self.faces = []
         for polygon in self.tess:
             points = polygon[1:]
-            vertices = [
-                EuclideanCoords([p.real, p.imag]) for p in points
-            ]
+            vertices = [EuclideanCoords([p.real, p.imag]) for p in points]
             face = Face(vertices)
             self.faces.append(face)
 
         if self.half_plane:
             self.convert_to_half_plane()
-            z_point = EuclideanCoords(
-                [self.writer.size[2] / 2, 0]
-            )
+            z_point = EuclideanCoords([self.writer.size[2] / 2, 0])
 
         faces = []
         for face in self.faces:
@@ -139,4 +131,3 @@ class HyperbolicTesselation(Tesselation):
             faces.append(face)
 
         self.faces = faces
-

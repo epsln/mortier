@@ -144,10 +144,8 @@ def angle_parametrisation(point, mode, bounds, frame_num=[0, 1]):
         return map_num(z, -1, 1, 0.01, np.pi / 2)
 
     if mode == ParamType.SIN:
-        return (
-            np.sin(map_num(point.y, bounds[1], bounds[3], 0, 2 * np.pi)) + 1
-        ) / 2
-    
+        return (np.sin(map_num(point.y, bounds[1], bounds[3], 0, 2 * np.pi)) + 1) / 2
+
     if mode == ParamType.PERLIN:
         x = map_num(point.x, bounds[0], bounds[2], 0, 2)
         y = map_num(point.y, bounds[1], bounds[3], 1, 2)
@@ -161,4 +159,3 @@ def angle_parametrisation(point, mode, bounds, frame_num=[0, 1]):
         return map_num(angle, -1, 1, 0.01, np.pi / 2)
 
     raise ValueError(f"Missing or unrecognized mode: {mode}.")
-

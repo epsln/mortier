@@ -116,4 +116,3 @@ class Coords:
             Corresponding Euclidean coordinate.
         """
         raise NotImplementedError("Subclasses should implement this method.")
-

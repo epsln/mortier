@@ -185,4 +185,3 @@ class BitmapWriter(Writer):
         super().__init__(filename, size, n_tiles)
         self.image = Image.new("RGB", (size[2], size[3]))
         self.output = ImageDraw.Draw(self.image)
-

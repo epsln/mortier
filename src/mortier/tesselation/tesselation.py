@@ -1,5 +1,4 @@
-from mortier.coords import EuclideanCoords, LatticeCoords
-from mortier.face.face import Face
+from mortier.coords import EuclideanCoords
 
 
 class Tesselation:
@@ -268,4 +267,3 @@ class Tesselation:
             Writer instance used for rendering.
         """
         self.writer = writer
-

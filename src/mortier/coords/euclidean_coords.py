@@ -110,10 +110,10 @@ class EuclideanCoords(Coords):
         EuclideanCoords
             Unit vector in the same direction.
         """
-        l = self.len()
-        if l < 1e-9:
+        length = self.len()
+        if length < 1e-9:
             return EuclideanCoords([0.0, 0.0])
-        return EuclideanCoords([self.x / l, self.y / l])
+        return EuclideanCoords([self.x / length, self.y / length])
 
     def rotate(self, angle):
         """
@@ -151,8 +151,12 @@ class EuclideanCoords(Coords):
         EuclideanCoords
             Rotated point.
         """
-        x_rotated = ((self.x - dx) * np.cos(angle)) - ((self.y - dy) * np.sin(angle)) + dx
-        y_rotated = ((self.x - dx) * np.sin(angle)) + ((self.y - dy) * np.cos(angle)) + dy
+        x_rotated = (
+            ((self.x - dx) * np.cos(angle)) - ((self.y - dy) * np.sin(angle)) + dx
+        )
+        y_rotated = (
+            ((self.x - dx) * np.sin(angle)) + ((self.y - dy) * np.cos(angle)) + dy
+        )
         return EuclideanCoords([x_rotated, y_rotated])
 
     def to_euclidean(self):
@@ -165,4 +169,3 @@ class EuclideanCoords(Coords):
             Self.
         """
         return self
-

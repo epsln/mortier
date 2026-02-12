@@ -97,4 +97,3 @@ class LatticeCoords(Coords):
             Corresponding 2D point.
         """
         return EuclideanCoords([self.x, self.y])
-

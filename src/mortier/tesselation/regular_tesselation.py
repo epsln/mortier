@@ -133,9 +133,7 @@ class RegularTesselation(Tesselation):
 
                 for s in self.seed:
                     s = LatticeCoords(s)
-                    p = s.translate(
-                        self.T1.scale(x).translate(self.T2.scale(y))
-                    )
+                    p = s.translate(self.T1.scale(x).translate(self.T2.scale(y)))
                     neighbor_arr[str(p.w)] = 1
                     self.writer.point(p)
                     self.writer.point(s)
@@ -164,9 +162,7 @@ class RegularTesselation(Tesselation):
             for y in [-1, 0, 1]:
                 for s in self.seed:
                     s = LatticeCoords(s)
-                    p = s.translate(
-                        self.T1.scale(x).translate(self.T2.scale(y))
-                    )
+                    p = s.translate(self.T1.scale(x).translate(self.T2.scale(y)))
                     neighbor_arr[str(p.w)] = 1
 
         for s in self.seed:
@@ -191,9 +187,7 @@ class RegularTesselation(Tesselation):
             for y in [-1, 0, 1]:
                 for s in self.seed:
                     s = LatticeCoords(s)
-                    p = s.translate(
-                        self.T1.scale(x).translate(self.T2.scale(y))
-                    )
+                    p = s.translate(self.T1.scale(x).translate(self.T2.scale(y)))
                     neighbor_arr[str(p.w)] = 1
 
         faces = []
@@ -341,4 +335,3 @@ class RegularTesselation(Tesselation):
             Writer instance used for rendering.
         """
         self.writer = writer
-

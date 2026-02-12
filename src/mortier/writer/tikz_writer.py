@@ -80,9 +80,7 @@ class TikzWriter(Writer):
         -------
         None
         """
-        self.output.append(
-            f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});"
-        )
+        self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});")
 
     def point(self, p):
         """
@@ -97,9 +95,7 @@ class TikzWriter(Writer):
         -------
         None
         """
-        self.output.append(
-            f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle (2pt);"
-        )
+        self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle (2pt);")
 
     def line(self, p0, p1, dotted=False, color="black"):
         """
@@ -171,9 +167,7 @@ class TikzWriter(Writer):
                 path.append(f"({np.round(v.x, 2)}, {np.round(v.y, 2)})")
 
             if path:
-                self.output.append(
-                    f"\\draw[{self.color} {pattern}] {'--'.join(path)};"
-                )
+                self.output.append(f"\\draw[{self.color} {pattern}] {'--'.join(path)};")
 
     def set_scale(self, scale):
         """
@@ -235,8 +229,7 @@ class TikzWriter(Writer):
         """
         if self.draw_borders:
             self.header += (
-                "\\draw (0, 0) rectangle + ("
-                f"{size[2] - 2},{size[3] - 2});\n"
+                "\\draw (0, 0) rectangle + (" f"{size[2] - 2},{size[3] - 2});\n"
             )
 
         self.header += (

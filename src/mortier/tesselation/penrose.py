@@ -62,10 +62,8 @@ class PenroseTesselation(Tesselation):
 
         # Merge compatible triangle pairs into faces
         for i, p in enumerate(self.pen):
-            for p_ in self.pen[i + 1:]:
-                if (
-                    p.A.isclose(p_.A) and p.C.isclose(p_.C)
-                ) or (
+            for p_ in self.pen[i + 1 :]:
+                if (p.A.isclose(p_.A) and p.C.isclose(p_.C)) or (
                     p.A.isclose(p_.C) and p.C.isclose(p_.A)
                 ):
                     vertices = [p.A, p.B, p.C, p_.B]
@@ -73,9 +71,7 @@ class PenroseTesselation(Tesselation):
                     # Orientation test (shoelace-like criterion)
                     s = 0.0
                     for j in range(4):
-                        s += (
-                            vertices[(j + 1) % 4].x - vertices[j].x
-                        ) / (
+                        s += (vertices[(j + 1) % 4].x - vertices[j].x) / (
                             vertices[(j + 1) % 4].y + vertices[j].y
                         )
 
@@ -89,4 +85,3 @@ class PenroseTesselation(Tesselation):
                         separated_site_mode=self.separated_site_mode,
                     )
                     self.faces.append(face)
-

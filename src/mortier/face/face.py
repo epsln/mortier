@@ -1,15 +1,17 @@
 import copy
+from typing import List
 
 import numpy as np
 
-from mortier.coords import EuclideanCoords, LatticeCoords, Line
+from mortier.coords import Coords, EuclideanCoords, LatticeCoords, Line
 from mortier.utils.math_utils import angle_parametrisation
 
 
-class Face:    
+class Face:
     """
     Class representing a closed Polygon, used to tile the space.
     """
+
     def __init__(
         self,
         vertices,
@@ -32,7 +34,7 @@ class Face:
         assym_mode: bool
             If true, induce an assymetry in the ray angles
         separated_site_mode: bool
-            If True, separate the launch sites of the rays 
+            If True, separate the launch sites of the rays
         """
         self.vertices = vertices
         self.mid_points = mid_points
@@ -53,8 +55,8 @@ class Face:
 
         Parameters
         ----------
-        v: LatticeCoords 
-           Anchor point 
+        v: LatticeCoords
+           Anchor point
         k: int
         m: int
             Number of vertex in the face
@@ -63,13 +65,13 @@ class Face:
         assym_mode: bool
             If true, induce an assymetry in the ray angles
         separated_site_mode: bool
-            If True, separate the launch sites of the rays 
+            If True, separate the launch sites of the rays
         Returns
         -------
         new_face: Face
             Generated face
         """
-        vertices : List[Coords]
+        vertices: List[Coords]
         wpow = []
         wpow.append(LatticeCoords([1, 0, 0, 0]))
         wpow.append(LatticeCoords([0, 1, 0, 0]))
@@ -119,7 +121,7 @@ class Face:
         new_face = copy.copy(self)
         if type(self.vertices[0]).__name__ == "LatticeCoords":
             vec_1 = dir_vec_1.scale(mult_i)
-            vec_2= vec_1.translate(dir_vec_2.scale(mult_j))
+            vec_2 = vec_1.translate(dir_vec_2.scale(mult_j))
             new_face.vertices = [v.translate(vec_2) for v in self.vertices]
         else:
             new_face.vertices = [v.translate(dir_vec_1) for v in self.vertices]
@@ -132,7 +134,7 @@ class Face:
 
         Parameters
         ----------
-        n: float 
+        n: float
             Scaling factor
         Returns
         -------
@@ -150,7 +152,7 @@ class Face:
 
         Parameters
         ----------
-        theta: float 
+        theta: float
             Angle by which to rotate the face
         Returns
         -------
@@ -172,8 +174,8 @@ class Face:
 
         Parameters
         ----------
-        face: Face 
-            Current face 
+        face: Face
+            Current face
         """
         self.neighbors = [f for f in face if f.vertices != self.vertices]
 
@@ -181,15 +183,15 @@ class Face:
         """
         Apply the Polygon In Contact technique to the face.
         (https://dl.acm.org/doi/10.5555/1089508.1089538)
-        This techniques creates a new face by shooting two "rays" from each sides 
-        with an angle and finding the intersection. The new face vertices are composed of the 
-        shooting sites and the ray intersection. 
+        This techniques creates a new face by shooting two "rays" from each sides
+        with an angle and finding the intersection. The new face vertices are composed of the
+        shooting sites and the ray intersection.
 
         Parameters
         ----------
-        angle: float 
-            Angle from the normal of the side, toward which the rays are shot. 
-        bounds: list[float] 
+        angle: float
+            Angle from the normal of the side, toward which the rays are shot.
+        bounds: list[float]
             Bounds of the images. Should be the same as writer.size
         frame_num: int
             Num of the generated images, useful to create animation
@@ -275,8 +277,8 @@ class Face:
             z = v.x + 1j * v.y
             z = (-1j * z - 1j) / (z - 1)
             vertices.append(EuclideanCoords([z.real, z.imag]))
-        self.vertices = vertices
-        return self
+        new_face.vertices = vertices
+        return new_face
 
     def __str__(self):
         """
@@ -285,7 +287,7 @@ class Face:
         Returns
         -------
         str:
-            The vertices of the current faces, with the euclidean coordinates rounded.    
+            The vertices of the current faces, with the euclidean coordinates rounded.
         """
         t = []
         for v in self.vertices:

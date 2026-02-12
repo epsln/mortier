@@ -88,7 +88,7 @@ class SVGWriter(Writer):
                 center=(c.x, c.y),
                 r=r,
                 fill="none",
-                stroke=f'rgb({color[0]}, {color[1]}, {color[2]})',
+                stroke=f"rgb({color[0]}, {color[1]}, {color[2]})",
             )
         )
 
@@ -116,7 +116,7 @@ class SVGWriter(Writer):
             self.dwg.line(
                 start=(p0.x, p0.y),
                 end=(p1.x, p1.y),
-                stroke=f'rgb({color[0]}, {color[1]}, {color[2]})',
+                stroke=f"rgb({color[0]}, {color[1]}, {color[2]})",
                 stroke_width=0.5,
             )
         )
@@ -142,11 +142,15 @@ class SVGWriter(Writer):
     def set_color_bg(self, color):
         if color:
             self.color_bg = color
-            self.dwg.add(self.dwg.rect(insert=(0, 0),
-                           rx = None,
-                           ry = None,
-                           size=('100%', '100%'),
-                           fill=f'rgb({self.color_bg[0]}, {self.color_bg[1]}, {self.color_bg[2]})'))
+            self.dwg.add(
+                self.dwg.rect(
+                    insert=(0, 0),
+                    rx=None,
+                    ry=None,
+                    size=("100%", "100%"),
+                    fill=f"rgb({self.color_bg[0]}, {self.color_bg[1]}, {self.color_bg[2]})",
+                )
+            )
 
     def new(self, filename, size=None, n_tiles=None):
         """

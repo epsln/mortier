@@ -143,4 +143,3 @@ class Line(Coords):
             "beg_pt -> end_pt"
         """
         return f"{self.beg_pt} -> {self.end_pt}"
-

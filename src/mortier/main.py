@@ -4,10 +4,12 @@ import random
 import click
 import numpy as np
 
-from mortier.enums import (FileType, HatchType, ParamType, TesselationType,
-                           TileType)
-from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
-                                 RegularTesselation)
+from mortier.enums import FileType, HatchType, ParamType, TesselationType, TileType
+from mortier.tesselation import (
+    HyperbolicTesselation,
+    PenroseTesselation,
+    RegularTesselation,
+)
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 
 with open("data/database.json", "r") as file:
@@ -52,7 +54,9 @@ with open("data/database.json", "r") as file:
 @click.option("--bands", is_flag=True, help="Bands mode")
 @click.option("--lace", is_flag=True, help="Lace mode")
 @click.option("--bezier", is_flag=True, help="Sides are drawn as bezier curves")
-@click.option("--bands_width", default = 2, type=click.FloatRange(0, clamp=True), help="Bands width")
+@click.option(
+    "--bands_width", default=2, type=click.FloatRange(0, clamp=True), help="Bands width"
+)
 @click.option(
     "--hatch_type",
     default=None,
@@ -133,29 +137,29 @@ def tess_param(
     separated_sites,
     color,
     color_bg,
-    color_hatch
+    color_hatch,
 ):
     tess = js[tess_id]
     if file_type == FileType.BITMAP:
-        writer = BitmapWriter(f"{output}", size = (0, 0, output_size[0], output_size[1]))
+        writer = BitmapWriter(f"{output}", size=(0, 0, output_size[0], output_size[1]))
     elif file_type == FileType.SVG:
-        writer = SVGWriter(f"{output}", size = (0, 0, output_size[0], output_size[1]))
+        writer = SVGWriter(f"{output}", size=(0, 0, output_size[0], output_size[1]))
     else:
         writer = TikzWriter(f"{output}")
     writer.n_tiles = scale
     writer.size = (0, 0, output_size[0], output_size[1])
-    writer.bands_mode = bands 
+    writer.bands_mode = bands
     writer.lacing_mode = lace
     writer.bands_width = bands_width
     writer.bezier_curve = bezier
-    writer.color_line = color 
+    writer.color_line = color
     writer.set_color_bg(color_bg)
     writer.hatch_fill_parameters["angle"] = hatch_angle
     writer.hatch_fill_parameters["spacing"] = hatch_spacing
     writer.hatch_fill_parameters["crosshatch"] = cross_hatch
     writer.hatch_fill_parameters["type"] = hatch_type
     if color_hatch:
-        writer.hatch_fill_parameters["color"] = color_hatch 
+        writer.hatch_fill_parameters["color"] = color_hatch
 
     if tesselation_type == TesselationType.REGULAR:
         tesselation = RegularTesselation(writer, tess, tess_id)
