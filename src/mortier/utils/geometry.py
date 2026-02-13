@@ -1,6 +1,8 @@
 import numpy as np
 
 from mortier.coords import EuclideanCoords
+from mortier.enums import OrnementsType
+
 
 
 def line_offset(p1, p2, d):
@@ -56,8 +58,9 @@ def clean_points(points, eps=1e-6):
     return out
 
 
-def vertex_miter(p_prev, p_curr, p_next, half_w, end=False):
+def vertex_miter(p_prev, p_curr, p_next, ornements, end=False):
     """Compute offset points (left/right) at vertex p_curr using miter join."""
+    half_w = ornements.width / 2.0
     p_prev = p_prev.numpy()
     p_curr = p_curr.numpy()
     p_next = p_next.numpy()
@@ -104,14 +107,14 @@ def vertex_miter(p_prev, p_curr, p_next, half_w, end=False):
     return EuclideanCoords(pos), EuclideanCoords(neg)
 
 
-def offset_segment(p0, p1, cut_length, bands_width, end_cut=False):
+def offset_segment(p0, p1, cut_length, ornements, end_cut=False):
     """Return outer and inner offset lines for a single segment."""
     p0 = p0.numpy()
     p1 = p1.numpy()
     dir_vec = p1 - p0
     n = normalize(perp(dir_vec))
     d = normalize(dir_vec)
-    off = n * (bands_width / 2)
+    off = n * (ornements.width / 2)
     if not end_cut:
         p0_cut = p0 + d * cut_length
         return EuclideanCoords(p0_cut - off)
@@ -120,7 +123,8 @@ def offset_segment(p0, p1, cut_length, bands_width, end_cut=False):
         return EuclideanCoords(p1_cut - off)
 
 
-def compute_cut_length(theta, half_w, bands_mode=False):
+def compute_cut_length(theta, ornements):
+    half_w = ornements.width/2
     if theta < np.pi / 4:
         theta_ = np.pi / 2 - theta * 2
         add_length = -(half_w / np.cos(theta_) - half_w * np.tan(theta_))
@@ -129,12 +133,12 @@ def compute_cut_length(theta, half_w, bands_mode=False):
         theta_ = theta * 2 - np.pi / 2
         add_length = -(half_w / np.cos(theta_) + half_w * np.tan(theta_))
         cut_length = half_w / np.cos(theta_) - half_w * np.tan(theta_)
-    if bands_mode:
+    if ornements.type == OrnementsType.BANDS:
         add_length = cut_length
     return cut_length, add_length
 
 
-def outline_lines(points, intersect_points, bands_width, bands_angle, bands_mode):
+def outline_lines(points, intersect_points, ornements):
     """
     Compute pairs of offset polylines (outer and inner) for a given polyline.
     """
@@ -143,7 +147,6 @@ def outline_lines(points, intersect_points, bands_width, bands_angle, bands_mode
     if n < 2:
         return [], []
 
-    half_w = bands_width / 2.0
     pos_ring = []
     neg_ring = []
 
@@ -152,41 +155,37 @@ def outline_lines(points, intersect_points, bands_width, bands_angle, bands_mode
         p_curr = pts[i]
         p_next = pts[(i + 1) % n]
 
-        # p_curr = pts[i]
-        # p_prev = pts[i - 1] if i > 0 else pts[i]
-        # p_next = pts[i + 1] if i < n - 1 else pts[i]
-
         if i == 0 or i == n - 1:
-            end = bands_angle
+            end = ornements.angle
         else:
             end = False
 
-        pos_midpoint, neg_midpoint = vertex_miter(p_prev, p_curr, p_next, half_w, end)
+        pos_midpoint, neg_midpoint = vertex_miter(p_prev, p_curr, p_next, ornements, end)
 
         if str(p_curr) in intersect_points:
             inter_p = intersect_points[str(p_curr)]
             cut_length, add_length = compute_cut_length(
-                inter_p["angle"], half_w, bands_mode
+                inter_p["angle"], ornements 
             )
-            beg_point = offset_segment(p_curr, p_next, cut_length, bands_width)
+            beg_point = offset_segment(p_curr, p_next, cut_length, ornements)
             if inter_p["state"][0] == 1:
-                beg_point = offset_segment(p_curr, p_next, cut_length, bands_width)
+                beg_point = offset_segment(p_curr, p_next, cut_length, ornements)
             else:
-                beg_point = offset_segment(p_curr, p_next, add_length, bands_width)
+                beg_point = offset_segment(p_curr, p_next, add_length, ornements)
 
         elif str(p_next) in intersect_points:
             inter_p = intersect_points[str(p_next)]
-            cut_length, add_length = compute_cut_length(inter_p["angle"], half_w)
+            cut_length, add_length = compute_cut_length(inter_p["angle"], ornements)
             end_point = offset_segment(
-                p_curr, p_next, cut_length, bands_width, end_cut=True
+                p_curr, p_next, cut_length, ornements, end_cut=True
             )
             if inter_p["state"][1] == 1:
                 end_point = offset_segment(
-                    p_curr, p_next, cut_length, bands_width, end_cut=True
+                    p_curr, p_next, cut_length, ornements, end_cut=True
                 )
             else:
                 end_point = offset_segment(
-                    p_curr, p_next, add_length, bands_width, end_cut=True
+                    p_curr, p_next, add_length, ornements, end_cut=True
                 )
 
             neg_ring.append(beg_point)

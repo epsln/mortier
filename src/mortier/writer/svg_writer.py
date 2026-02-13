@@ -18,10 +18,6 @@ class SVGWriter(Writer):
         filename,
         size=(0, 0, 210, 297),
         n_tiles=1,
-        lacing_mode=False,
-        bands_mode=False,
-        bands_width=10,
-        bands_angle=0,
     ):
         """
         Initialize an SVG writer.
@@ -34,23 +30,11 @@ class SVGWriter(Writer):
             Drawing bounds as (x, y, width, height), in millimeters.
         n_tiles : int, optional
             Number of tiles used for scaling or repetition.
-        lacing_mode : bool, optional
-            Enable lacing mode.
-        bands_mode : bool, optional
-            Enable band rendering mode.
-        bands_width : float, optional
-            Width of rendered bands.
-        bands_angle : float, optional
-            Angle used for band rendering.
         """
         super().__init__(
             filename,
             size,
             n_tiles,
-            lacing_mode,
-            bands_angle,
-            bands_mode,
-            bands_width,
         )
 
         svg_size = (size[2], size[3])

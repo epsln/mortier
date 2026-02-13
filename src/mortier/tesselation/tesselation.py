@@ -1,5 +1,7 @@
 from mortier.coords import EuclideanCoords
 
+from mortier.enums import OrnementsType
+
 
 class Tesselation:
     """
@@ -132,7 +134,8 @@ class Tesselation:
             Angle value or False to disable the transformation.
         """
         self.angle = angle
-        self.writer.set_band_angle(angle)
+        if self.writer.ornements:
+            self.writer.ornements.angle = angle
 
     def set_assym_angle(self, angle=False):
         """
@@ -237,11 +240,11 @@ class Tesselation:
                 f"\\theta_1 \\approx {round(self.assym_angle, 3)}$"
             )
 
-        if self.writer.lacing_mode:
-            caption += ", entrelacements"
-
-        if self.writer.bands_mode:
-            caption += ", bandeaux"
+        if self.writer.ornements:
+            if self.writer.ornements.type == OrnementsType.LACES:
+                caption += ", entrelacements"
+            else:
+                caption += ", bandeaux"
 
         self.writer.set_caption(caption)
         self.writer.set_label(caption)

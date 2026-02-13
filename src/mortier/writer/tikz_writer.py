@@ -16,10 +16,6 @@ class TikzWriter(Writer):
         filename,
         size=(0, 0, 14, 20),
         n_tiles=1,
-        lacing_mode=False,
-        bands_mode=False,
-        bands_width=10,
-        bands_angle=0,
         draw_borders=False,
     ):
         """
@@ -33,25 +29,12 @@ class TikzWriter(Writer):
             Drawing bounds as (x, y, width, height).
         n_tiles : int, optional
             Number of tiles used for scaling or repetition.
-        lacing_mode : bool, optional
-            Enable lacing mode.
-        bands_mode : bool, optional
-            Enable band rendering mode.
-        bands_width : float, optional
-            Width of rendered bands.
-        bands_angle : float, optional
-            Angle used for band rendering.
         draw_borders : bool, optional
             Whether to draw bounding borders.
         """
         super().__init__(
             filename,
             size,
-            n_tiles,
-            lacing_mode,
-            bands_angle,
-            bands_mode,
-            bands_width,
         )
 
         self.output = []
@@ -152,8 +135,9 @@ class TikzWriter(Writer):
                     [(x + 1) % 2 for x in self.intersect_points[str(p)]]
                 )
 
-        if self.lacing_mode or self.bands_mode:
+        if self.ornements:
             self.draw_outline_lines(face.vertices, face.mid_points)
+        #TODO: Bezier MODE !!
         else:
             for v in face.vertices:
                 if not self.in_bounds(v):

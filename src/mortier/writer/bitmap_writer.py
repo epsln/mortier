@@ -16,10 +16,6 @@ class BitmapWriter(Writer):
         filename,
         size=(0, 0, 1920, 1080),
         n_tiles=100,
-        lacing_mode=False,
-        bands_mode=False,
-        bands_width=10,
-        bands_angle=0,
     ):
         """
         Initialize a bitmap writer.
@@ -32,23 +28,11 @@ class BitmapWriter(Writer):
             Drawing bounds as (x, y, width, height).
         n_tiles : int, optional
             Number of tiles used for scaling or repetition.
-        lacing_mode : bool, optional
-            Enable lacing mode for outlines.
-        bands_mode : bool, optional
-            Enable band rendering mode.
-        bands_width : float, optional
-            Width of rendered bands.
-        bands_angle : float, optional
-            Angle used for band rendering.
         """
         super().__init__(
             filename,
             size,
             n_tiles,
-            lacing_mode,
-            bands_angle,
-            bands_mode,
-            bands_width,
         )
 
         self.image = Image.new("RGB", (size[2], size[3]))

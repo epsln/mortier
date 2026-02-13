@@ -5,6 +5,7 @@ import click
 import numpy as np
 
 from mortier.writer.hatching import Hatching
+from mortier.writer.ornements import Ornements 
 from mortier.enums import FileType, HatchType, ParamType, TesselationType, TileType
 from mortier.tesselation import (
     HyperbolicTesselation,
@@ -149,9 +150,13 @@ def tess_param(
         writer = TikzWriter(f"{output}")
     writer.n_tiles = scale
     writer.size = (0, 0, output_size[0], output_size[1])
-    writer.bands_mode = bands
-    writer.lacing_mode = lace
-    writer.bands_width = bands_width
+    if lace:
+        ornements = Ornements(type = lace)
+        ornements.width = bands_width
+    elif bands:
+        ornements = Ornements(type = bands)
+        ornements.width = bands_width
+    
     writer.bezier_curve = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)

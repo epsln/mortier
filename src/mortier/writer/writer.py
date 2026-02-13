@@ -17,33 +17,31 @@ class Writer:
         filename,
         size=(0, 0, 1920, 1080),
         n_tiles=1,
-        lacing_mode=False,
-        lacing_angle=False,
-        bands_mode=False,
-        bands_width=10,
-        bands_angle=0,
     ):
         self.filename = filename
         self.n_tiles = int(n_tiles)
         self.size = size
         self.intersect_points = {}
-        self.lacing_mode = lacing_mode
-        self.bands_mode = bands_mode
-        self.bands_width = bands_width
-        self.bands_angle = bands_angle
-        self.bezier_curve = False
+        self.ornements = None 
+        self.hatching = None
+        self.bezier = False
         self.color_line = (255, 255, 255)
         self.color_bg = (0, 0, 0)
-        self.hatching = None
-        assert not (self.bezier_curve and self.hatching.angle)
-        assert not (self.lacing_mode and self.bands_mode)
+        assert not (self.bezier and self.hatching)
 
-    def set_band_angle(self, bands_angle):
-        self.bands_angle = bands_angle
+    def set_ornements(self, ornements):
+        assert not (self.bezier and self.hatching)
+        self.ornements = ornements
 
     def set_hatching(self, hatching):
-        assert not (self.bezier_curve and hatch_fill.angle)
+        assert not (self.bezier and self.hatching)
         self.hatching = hatching
+
+    def set_bezier(self, bezier):
+        #TODO: Set the number of control points
+        assert not (bezier and self.hatching)
+        self.bezier = bezier 
+
 
     def hatch_fill(self, vertices, cross_hatch = None):
         angle = self.hatching.angle
@@ -95,9 +93,7 @@ class Writer:
         pos_ring, neg_ring = outline_lines(
             points,
             self.intersect_points,
-            self.bands_width,
-            self.bands_angle,
-            self.bands_mode,
+            self.ornements
         )
 
         for i in range(0, len(pos_ring) - 1, 2):
@@ -105,7 +101,7 @@ class Writer:
             p1 = pos_ring[i + 1]
             p2 = pos_ring[(i + 2) % len(pos_ring)]
 
-            if self.bezier_curve:
+            if self.bezier:
                 lines = quadratic_bezier(p0, p1, p2)
                 for j in range(len(lines) - 1):
                     self.line(lines[j], lines[j + 1], self.color_line)
@@ -118,7 +114,7 @@ class Writer:
             p1 = neg_ring[i + 1]
             p2 = neg_ring[i + 2]
 
-            if self.bezier_curve:
+            if self.bezier:
                 lines = self.quadratic_bezier(p0, p1, p2)
                 for j in range(len(lines) - 1):
                     self.line(lines[j], lines[j + 1], self.color_line)
@@ -137,7 +133,7 @@ class Writer:
     def line(self, p0, p1, color=(255, 255, 255)):
         pass
 
-    def draw_bezier_curves(self, face):
+    def draw_beziers(self, face):
         for i in range(0, len(face.vertices) - 2, 2):
             p0 = face.vertices[i]
             p1 = face.vertices[i + 1]
@@ -152,11 +148,11 @@ class Writer:
         fill_intersect_points(face, self.intersect_points)
         inside_vertices = face.vertices
 
-        if self.lacing_mode or self.bands_mode:
+        if self.ornements:
             inside_vertices = self.draw_outline_lines(face.vertices)
         else:
-            if self.bezier_curve:
-                self.draw_bezier_curves(face)
+            if self.bezier:
+                self.draw_beziers(face)
             else:
                 for i in range(n_vert):
                     self.line(
