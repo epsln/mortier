@@ -153,10 +153,11 @@ def tess_param(
     if lace:
         ornements = Ornements(type = lace)
         ornements.width = bands_width
+        writer.set_ornements(ornements) 
     elif bands:
         ornements = Ornements(type = bands)
         ornements.width = bands_width
-    
+        writer.set_ornements(ornements)
     writer.bezier_curve = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)
