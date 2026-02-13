@@ -1,7 +1,7 @@
-import enum
+from enum import Enum
 
 
-class TesselationType(enum.Enum):
-    REGULAR = enum.auto()
-    PENROSE = enum.auto()
-    HYPERBOLIC = enum.auto()
+class TesselationType(str, Enum):
+    REGULAR = "regular" 
+    PENROSE = "penrose" 
+    HYPERBOLIC = "hyperbolic" 

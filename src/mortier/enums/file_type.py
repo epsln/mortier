@@ -1,7 +1,8 @@
-import enum
+from enum import Enum
 
 
-class FileType(enum.Enum):
-    SVG = enum.auto()
-    BITMAP = enum.auto()
-    TIKZ = enum.auto()
+class FileType(str, Enum):
+    SVG = "svg" 
+    png = "png" 
+    jpg = "jpg" 
+    tikz = "tex" 

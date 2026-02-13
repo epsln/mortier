@@ -1,6 +1,6 @@
-import enum
+from enum import Enum 
 
 
-class TileType(enum.Enum):
-    P2 = enum.auto()
-    P3 = enum.auto()
+class TileType(str, Enum):
+    P2 = "P2" 
+    P3 = "P3" 

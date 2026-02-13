@@ -1,8 +1,8 @@
-import enum
+from enum import Enum
 
 
-class ParamType(enum.Enum):
-    CONSTANT = enum.auto()
-    PERLIN = enum.auto()
-    SIN = enum.auto()
-    SIMPLEX = enum.auto()
+class ParamType(str, Enum):
+    CONSTANT = "constant"
+    PERLIN = "perlin" 
+    SIN = "sin" 
+    SIMPLEX = "simplex" 

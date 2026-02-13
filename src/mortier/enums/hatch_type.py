@@ -1,6 +1,6 @@
-import enum
+from enum import Enum
 
 
-class HatchType(enum.Enum):
-    LINE = enum.auto()
-    DOT = enum.auto()
+class HatchType(str, Enum):
+    LINE = "line" 
+    DOT = "dot" 
