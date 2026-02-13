@@ -1,5 +1,8 @@
+import abc
+
 from mortier.coords import EuclideanCoords
 from mortier.enums import OrnementsType
+
 
 
 class Tesselation:
@@ -38,51 +41,7 @@ class Tesselation:
         self.tile = None
         self.tess_id = None
 
-    def fill_neighbor(self, faces):
-        """
-        Populate neighbor relationships between faces.
-
-        This method is intended to be overridden by subclasses.
-
-        Parameters
-        ----------
-        faces : list of Face
-            Faces for which neighbor relationships should be computed.
-        """
-        pass
-
-    def draw_seed(self):
-        """
-        Draw the seed configuration of the tessellation.
-
-        This method is intended to be overridden by subclasses.
-        """
-        pass
-
-    def draw_cell(self):
-        """
-        Draw the fundamental cell of the tessellation.
-
-        This method is intended to be overridden by subclasses.
-        """
-        pass
-
-    def draw_star(self):
-        """
-        Draw a star-shaped neighborhood around the seed.
-
-        This method is intended to be overridden by subclasses.
-        """
-        pass
-
-    def draw_edge(self):
-        """
-        Draw edges connecting neighboring elements.
-
-        This method is intended to be overridden by subclasses.
-        """
-        pass
-
+    @abc.abstractmethod
     def tesselate_face(self):
         """
         Generate the faces composing the tessellation.
@@ -90,26 +49,7 @@ class Tesselation:
         This method is responsible for populating ``self.faces`` and
         must be implemented by subclasses.
         """
-        pass
-
-    def find_corners(self):
-        """
-        Compute the bounding indices of the tessellation domain.
-
-        This method must be implemented by subclasses.
-
-        Returns
-        -------
-        i_min : int
-            Minimum index along the first lattice axis.
-        i_max : int
-            Maximum index along the first lattice axis.
-        j_min : int
-            Minimum index along the second lattice axis.
-        j_max : int
-            Maximum index along the second lattice axis.
-        """
-        pass
+        raise NotImplementedError 
 
     def set_param_mode(self, mode=False):
         """
@@ -169,6 +109,42 @@ class Tesselation:
         """
         self.separated_site_mode = separated_site
 
+    def set_caption(self):
+        caption = ""
+        if self.tess_id:
+            caption = f"Pavage ${self.tess_id}$"
+        elif self.tile:
+            caption = f"Pavage ${self.tile}$"
+
+        if self.angle and not self.assym_angle:
+            caption += f", avec $\\theta \\approx {round(self.angle, 3)}$"
+
+        if self.separated_site_mode:
+            caption += ", sites séparés"
+
+        if self.param_mode == "sin":
+            caption += ", angle paramétrisé (sinus)"
+        elif self.param_mode == "perlin":
+            caption += ", angle paramétrisé (bruit de Perlin)"
+        elif self.param_mode == "simplex":
+            caption += ", angle paramétrisé (bruit Simplex)"
+
+        if self.assym_angle:
+            caption += (
+                f", angles assymétrique "
+                f"$\\theta_0 \\approx {round(self.angle, 3)}, "
+                f"\\theta_1 \\approx {round(self.assym_angle, 3)}$"
+            )
+
+        if self.writer.ornements:
+            if self.writer.ornements.type == OrnementsType.LACES:
+                caption += ", entrelacements"
+            else:
+                caption += ", bandeaux"
+
+        self.writer.set_caption(caption)
+        self.writer.set_label(caption)
+
     def draw_tesselation(self, frame_num=[0, 1]):
         """
         Draw the complete tessellation.
@@ -213,41 +189,7 @@ class Tesselation:
                 self.scale,
             )
 
-        caption = ""
-        if self.tess_id:
-            caption = f"Pavage ${self.tess_id}$"
-        elif self.tile:
-            caption = f"Pavage ${self.tile}$"
-
-        if self.angle and not self.assym_angle:
-            caption += f", avec $\\theta \\approx {round(self.angle, 3)}$"
-
-        if self.separated_site_mode:
-            caption += ", sites séparés"
-
-        if self.param_mode == "sin":
-            caption += ", angle paramétrisé (sinus)"
-        elif self.param_mode == "perlin":
-            caption += ", angle paramétrisé (bruit de Perlin)"
-        elif self.param_mode == "simplex":
-            caption += ", angle paramétrisé (bruit Simplex)"
-
-        if self.assym_angle:
-            caption += (
-                f", angles assymétrique "
-                f"$\\theta_0 \\approx {round(self.angle, 3)}, "
-                f"\\theta_1 \\approx {round(self.assym_angle, 3)}$"
-            )
-
-        if self.writer.ornements:
-            if self.writer.ornements.type == OrnementsType.LACES:
-                caption += ", entrelacements"
-            else:
-                caption += ", bandeaux"
-
-        self.writer.set_caption(caption)
-        self.writer.set_label(caption)
-
+        self.set_caption()
         output = self.writer.write()
         return output
 

@@ -16,10 +16,9 @@ from mortier.utils.geometry import (
 from mortier.coords import EuclideanCoords
 from mortier.face import Face
 
+from mortier.writer.ornements import Ornements 
 
-# -----------------------
-# Test line_offset
-# -----------------------
+
 def test_line_offset_basic():
     p1 = EuclideanCoords([0, 0])
     p2 = EuclideanCoords([1, 0])
@@ -41,9 +40,6 @@ def test_line_offset_zero_length():
     assert p2a.x == 0 and p2a.y == 0
 
 
-# -----------------------
-# Test intersect
-# -----------------------
 def test_intersect_basic():
     p1 = EuclideanCoords([0, 0])
     p2 = EuclideanCoords([1, 1])
@@ -63,9 +59,6 @@ def test_intersect_parallel():
     assert np.allclose(inter, [0.5, 1.0])
 
 
-# -----------------------
-# Test normalize and perp
-# -----------------------
 def test_normalize_nonzero():
     v = np.array([3.0, 4.0])
     n = normalize(v)
@@ -84,9 +77,6 @@ def test_perp_vector():
     assert np.allclose(p, [0.0, 1.0])
 
 
-# -----------------------
-# Test clean_points
-# -----------------------
 def test_clean_points():
     points = [[0, 0], [0, 0], [1, 0], [1, 0], [2, 0]]
     cleaned = clean_points(points)
@@ -95,47 +85,39 @@ def test_clean_points():
     assert np.allclose(cleaned[-1], [2, 0])
 
 
-# -----------------------
-# Test vertex_miter
-# -----------------------
 def test_vertex_miter_basic():
+    ornements = Ornements(width = 0.5)
     p_prev = EuclideanCoords([0, 0])
     p_curr = EuclideanCoords([1, 0])
     p_next = EuclideanCoords([1, 1])
-    pos, neg = vertex_miter(p_prev, p_curr, p_next, 0.5)
+    pos, neg = vertex_miter(p_prev, p_curr, p_next, ornements)
     # Offset points should be different from original
     assert np.linalg.norm(pos.numpy() - p_curr.numpy()) > 0
     assert np.linalg.norm(neg.numpy() - p_curr.numpy()) > 0
 
 
-# -----------------------
-# Test offset_segment
-# -----------------------
 def test_offset_segment_basic():
+    ornements = Ornements()
     p0 = EuclideanCoords([0, 0])
     p1 = EuclideanCoords([1, 0])
-    off = offset_segment(p0, p1, 0.1, 0.2)
+    off = offset_segment(p0, p1, 0.1, ornements)
     # Returns a EuclideanCoords
     assert isinstance(off, EuclideanCoords)
 
 
-# -----------------------
-# Test compute_cut_length
-# -----------------------
 def test_compute_cut_length_values():
-    cut, add = compute_cut_length(np.pi/6, 1.0)
+    ornements = Ornements(width = 1.0)
+    cut, add = compute_cut_length(np.pi/6, ornements)
     assert cut > 0
-    cut2, add2 = compute_cut_length(np.pi/3, 1.0)
+    cut2, add2 = compute_cut_length(np.pi/3, ornements)
     assert cut2 > 0
 
 
-# -----------------------
-# Test outline_lines
-# -----------------------
 def test_outline_lines_simple():
     pts = [EuclideanCoords([0, 0]), EuclideanCoords([1, 0]), EuclideanCoords([1, 1])]
     intersect_points = {}
-    pos, neg = outline_lines(pts, intersect_points, bands_width=1.0, bands_angle=False, bands_mode=False)
+    ornements = Ornements()
+    pos, neg = outline_lines(pts, intersect_points, ornements)
     assert len(pos) > 0
 
 def test_fill_intersect_points_and_outline():
@@ -168,7 +150,8 @@ def test_fill_intersect_points_and_outline():
 
     # Now test outline_lines using these intersect points
     bands_width = 0.2
-    pos_ring, neg_ring = outline_lines(face.vertices, intersect_points, bands_width, bands_angle=angle, bands_mode=True)
+    ornements = Ornements(type = "bands")
+    pos_ring, neg_ring = outline_lines(face.vertices, intersect_points, ornements)
 
     # Basic checks: output lists not empty
     assert len(pos_ring) > 0
@@ -215,18 +198,3 @@ def test_line_offset_basic():
     assert np.isclose(p1a.y - p1.y, d)
     assert np.isclose(p0b.y - p0.y, -d)
     assert np.isclose(p1b.y - p1.y, -d)
-
-def test_vertex_miter_basic():
-    # Simple 90 degree corner
-    p_prev = EuclideanCoords([0, 0])
-    p_curr = EuclideanCoords([1, 0])
-    p_next = EuclideanCoords([1, 1])
-    half_w = 0.1
-
-    pos, neg = vertex_miter(p_prev, p_curr, p_next, half_w)
-
-    # Offsets should not be at the same location as original vertex
-    assert np.linalg.norm(pos.numpy() - p_curr.numpy()) > 0
-    assert np.linalg.norm(neg.numpy() - p_curr.numpy()) > 0
-
-

@@ -2,8 +2,9 @@ import math
 import pytest
 import numpy as np
 
-# Adjust this import to your actual module path
 from mortier.writer.writer import Writer
+from mortier.writer.hatching import Hatching
+from mortier.writer.ornements import Ornements 
 from mortier.coords import EuclideanCoords 
 from mortier.face import Face 
 
@@ -14,6 +15,7 @@ class RecordingWriter(Writer):
         super().__init__(*args, **kwargs)
         self.lines_drawn = []
         self.points_drawn = []
+        self.bezier = False
 
     def line(self, p0, p1, color=(255, 255, 255)):
         self.lines_drawn.append((p0, p1, color))
@@ -27,18 +29,20 @@ class FakeFace:
         self.vertices = vertices
 
 
-def test_constructor_assert_conflict():
-    w = Writer("test.png", lacing_mode=True, bands_mode=False)
+def test_bezier_setter_assert_conflict():
+    hatch = Hatching()
+    w = Writer("test.png")
+    w.set_hatching(hatch)
     # should fail because both True
     with pytest.raises(AssertionError):
-        Writer("x", lacing_mode=True, bands_mode=True)
+        w.set_bezier(True) 
 
 
-def test_set_band_angle():
+def test_set_ornements():
     w = Writer("test.png")
-    w.set_band_angle(42)
-    assert w.bands_angle == 42
-
+    ornements = Ornements()
+    w.set_ornements(ornements)
+    assert w.ornements == ornements 
 
 def test_in_bounds_valid():
     w = Writer("test.png", size=(0, 0, 100, 100))
@@ -57,13 +61,7 @@ def test_in_bounds_outside():
 
 def test_hatch_fill_draws_lines(monkeypatch):
     w = RecordingWriter("test.png")
-    w.hatch_fill_parameters = {
-        "angle": 0,
-        "spacing": 5,
-        "crosshatch": False,
-        "type": None,
-        "color": (1, 2, 3),
-    }
+    w.hatching = Hatching()
 
     square = [
         EuclideanCoords([0, 0]),
@@ -82,13 +80,7 @@ def test_hatch_fill_dot_mode(monkeypatch):
     from mortier.enums import HatchType
 
     w = RecordingWriter("test.png")
-    w.hatch_fill_parameters = {
-        "angle": 0,
-        "spacing": 5,
-        "crosshatch": False,
-        "type": HatchType.DOT,
-        "color": (1, 2, 3),
-    }
+    w.hatching = Hatching(type = HatchType.DOT)
 
     square = [
         EuclideanCoords([0, 0]),

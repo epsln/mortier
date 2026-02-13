@@ -1,15 +1,14 @@
 import pytest
 from mortier.coords import EuclideanCoords
 from mortier.face.face import Face
+from mortier.writer.ornements import Ornements
 from mortier.tesselation.tesselation import Tesselation
 
 class MockWriter:
     def __init__(self):
         self.calls = []
         self.size = (0, 0, 100, 100)
-        self.lacing_mode = False
-        self.bands_mode = False
-        self._band_angle = None
+        self.ornements = None
 
     def face(self, face, dotted=False):
         self.calls.append(("face", face, dotted))
@@ -27,13 +26,9 @@ class MockWriter:
         self.calls.append(("write",))
         return "output"
 
-    def set_band_angle(self, angle):
-        self._band_angle = angle
-        self.calls.append(("band_angle", angle))
-
-
 def test_state_setters():
     writer = MockWriter()
+    writer.ornements = Ornements()
     tess = Tesselation(writer)
 
     tess.set_param_mode("sin")
@@ -41,7 +36,8 @@ def test_state_setters():
 
     tess.set_angle(0.5)
     assert tess.angle == 0.5
-    assert writer._band_angle == 0.5
+    
+    assert writer.ornements.angle == 0.5
 
     tess.set_assym_angle(0.7)
     assert tess.assym_angle == 0.7
@@ -66,8 +62,7 @@ def test_draw_tesselation_basic():
     tess.angle = 0.1
     tess.separated_site_mode = True
     tess.param_mode = "sin"
-    tess.writer.lacing_mode = True
-    tess.writer.bands_mode = True
+    tess.writer.ornements = Ornements(type = "laces") 
     tess.tile = "TileA"
 
     output = tess.draw_tesselation(frame_num=0)
@@ -84,7 +79,6 @@ def test_draw_tesselation_basic():
     assert "sites séparés" in caption_call
     assert "angle paramétrisé (sinus)" in caption_call
     assert "entrelacements" in caption_call
-    assert "bandeaux" in caption_call
 
     # draw_cell should have been called
     assert ("draw_cell",) in writer.calls
@@ -102,3 +96,8 @@ def test_draw_tesselation_with_unit_circle():
     assert any(call[0] == "circle" for call in writer.calls)
     circle_call = next(call for call in writer.calls if call[0] == "circle")
     assert circle_call[2] == 10  # radius
+
+def test_set_angle():
+    writer = MockWriter()
+    tess = Tesselation(writer)
+    tess.set_angle(angle = 0.2)

@@ -46,13 +46,13 @@ class TikzWriter(Writer):
         self.bands_width = 1
         self.seen_line = {}
 
-    def circle(self, p, r, color="black"):
+    def circle(self, c, r, color="black"):
         """
         Draw a circle.
 
         Parameters
         ----------
-        p : EuclideanCoords
+        c : EuclideanCoords
             Center of the circle.
         r : float
             Radius of the circle.
@@ -63,7 +63,7 @@ class TikzWriter(Writer):
         -------
         None
         """
-        self.output.append(f"\\filldraw[{self.color}] ({p.x}, {p.y}) circle ({r});")
+        self.output.append(f"\\filldraw[{self.color}] ({c.x}, {c.y}) circle ({r});")
 
     def point(self, p):
         """
