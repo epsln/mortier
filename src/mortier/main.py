@@ -4,6 +4,7 @@ import random
 import click
 import numpy as np
 
+from mortier.writer.hatching import Hatching
 from mortier.enums import FileType, HatchType, ParamType, TesselationType, TileType
 from mortier.tesselation import (
     HyperbolicTesselation,
@@ -107,7 +108,7 @@ with open("data/database.json", "r") as file:
 )
 @click.option(
     "--color_hatch",
-    default=None,
+    default=(255, 255, 255),
     type=(int, int, int),
     help="Color of the hatching",
 )
@@ -154,12 +155,10 @@ def tess_param(
     writer.bezier_curve = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)
-    writer.hatch_fill_parameters["angle"] = hatch_angle
-    writer.hatch_fill_parameters["spacing"] = hatch_spacing
-    writer.hatch_fill_parameters["crosshatch"] = cross_hatch
-    writer.hatch_fill_parameters["type"] = hatch_type
-    if color_hatch:
-        writer.hatch_fill_parameters["color"] = color_hatch
+    if hatch_type:
+        hatch_type = Hatching(angle = hatch_angle, spacing = hatch_spacing, crosshatch = cross_hatch,
+                            type = hatch_type, color = color_hatch)
+    writer.hatching = hatch_type
 
     if tesselation_type == TesselationType.REGULAR:
         tesselation = RegularTesselation(writer, tess, tess_id)

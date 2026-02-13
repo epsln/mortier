@@ -34,25 +34,19 @@ class Writer:
         self.bezier_curve = False
         self.color_line = (255, 255, 255)
         self.color_bg = (0, 0, 0)
-        self.hatch_fill_parameters = {
-            "angle": None,
-            "spacing": 5,
-            "crosshatch": False,
-            "type": None,
-            "color": self.color_line,
-        }
-        assert not (self.bezier_curve and self.hatch_fill_parameters["angle"])
+        self.hatching = None
+        assert not (self.bezier_curve and self.hatching.angle)
         assert not (self.lacing_mode and self.bands_mode)
 
     def set_band_angle(self, bands_angle):
         self.bands_angle = bands_angle
 
-    def set_hatch_fill(self, hatch_fill_parameters):
-        assert not (self.bezier_curve and hatch_fill_parameters["angle"])
-        self.hatch_fill_parameters = hatch_fill_parameters
+    def set_hatching(self, hatching):
+        assert not (self.bezier_curve and hatch_fill.angle)
+        self.hatching = hatching
 
-    def hatch_fill(self, vertices, cross_hatch=False):
-        angle = self.hatch_fill_parameters["angle"]
+    def hatch_fill(self, vertices, cross_hatch = None):
+        angle = self.hatching.angle
         if cross_hatch:
             angle += np.pi / 2
 
@@ -60,7 +54,7 @@ class Writer:
         ys = [v.y for v in vertices_rotated]
         y_min, y_max = min(ys), max(ys)
 
-        y = y_min + self.hatch_fill_parameters["spacing"]
+        y = y_min + self.hatching.spacing
         while y < y_max:
             xs = []
 
@@ -84,18 +78,18 @@ class Writer:
 
                 x0, x1 = xs[k], xs[k + 1]
 
-                if not self.hatch_fill_parameters["type"] == HatchType.DOT:
+                if not self.hatching.type == HatchType.DOT:
                     a = EuclideanCoords([x0, y]).rotate(angle)
                     b = EuclideanCoords([x1, y]).rotate(angle)
-                    self.line(a, b, self.hatch_fill_parameters["color"])
+                    self.line(a, b, self.hatching.color)
                 else:
-                    x = x0 + self.hatch_fill_parameters["spacing"] / 2
+                    x = x0 + self.hatching.spacing / 2
                     while x < x1:
                         c = EuclideanCoords([x, y]).rotate(angle)
-                        self.point(c, self.hatch_fill_parameters["color"])
-                        x += self.hatch_fill_parameters["spacing"]
+                        self.point(c, self.hatching.color)
+                        x += self.hatching.spacing
 
-            y += self.hatch_fill_parameters["spacing"]
+            y += self.hatching.spacing
 
     def draw_outline_lines(self, points):
         pos_ring, neg_ring = outline_lines(
@@ -170,11 +164,11 @@ class Writer:
                         face.vertices[(i + 1) % n_vert],
                         self.color_line,
                     )
-        if self.hatch_fill_parameters["type"] is not None:
+        if self.hatching:
             self.hatch_fill(inside_vertices)
-            if self.hatch_fill_parameters["crosshatch"]:
+            if self.hatching.crosshatch:
                 self.hatch_fill(
-                    inside_vertices, self.hatch_fill_parameters["crosshatch"]
+                    inside_vertices, self.hatching.crosshatch
                 )
 
     def in_bounds(self, v):
