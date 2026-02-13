@@ -1,5 +1,4 @@
 from mortier.coords import EuclideanCoords
-
 from mortier.enums import OrnementsType
 
 

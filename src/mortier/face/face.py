@@ -277,7 +277,7 @@ class Face:
             z = (-1j * z - 1j) / (z - 1)
             vertices.append(EuclideanCoords([z.real, z.imag]))
         self.vertices = vertices
-        return self 
+        return self
 
     def __str__(self):
         """

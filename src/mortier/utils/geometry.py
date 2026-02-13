@@ -4,7 +4,6 @@ from mortier.coords import EuclideanCoords
 from mortier.enums import OrnementsType
 
 
-
 def line_offset(p1, p2, d):
     """Return the two offset lines at distance ±d from the base line."""
     dir_vec = p2.translate(p1.scale(-1))
@@ -124,7 +123,7 @@ def offset_segment(p0, p1, cut_length, ornements, end_cut=False):
 
 
 def compute_cut_length(theta, ornements):
-    half_w = ornements.width/2
+    half_w = ornements.width / 2
     if theta < np.pi / 4:
         theta_ = np.pi / 2 - theta * 2
         add_length = -(half_w / np.cos(theta_) - half_w * np.tan(theta_))
@@ -160,13 +159,13 @@ def outline_lines(points, intersect_points, ornements):
         else:
             end = False
 
-        pos_midpoint, neg_midpoint = vertex_miter(p_prev, p_curr, p_next, ornements, end)
+        pos_midpoint, neg_midpoint = vertex_miter(
+            p_prev, p_curr, p_next, ornements, end
+        )
 
         if str(p_curr) in intersect_points:
             inter_p = intersect_points[str(p_curr)]
-            cut_length, add_length = compute_cut_length(
-                inter_p["angle"], ornements 
-            )
+            cut_length, add_length = compute_cut_length(inter_p["angle"], ornements)
             beg_point = offset_segment(p_curr, p_next, cut_length, ornements)
             if inter_p["state"][0] == 1:
                 beg_point = offset_segment(p_curr, p_next, cut_length, ornements)

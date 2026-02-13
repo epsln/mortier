@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class HatchType(str, Enum):
-    LINE = "line" 
-    DOT = "dot" 
+    LINE = "line"
+    DOT = "dot"

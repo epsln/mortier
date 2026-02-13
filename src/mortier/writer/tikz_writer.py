@@ -137,7 +137,7 @@ class TikzWriter(Writer):
 
         if self.ornements:
             self.draw_outline_lines(face.vertices, face.mid_points)
-        #TODO: Bezier MODE !!
+        # TODO: Bezier MODE !!
         else:
             for v in face.vertices:
                 if not self.in_bounds(v):

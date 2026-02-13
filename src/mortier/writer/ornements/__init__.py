@@ -1,1 +1,1 @@
-from .ornements import Ornements
+from .ornements import Ornements as Ornements

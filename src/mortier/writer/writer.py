@@ -4,11 +4,8 @@ import numpy as np
 
 from mortier.coords import EuclideanCoords
 from mortier.enums import HatchType
-from mortier.utils.geometry import (
-    fill_intersect_points,
-    outline_lines,
-    quadratic_bezier,
-)
+from mortier.utils.geometry import (fill_intersect_points, outline_lines,
+                                    quadratic_bezier)
 
 
 class Writer:
@@ -22,7 +19,7 @@ class Writer:
         self.n_tiles = int(n_tiles)
         self.size = size
         self.intersect_points = {}
-        self.ornements = None 
+        self.ornements = None
         self.hatching = None
         self.bezier = False
         self.color_line = (255, 255, 255)
@@ -38,12 +35,11 @@ class Writer:
         self.hatching = hatching
 
     def set_bezier(self, bezier):
-        #TODO: Set the number of control points
+        # TODO: Set the number of control points
         assert not (bezier and self.hatching)
-        self.bezier = bezier 
+        self.bezier = bezier
 
-
-    def hatch_fill(self, vertices, cross_hatch = None):
+    def hatch_fill(self, vertices, cross_hatch=None):
         angle = self.hatching.angle
         if cross_hatch:
             angle += np.pi / 2
@@ -91,9 +87,7 @@ class Writer:
 
     def draw_outline_lines(self, points):
         pos_ring, neg_ring = outline_lines(
-            points,
-            self.intersect_points,
-            self.ornements
+            points, self.intersect_points, self.ornements
         )
 
         for i in range(0, len(pos_ring) - 1, 2):
@@ -163,9 +157,7 @@ class Writer:
         if self.hatching:
             self.hatch_fill(inside_vertices)
             if self.hatching.crosshatch:
-                self.hatch_fill(
-                    inside_vertices, self.hatching.crosshatch
-                )
+                self.hatch_fill(inside_vertices, self.hatching.crosshatch)
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):

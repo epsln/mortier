@@ -4,15 +4,13 @@ import random
 import click
 import numpy as np
 
-from mortier.writer.hatching import Hatching
-from mortier.writer.ornements import Ornements 
-from mortier.enums import FileType, HatchType, ParamType, TesselationType, TileType
-from mortier.tesselation import (
-    HyperbolicTesselation,
-    PenroseTesselation,
-    RegularTesselation,
-)
+from mortier.enums import (FileType, HatchType, ParamType, TesselationType,
+                           TileType)
+from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
+                                 RegularTesselation)
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
+from mortier.writer.hatching import Hatching
+from mortier.writer.ornements import Ornements
 
 with open("data/database.json", "r") as file:
     js = json.load(file)
@@ -143,7 +141,9 @@ def tess_param(
 ):
     tess = js[tess_id]
     if file_type in [FileType.JPG, FileType.PNG]:
-        writer = BitmapWriter(f"{output}.{file_type.value}", size=(0, 0, output_size[0], output_size[1]))
+        writer = BitmapWriter(
+            f"{output}.{file_type.value}", size=(0, 0, output_size[0], output_size[1])
+        )
     elif file_type == FileType.SVG:
         writer = SVGWriter(f"{output}", size=(0, 0, output_size[0], output_size[1]))
     else:
@@ -151,19 +151,24 @@ def tess_param(
     writer.n_tiles = scale
     writer.size = (0, 0, output_size[0], output_size[1])
     if lace:
-        ornements = Ornements(type = lace)
+        ornements = Ornements(type=lace)
         ornements.width = bands_width
-        writer.set_ornements(ornements) 
+        writer.set_ornements(ornements)
     elif bands:
-        ornements = Ornements(type = bands)
+        ornements = Ornements(type=bands)
         ornements.width = bands_width
         writer.set_ornements(ornements)
     writer.bezier_curve = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)
     if hatch_type:
-        hatch_type = Hatching(angle = hatch_angle, spacing = hatch_spacing, crosshatch = cross_hatch,
-                            type = hatch_type, color = color_hatch)
+        hatch_type = Hatching(
+            angle=hatch_angle,
+            spacing=hatch_spacing,
+            crosshatch=cross_hatch,
+            type=hatch_type,
+            color=color_hatch,
+        )
     writer.hatching = hatch_type
 
     if tesselation_type == TesselationType.REGULAR:

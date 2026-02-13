@@ -1,1 +1,1 @@
-from .hatching import Hatching
+from .hatching import Hatching as Hatching
