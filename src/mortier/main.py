@@ -30,11 +30,11 @@ with open("data/database.json", "r") as file:
 )
 @click.option(
     "--file_type",
-    default="bitmap",
+    default="png",
     type=click.Choice(FileType, case_sensitive=False),
     help="Output Type.",
 )
-@click.option("--output", default="img.png", help="Output file name.", type=str)
+@click.option("--output", default="img", help="Output file name.", type=str)
 @click.option(
     "--output_size", nargs=2, default=(1920, 1080), type=(int, int), help="Output size."
 )
@@ -140,8 +140,8 @@ def tess_param(
     color_hatch,
 ):
     tess = js[tess_id]
-    if file_type == FileType.BITMAP:
-        writer = BitmapWriter(f"{output}", size=(0, 0, output_size[0], output_size[1]))
+    if file_type in [FileType.JPG, FileType.PNG]:
+        writer = BitmapWriter(f"{output}.{file_type.value}", size=(0, 0, output_size[0], output_size[1]))
     elif file_type == FileType.SVG:
         writer = SVGWriter(f"{output}", size=(0, 0, output_size[0], output_size[1]))
     else:
