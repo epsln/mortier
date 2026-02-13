@@ -270,15 +270,14 @@ class Face:
         face: Face
             Computed face.
         """
-        new_face = copy.copy(self)
 
         vertices = []
         for v in self.vertices:
             z = v.x + 1j * v.y
             z = (-1j * z - 1j) / (z - 1)
             vertices.append(EuclideanCoords([z.real, z.imag]))
-        new_face.vertices = vertices
-        return new_face
+        self.vertices = vertices
+        return self 
 
     def __str__(self):
         """
