@@ -4,13 +4,15 @@ import random
 import click
 import numpy as np
 
-from mortier.enums import (FileType, HatchType, ParamType, TesselationType,
+from mortier.enums import (FileType, HatchType, ParamType, TesselationType, RegularTesselationType,
                            TileType)
 from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
                                  RegularTesselation)
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 from mortier.writer.hatching import Hatching
 from mortier.writer.ornements import Ornements
+
+import time
 
 with open("data/database.json", "r") as file:
     js = json.load(file)
@@ -26,6 +28,7 @@ with open("data/database.json", "r") as file:
 @click.option(
     "--tess_id",
     default=random.choice(list(js.keys())),
+    type=click.Choice(RegularTesselationType),
     help="Tesselation ID in the database.",
 )
 @click.option(
@@ -183,7 +186,9 @@ def tess_param(
     tesselation.set_param_mode(parametrised)
     tesselation.set_assym_angle = assym_angle
     tesselation.set_separated_site_mode(separated_sites)
+    t = time.time()
     tesselation.draw_tesselation()
+    print(time.time() - t)
 
 
 if __name__ == "__main__":
