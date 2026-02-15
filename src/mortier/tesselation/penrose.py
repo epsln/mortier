@@ -41,9 +41,9 @@ class PenroseTesselation(Tesselation):
             )
         else:
             self.pen = P3Penrose.initialise(
-                length=writer.size[2] * (3.5 + writer.n_tiles / 10),
-                x_offset=-writer.size[2] / 2,
-                y_offset=writer.size[3] / 2,
+                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/10), 
+                p = EuclideanCoords([writer.size[2]/2,
+                                    writer.size[3]/2])
             )
 
     def tesselate_face(self):
@@ -61,28 +61,33 @@ class PenroseTesselation(Tesselation):
                 triangles.extend(penrose_triangle.inflate())
             self.pen = triangles
 
-        # Merge compatible triangle pairs into faces
-        for i, p in enumerate(self.pen):
-            for p_ in self.pen[i + 1 :]:
-                if (p.A.isclose(p_.A) and p.C.isclose(p_.C)) or (
-                    p.A.isclose(p_.C) and p.C.isclose(p_.A)
-                ):
-                    vertices = [p.A, p.B, p.C, p_.B]
+        if not self.angle:
+            for i, p in enumerate(self.pen):
+                for l in p.edges:
+                    self.writer.line(l.beg_pt, l.end_pt)
+        else:
+            # Merge compatible triangle pairs into faces
+            for i, p in enumerate(self.pen):
+                for p_ in self.pen[i + 1 :]:
+                    if (p.A.isclose(p_.A) and p.C.isclose(p_.C)) or (
+                        p.A.isclose(p_.C) and p.C.isclose(p_.A)
+                    ):
+                        vertices = [p.A, p.B, p.C, p_.B]
 
-                    # Orientation test (shoelace-like criterion)
-                    s = 0.0
-                    for j in range(4):
-                        s += (vertices[(j + 1) % 4].x - vertices[j].x) / (
-                            vertices[(j + 1) % 4].y + vertices[j].y
+                        # Orientation test (shoelace-like criterion)
+                        s = 0.0
+                        for j in range(4):
+                            s += (vertices[(j + 1) % 4].x - vertices[j].x) / (
+                                vertices[(j + 1) % 4].y + vertices[j].y
+                            )
+
+                        if s < 0:
+                            vertices = vertices[::-1]
+
+                        face = Face(
+                            vertices,
+                            param_mode=self.param_mode,
+                            assym_mode=self.assym_angle,
+                            separated_site_mode=self.separated_site_mode,
                         )
-
-                    if s < 0:
-                        vertices = vertices[::-1]
-
-                    face = Face(
-                        vertices,
-                        param_mode=self.param_mode,
-                        assym_mode=self.assym_angle,
-                        separated_site_mode=self.separated_site_mode,
-                    )
-                    self.faces.append(face)
+                        self.faces.append(face)
