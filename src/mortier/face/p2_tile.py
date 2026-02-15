@@ -30,36 +30,30 @@ class P2Penrose(Face):
         self.code = code
 
     @staticmethod
-    def initialise(code=2, length=70, x_offset=-15, y_offset=-5):
+    def initialise(code=2, length=70, p = EuclideanCoords([0, 0])):
         """
         Generate a base level 0 tiling, using two P2 tiles.
         Parameters
         ----------
         length: float
             Length of the side
-        x_offset: float
-            Offset the tiling in the x axis
-        y_offset: float
-            Offset the tiling in the y axis
+        p0: float
+            Center of the penrose tesselation 
         code: int
             Indicates which sub-tile this face belongs to.
         """
-        p0 = -0
-        y = -0
-        A = EuclideanCoords([p0, y])
-        B = EuclideanCoords([length, y])
-        C = EuclideanCoords([length / 2, y + np.tan(0.62) * length / 2])
-        C1 = EuclideanCoords(
-            [
-                length * np.cos(72 / 360 * 2 * np.pi),
-                length * np.sin(72 / 360 * 2 * np.pi),
-            ]
-        )
-        A = A.translate(EuclideanCoords([x_offset, y_offset]))
-        B = B.translate(EuclideanCoords([x_offset, y_offset]))
-        C = C.translate(EuclideanCoords([x_offset, y_offset]))
-        C1 = C1.translate(EuclideanCoords([x_offset, y_offset]))
-        return [P2Penrose(A, B, C, 3), P2Penrose(A, C1, C, 2)]
+        output = []
+        for i in range(10):
+            A = EuclideanCoords([p.x + length * np.cos(i / 10 * np.pi * 2), 
+                                 p.y + length * np.sin(i / 10 * np.pi * 2)])
+            B = EuclideanCoords([p.x + length * np.cos((i + 1) / 10 * np.pi * 2), 
+                                 p.y + length * np.sin((i + 1) / 10 * np.pi * 2)])
+            if i % 2:
+                output.append(P2Penrose(p, B, A, (i + 1) % 2))
+            else:
+                output.append(P2Penrose(p, A, B, (i + 1) % 2))
+
+        return output 
 
     def __str__(self):
         """

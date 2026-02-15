@@ -1,6 +1,7 @@
 from mortier.enums import TileType
 from mortier.face import Face, P2Penrose, P3Penrose
 from mortier.tesselation.tesselation import Tesselation
+from mortier.coords import EuclideanCoords 
 
 
 class PenroseTesselation(Tesselation):
@@ -34,9 +35,9 @@ class PenroseTesselation(Tesselation):
 
         if tile == TileType.P2:
             self.pen = P2Penrose.initialise(
-                length=writer.size[2] * (2.0 + writer.n_tiles / 10),
-                x_offset=-writer.size[2] / 5,
-                y_offset=-writer.size[3] / 6,
+                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/10),
+                p = EuclideanCoords([writer.size[2]/2,
+                                    writer.size[3]/2])
             )
         else:
             self.pen = P3Penrose.initialise(
