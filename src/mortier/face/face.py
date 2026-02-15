@@ -249,7 +249,8 @@ class Face:
 
             vertices.append(p_mid_0)
             mid_points.append((p_mid_0, angle))
-            vertices.append(x)
+            if self.point_inside(x):
+                vertices.append(x)
             if self.separated_site_mode:
                 vertices.append(p_mid_1)
                 if self.assym_mode:
@@ -278,6 +279,43 @@ class Face:
             vertices.append(EuclideanCoords([z.real, z.imag]))
         self.vertices = vertices
         return self
+
+    def point_inside(self, p):
+        """
+        Check if point p lies inside polygon defined by vertices.
+
+        Parameters
+        ----------
+        p : EuclideanCoords
+            Point to test
+        Returns
+        -------
+        bool
+            True if inside (or on edge), False otherwise
+        """
+
+        inside = False
+        n = len(self.vertices)
+
+        x, y = p.x, p.y
+
+        for i in range(n):
+            v1 = self.vertices[i]
+            v2 = self.vertices[(i + 1) % n]
+
+            x1, y1 = v1.x, v1.y
+            x2, y2 = v2.x, v2.y
+
+            # Check if edge crosses horizontal ray to the right of p
+            intersects = ((y1 > y) != (y2 > y)) and (
+                x < (x2 - x1) * (y - y1) / (y2 - y1) + x1
+            )
+
+            if intersects:
+                inside = not inside
+
+        return inside
+            
 
     def __str__(self):
         """
