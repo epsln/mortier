@@ -151,11 +151,11 @@ def tess_param(
     writer.n_tiles = scale
     writer.size = (0, 0, output_size[0], output_size[1])
     if lace:
-        ornements = Ornements(type=lace)
+        ornements = Ornements(type="lace")
         ornements.width = bands_width
         writer.set_ornements(ornements)
     elif bands:
-        ornements = Ornements(type=bands)
+        ornements = Ornements(type="bands")
         ornements.width = bands_width
         writer.set_ornements(ornements)
     writer.bezier_curve = bezier
