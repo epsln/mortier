@@ -188,7 +188,6 @@ def tess_param(
     tesselation.set_separated_site_mode(separated_sites)
     t = time.time()
     tesselation.draw_tesselation()
-    print(time.time() - t)
 
 
 if __name__ == "__main__":
