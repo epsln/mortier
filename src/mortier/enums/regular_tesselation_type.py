@@ -3,7 +3,6 @@ from enum import Enum
 
 class RegularTesselationType(str, Enum):
     t1001 = 't1001'
-    t1002 = 't1002'
     t1003 = 't1003'
     t1004 = 't1004'
     t1005 = 't1005'
