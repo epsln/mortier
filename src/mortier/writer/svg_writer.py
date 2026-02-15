@@ -75,6 +75,22 @@ class SVGWriter(Writer):
                 stroke=f"rgb({color[0]}, {color[1]}, {color[2]})",
             )
         )
+    def point(self, p, color=(0, 0, 0)):
+        """
+        Draw a point, which is simply a very small circle.
+
+        Parameters
+        ----------
+        c : EuclideanCoords
+            Center of the point.
+        color : str, optional
+            Stroke color.
+
+        Returns
+        -------
+        None
+        """
+        self.circle(p, 0.001, color)
 
     def line(self, p0, p1, color=(0, 0, 0)):
         """
