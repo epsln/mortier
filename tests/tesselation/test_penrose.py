@@ -64,6 +64,7 @@ def test_tesselate_face_creates_faces(penrose_tess_p2):
     tess, writer = penrose_tess_p2
     tess.param_mode = True
     tess.assym_angle = 0.1
+    tess.angle = 0.2
     tess.separated_site_mode = True
 
     tess.tesselate_face()

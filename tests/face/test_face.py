@@ -131,10 +131,10 @@ def test_half_plane_modifies_vertices_in_place():
 def test_p2penrose_initialise():
     tiles = P2Penrose.initialise()
 
-    assert len(tiles) == 2
+    assert len(tiles) == 10 
     for t in tiles:
         assert isinstance(t, P2Penrose)
-        assert t.code in {2, 3}
+        assert t.code in {0, 1}
 
 
 @pytest.mark.parametrize("code,expected", [
@@ -158,7 +158,7 @@ def test_p2penrose_inflate_count(code, expected):
 def test_p3penrose_initialise():
     tiles = P3Penrose.initialise()
 
-    assert len(tiles) == 2
+    assert len(tiles) == 10
     for t in tiles:
         assert isinstance(t, P3Penrose)
 
