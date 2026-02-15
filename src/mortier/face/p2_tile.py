@@ -32,12 +32,12 @@ class P2Penrose(Face):
     @staticmethod
     def initialise(code=2, length=70, p = EuclideanCoords([0, 0])):
         """
-        Generate a base level 0 tiling, using two P2 tiles.
+        Generate a base level 0 tiling as a star of P2 Tiles
         Parameters
         ----------
         length: float
             Length of the side
-        p0: float
+        p: float
             Center of the penrose tesselation 
         code: int
             Indicates which sub-tile this face belongs to.

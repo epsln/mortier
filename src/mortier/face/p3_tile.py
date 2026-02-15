@@ -29,31 +29,46 @@ class P3Penrose(P2Penrose):
         self.code = code
 
     @staticmethod
-    def initialise(code=2, length=60, x_offset=-5, y_offset=2):
+    def initialise(code=2, length=60, p = EuclideanCoords([0, 0])):
         """
-        Generate a base level 0 tiling, using two P2 tiles.
+        Generate a base level 0 tiling as a star  of P3 Tiles
         Parameters
         ----------
         length: float
             Length of the side
-        x_offset: float
-            Offset the tiling in the x axis
-        y_offset: float
-            Offset the tiling in the y axis
+        p: EuclideanCoords 
+            Center of the star
+
         code: int
             Indicates which sub-tile this face belongs to.
         """
-        p0 = -0
-        y = 0
-        A = EuclideanCoords([p0, y])
-        B = EuclideanCoords([length / 2, y - np.tan(0.62) * length / 2])
-        B0 = EuclideanCoords([length / 2, y + np.tan(0.62) * length / 2])
-        C = EuclideanCoords([length, y])
-        A = A.translate(EuclideanCoords([x_offset, y_offset]))
-        B = B.translate(EuclideanCoords([x_offset, y_offset]))
-        B0 = B0.translate(EuclideanCoords([x_offset, y_offset]))
-        C = C.translate(EuclideanCoords([x_offset, y_offset]))
-        return [P3Penrose(A, B, C, 2), P3Penrose(A, B0, C, 2)]
+        output = []
+        theta = 2 * np.pi/5
+        for i in range(10):
+            angle1 = i * theta
+            angle2 = (i + 1) * theta
+
+            A = EuclideanCoords([
+                p.x + length * np.cos(angle1),
+                p.y + length * np.sin(angle1)
+            ])
+
+            B = EuclideanCoords([
+                p.x + length * np.cos(angle2),
+                p.y + length * np.sin(angle2)
+            ])
+
+            C = EuclideanCoords([
+                A.x + (B.x - p.x),
+                A.y + (B.y - p.y)
+            ])
+
+            if i % 2:
+                output.append(P3Penrose(p, A, C, 2))
+            else:
+                output.append(P3Penrose(p, B, C, 2))
+
+        return output 
 
     def inflate(self):
         """
