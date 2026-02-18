@@ -1,10 +1,12 @@
 import math
+import numpy as np
+import copy
+from functools import partial
 
 from mortier.coords import LatticeCoords
 from mortier.face.face import Face
 from mortier.tesselation.tesselation import Tesselation
 from mortier.utils.math_utils import plane_to_tile_coords
-
 
 class RegularTesselation(Tesselation):
     """
@@ -176,6 +178,8 @@ class RegularTesselation(Tesselation):
 
         self.writer.write()
 
+
+
     def tesselate_face(self):
         """
         Generate all faces covering the visible region.
@@ -214,15 +218,29 @@ class RegularTesselation(Tesselation):
                         separated_site_mode=self.separated_site_mode,
                     )
                 )
+        i_vals = np.arange(i_min, i_max)
+        j_vals = np.arange(j_min, j_max)
 
-        for i in range(i_min, i_max):
-            for j in range(j_min, j_max):
-                for face in faces:
-                    f = face.translate(self.T1, self.T2, i, j)
-                    f = f.scale(self.writer.n_tiles)
-                    self.faces.append(f)
+        I, J = np.meshgrid(i_vals, j_vals, indexing="ij")
 
-        self.fill_neighbor(faces)
+        translations = (
+                I[..., None] * self.T1.w +
+                J[..., None] * self.T2.w
+        ).reshape(-1, 4)
+
+        for face in faces:
+            verts = face._vertices  # (Vf, 4)
+
+            transformed = (
+                verts[None, :, :] +
+                translations[:, None, :]
+            )
+
+            transformed *= self.writer.n_tiles
+            for tv in transformed:
+                new_face = copy.copy(face)
+                new_face.vertices = [LatticeCoords(t) for t in tv]
+                self.faces.append(new_face)
 
     def find_corners(self):
         """

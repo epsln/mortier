@@ -37,6 +37,9 @@ class Face:
             If True, separate the launch sites of the rays
         """
         self.vertices = vertices
+        if type(self.vertices[0]) == LatticeCoords:
+            self._vertices = np.array([v.w for v in self.vertices], dtype=complex)
+
         self.mid_points = mid_points
         self.param_mode = param_mode
         self.assym_mode = assym_mode
@@ -120,13 +123,12 @@ class Face:
         """
         new_face = copy.copy(self)
         if type(self.vertices[0]).__name__ == "LatticeCoords":
-            vec_1 = dir_vec_1.scale(mult_i)
-            vec_2 = vec_1.translate(dir_vec_2.scale(mult_j))
-            new_face.vertices = [v.translate(vec_2) for v in self.vertices]
+            translation = mult_i * dir_vec_1.w + mult_j * dir_vec_2.w   # both complex
+            new_face._vertices += translation
         else:
-            new_face.vertices = [v.translate(dir_vec_1) for v in self.vertices]
+            self.vertices = [v.translate(dir_vec_1) for v in self.vertices]
 
-        return new_face
+        return new_face 
 
     def scale(self, n):
         """
@@ -142,7 +144,8 @@ class Face:
             Scaled face
         """
         new_face = copy.copy(self)
-        new_face.vertices = [v.scale(n) for v in self.vertices]
+        #new_face.vertices = [v.scale(n) for v in self.vertices]
+        new_face.vertices *= n 
 
         return new_face
 
@@ -328,5 +331,6 @@ class Face:
         """
         t = []
         for v in self.vertices:
-            t.append(f"({round(v.x, 2)},{round(v.y, 3)})")
+            #t.append(f"({round(v.x, 2)},{round(v.y, 3)})")
+            t.append(f"({v.x},{v.y})")
         return "->".join(t)
