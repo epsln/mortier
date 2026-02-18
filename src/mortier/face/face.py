@@ -126,8 +126,7 @@ class Face:
             translation = mult_i * dir_vec_1.w + mult_j * dir_vec_2.w   # both complex
             new_face._vertices += translation
         else:
-            self.vertices = [v.translate(dir_vec_1) for v in self.vertices]
-
+            new_face.vertices = [v.translate(dir_vec_1) for v in self.vertices]
         return new_face 
 
     def scale(self, n):
@@ -144,8 +143,7 @@ class Face:
             Scaled face
         """
         new_face = copy.copy(self)
-        #new_face.vertices = [v.scale(n) for v in self.vertices]
-        new_face.vertices *= n 
+        new_face.vertices = [v.scale(n) for v in self.vertices]
 
         return new_face
 
