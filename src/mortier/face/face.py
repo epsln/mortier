@@ -218,48 +218,61 @@ class Face:
             p1 = self.vertices[(i + 1) % len(self.vertices)]
             p2 = self.vertices[(i + 2) % len(self.vertices)]
 
-            side_0 = Line(p0, p1)
-            side_1 = Line(p1, p2)
+            dx = p1.x - p0.x
+            dy = p1.y - p0.y
 
-            p_mid_0 = side_0.get_midpoint()
-            p_mid_1 = side_1.get_midpoint()
+            p_mid_0x = (p0.x + p1.x) * 0.5
+            p_mid_0y = (p0.y + p1.y) * 0.5
+
+            heading_0 = np.arctan2(dy, dx)
+
+            dx = p2.x - p1.x
+            dy = p2.y - p1.y
+
+            p_mid_1x = (p1.x + p2.x) * 0.5
+            p_mid_1y = (p1.y + p2.y) * 0.5
+
+            heading_1 = np.arctan2(dy, dx)
 
             if self.separated_site_mode:
-                p_mid_0 = side_0.get_pq_point(1, self.separated_site)
-                p_mid_1 = side_1.get_pq_point(
-                    self.separated_site - 1, self.separated_site
-                )
-            angle_0 = side_0.heading() + angle
-            angle_1 = side_1.heading() - angle
+                p_mid_0x = (p0.x + p1.x) * 1/self.separated_site 
+                p_mid_0y = (p0.y + p1.y) * 1/self.separated_site
+                p_mid_1x = (p1.x + p2.x) * (self.separated_site - 1)/self.separated_site 
+                p_mid_1y = (p1.y + p2.y) * (self.separated_site - 1)/self.separated_site
+
+            angle_0 = heading_0 + angle
+            angle_1 = heading_1 - angle
 
             if self.assym_mode:
-                angle_1 = side_1.heading() - self.assym_mode
+                angle_1 = heading_1 - self.assym_mode
 
-            end_pt_0 = EuclideanCoords([np.cos(angle_0), np.sin(angle_0)])
-            end_pt_1 = EuclideanCoords([np.cos(angle_1), np.sin(angle_1)])
+            end_pt_0x, end_pt_0y = np.cos(angle_0), np.sin(angle_0)
+            end_pt_1x, end_pt_1y = np.cos(angle_1), np.sin(angle_1)
 
-            end_pt_0 = p_mid_0.translate(end_pt_0)
-            end_pt_1 = p_mid_1.translate(end_pt_1)
+            end_pt_0x = p_mid_0x + end_pt_0x
+            end_pt_0y = p_mid_0y + end_pt_0y
+            end_pt_1x = p_mid_1x + end_pt_1x
+            end_pt_1y = p_mid_1y + end_pt_1y
 
-            s0 = EuclideanCoords([p_mid_0.x - end_pt_0.x, p_mid_0.y - end_pt_0.y])
-            s1 = EuclideanCoords([p_mid_1.x - end_pt_1.x, p_mid_1.y - end_pt_1.y])
+            s0x, s0y = p_mid_0x - end_pt_0x, p_mid_0y - end_pt_0y
+            s1x, s1y = p_mid_1x - end_pt_1x, p_mid_1y - end_pt_1y
 
-            t = (s1.x * (p_mid_0.y - p_mid_1.y) - s1.y * (p_mid_0.x - p_mid_1.x)) / (
-                -s1.x * s0.y + s0.x * s1.y
+            t = (s1x * (p_mid_0y - p_mid_1y) - s1y * (p_mid_0x - p_mid_1x)) / (
+                -s1x * s0y + s0x * s1y
             )
 
-            x = EuclideanCoords([p_mid_0.x + (t * s0.x), p_mid_0.y + (t * s0.y)])
+            cx, cy = p_mid_0x + (t * s0x), p_mid_0y + (t * s0y)
 
-            vertices.append(p_mid_0)
-            mid_points.append((p_mid_0, angle))
-            if self.point_inside(x):
-                vertices.append(x)
+            vertices.append(EuclideanCoords([p_mid_0x, p_mid_0y]))
+            mid_points.append((EuclideanCoords([p_mid_0x, p_mid_0y]), angle))
+            #if self.point_inside(x):
+            #    vertices.append(x)
             if self.separated_site_mode:
-                vertices.append(p_mid_1)
+                vertices.append(EuclideanCoords([p_mid_1x, p_mid_1y]))
                 if self.assym_mode:
-                    mid_points.append((p_mid_1, self.assym_mode))
+                    mid_points.append((EuclideanCoords([p_mid_1x, p_mid_1y]), self.assym_mode))
                 else:
-                    mid_points.append((p_mid_1, angle))
+                    mid_points.append((EuclideanCoords([p_mid_1x, p_mid_1y]), angle))
 
         vertices.append(vertices[0])
         new_face.vertices = vertices
