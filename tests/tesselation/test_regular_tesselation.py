@@ -2,6 +2,7 @@ import pytest
 from mortier.coords import LatticeCoords
 from mortier.face.face import Face
 from mortier.tesselation.regular_tesselation import RegularTesselation
+import numpy as np
 
 
 class MockWriter:
@@ -65,8 +66,8 @@ def test_setters(tessellation):
     }
     tess.set_tesselation(new_tess_dict, "NewID")
     assert tess.tess_id == "NewID"
-    assert tess.T1.w == new_tess_dict["T1"]
-    assert tess.T2.w == new_tess_dict["T2"]
+    np.testing.assert_allclose(tess.T1.w, new_tess_dict["T1"])
+    np.testing.assert_allclose(tess.T2.w, new_tess_dict["T2"])
 
 
 def test_draw_seed_calls_writer(tessellation):

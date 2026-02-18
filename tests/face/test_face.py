@@ -59,6 +59,7 @@ def test_face_translate_euclidean_lattice():
     moved = face.translate(T1, T2, 2, 3)
     for v in moved.vertices:
         assert type(v).__name__ == "EuclideanCoords"
+    print(moved.vertices[0])
     assert approx_point(moved.vertices[0], T1) 
 
 

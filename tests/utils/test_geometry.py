@@ -133,7 +133,6 @@ def test_fill_intersect_points_and_outline():
     face = Face(vertices)
     angle = 0.1
     face = face.ray_transform(angle)
-    print(face.mid_points)
     intersect_points = {}
 
     # Fill intersect points
