@@ -265,6 +265,7 @@ class Face:
 
             vertices.append(EuclideanCoords([p_mid_0x, p_mid_0y]))
             mid_points.append((EuclideanCoords([p_mid_0x, p_mid_0y]), angle))
+            vertices.append(EuclideanCoords([cx, cy]))
             #if self.point_inside(x):
             #    vertices.append(x)
             if self.separated_site_mode:
