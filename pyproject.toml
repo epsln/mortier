@@ -19,6 +19,7 @@ black = "^26.1.0"
 isort = "^7.0.0"
 ruff = "^0.15.0"
 pylint = "^4.0.4"
+pytest-codspeed = "^4.3.0"
 
 [tool.poetry.scripts]
 mortier = "mortier.main:tess_param"
