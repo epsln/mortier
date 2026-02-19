@@ -161,7 +161,7 @@ def tess_param(
         ornements = Ornements(type="bands")
         ornements.width = bands_width
         writer.set_ornements(ornements)
-    writer.bezier_curve = bezier
+    writer.bezier = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)
     if hatch_type:

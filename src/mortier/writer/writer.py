@@ -109,7 +109,7 @@ class Writer:
             p2 = neg_ring[i + 2]
 
             if self.bezier:
-                lines = self.quadratic_bezier(p0, p1, p2)
+                lines = quadratic_bezier(p0, p1, p2)
                 for j in range(len(lines) - 1):
                     self.line(lines[j], lines[j + 1], self.color_line)
             else:
@@ -132,7 +132,7 @@ class Writer:
             p0 = face.vertices[i]
             p1 = face.vertices[i + 1]
             p2 = face.vertices[i + 2]
-            lines = self.quadratic_bezier(p0, p1, p2)
+            lines = quadratic_bezier(p0, p1, p2)
             for j in range(len(lines) - 1):
                 self.line(lines[j], lines[j + 1])
 
