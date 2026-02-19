@@ -232,10 +232,11 @@ class Face:
             heading_1 = np.arctan2(dy, dx)
 
             if self.separated_site_mode:
-                p_mid_0x = (p0.x + p1.x) * 1/self.separated_site 
-                p_mid_0y = (p0.y + p1.y) * 1/self.separated_site
-                p_mid_1x = (p1.x + p2.x) * (self.separated_site - 1)/self.separated_site 
-                p_mid_1y = (p1.y + p2.y) * (self.separated_site - 1)/self.separated_site
+                p_mid_0x = p1.x + (p0.x - p1.x) * 1/self.separated_site 
+                p_mid_0y = p1.y + (p0.y - p1.y) * 1/self.separated_site
+                p_mid_1x = p2.x + (p1.x - p2.x) * (self.separated_site - 1)/self.separated_site 
+                p_mid_1y = p2.y + (p1.y - p2.y) * (self.separated_site - 1)/self.separated_site
+                
 
             angle_0 = heading_0 + angle
             angle_1 = heading_1 - angle
@@ -263,7 +264,7 @@ class Face:
 
             vertices.append(EuclideanCoords([p_mid_0x, p_mid_0y]))
             mid_points.append((EuclideanCoords([p_mid_0x, p_mid_0y]), angle))
-            if self.point_inside(p):
+            if self.point_inside:
                 vertices.append(p)
             if self.separated_site_mode:
                 vertices.append(EuclideanCoords([p_mid_1x, p_mid_1y]))
