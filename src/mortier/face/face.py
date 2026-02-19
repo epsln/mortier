@@ -211,7 +211,6 @@ class Face:
             )
 
         for i in range(len(self.vertices)):
-            # TODO: Put sides in faces instead of using vertices
             p0 = self.vertices[i]
             p1 = self.vertices[(i + 1) % len(self.vertices)]
             p2 = self.vertices[(i + 2) % len(self.vertices)]
@@ -260,12 +259,12 @@ class Face:
             )
 
             cx, cy = p_mid_0x + (t * s0x), p_mid_0y + (t * s0y)
+            p = EuclideanCoords([cx, cy])
 
             vertices.append(EuclideanCoords([p_mid_0x, p_mid_0y]))
             mid_points.append((EuclideanCoords([p_mid_0x, p_mid_0y]), angle))
-            vertices.append(EuclideanCoords([cx, cy]))
-            #if self.point_inside(x):
-            #    vertices.append(x)
+            if self.point_inside(p):
+                vertices.append(p)
             if self.separated_site_mode:
                 vertices.append(EuclideanCoords([p_mid_1x, p_mid_1y]))
                 if self.assym_mode:
@@ -291,6 +290,7 @@ class Face:
         for v in self.vertices:
             z = v.x + 1j * v.y
             z = (-1j * z - 1j) / (z - 1)
+            z = 2 / np.pi * np.log((1 + z) / (1 - z))
             vertices.append(EuclideanCoords([z.real, z.imag]))
         self.vertices = vertices
         return self
