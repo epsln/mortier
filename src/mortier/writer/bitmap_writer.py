@@ -117,17 +117,6 @@ class BitmapWriter(Writer):
         -------
         None
         """
-        if color == "red":
-            color = (255, 0, 0)
-        elif color == "green":
-            color = (0, 255, 0)
-        elif color == "blue":
-            color = (0, 0, 255)
-        elif color == "cyan":
-            color = (0, 128, 200)
-        elif color == "yellow":
-            color = (255, 227, 0)
-
         self.output.line(
             [(p0.x, p0.y), (p1.x, p1.y)],
             fill=color,
