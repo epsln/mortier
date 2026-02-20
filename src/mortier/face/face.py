@@ -48,6 +48,15 @@ class Face:
         if self.separated_site_mode:
             self.separated_site = self.separated_site_mode
         self.neighbors = []
+        pts = [(p.x, p.y) for p in self.vertices]
+        area = 0.0
+        n = len(pts)
+        for i in range(n):
+            x1, y1 = pts[i]
+            x2, y2 = pts[(i + 1) % n]
+            area += (x2 - x1) * (y2 + y1)
+        if area > 0:
+            self.vertices = list(reversed(self.vertices))
 
     @staticmethod
     def generate(
@@ -205,6 +214,7 @@ class Face:
         vertices = []
         mid_points = []
 
+
         if self.param_mode:
             angle = angle_parametrisation(
                 self.vertices[0], self.param_mode, bounds, frame_num
@@ -221,7 +231,7 @@ class Face:
             p_mid_0x = (p0.x + p1.x) * 0.5
             p_mid_0y = (p0.y + p1.y) * 0.5
 
-            heading_0 = np.arctan2(dy, dx)
+            heading_0 = np.arctan2(dy, dx) 
 
             dx = p2.x - p1.x
             dy = p2.y - p1.y
@@ -237,7 +247,6 @@ class Face:
                 p_mid_1x = p2.x + (p1.x - p2.x) * (self.separated_site - 1)/self.separated_site 
                 p_mid_1y = p2.y + (p1.y - p2.y) * (self.separated_site - 1)/self.separated_site
                 
-
             angle_0 = heading_0 + angle
             angle_1 = heading_1 - angle
 
@@ -344,6 +353,6 @@ class Face:
         """
         t = []
         for v in self.vertices:
-            #t.append(f"({round(v.x, 2)},{round(v.y, 3)})")
-            t.append(f"({v.x},{v.y})")
+            t.append(f"({round(v.x, 2)},{round(v.y, 2)})")
+            #t.append(f"({v.x},{v.y})")
         return "->".join(t)
