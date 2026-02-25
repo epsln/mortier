@@ -81,7 +81,7 @@ with open("data/database.json", "r") as file:
     help="Number of sides and number of neighbors of Hyperbolic Tesselation",
 )
 @click.option("--tile", default="P2", type=click.Choice(TileType, case_sensitive=False))
-@click.option("--depth", default=4, type=click.IntRange(min=2), help="Inflation depth")
+@click.option("--depth", default=4, type=click.IntRange(min=0), help="Inflation depth")
 @click.option("--half_plane", is_flag=True, help="Inflation depth")
 @click.option("--refine", default=0, type=click.IntRange(min=0), help="Inflation depth")
 @click.option(
@@ -184,7 +184,7 @@ def tess_param(
         tesselation = PenroseTesselation(writer, tile=tile, level=depth)
     tesselation.set_angle(angle)
     tesselation.set_param_mode(parametrised)
-    tesselation.set_assym_angle = assym_angle
+    tesselation.set_assym_angle(assym_angle)
     tesselation.set_separated_site_mode(separated_sites)
     t = time.time()
     tesselation.draw_tesselation()
