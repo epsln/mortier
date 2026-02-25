@@ -143,7 +143,7 @@ class Tesselation:
                 caption += ", bandeaux"
 
         self.writer.set_caption(caption)
-        self.writer.set_label(caption)
+        #self.writer.set_label(caption)
 
     def draw_tesselation(self, frame_num=[0, 1]):
         """
