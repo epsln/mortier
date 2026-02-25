@@ -35,13 +35,13 @@ class PenroseTesselation(Tesselation):
 
         if tile == TileType.P2:
             self.pen = P2Penrose.initialise(
-                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/10),
+                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/80),
                 p = EuclideanCoords([writer.size[2]/2,
                                     writer.size[3]/2])
             )
         else:
             self.pen = P3Penrose.initialise(
-                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/10), 
+                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/80), 
                 p = EuclideanCoords([writer.size[2]/2,
                                     writer.size[3]/2])
             )
@@ -90,4 +90,5 @@ class PenroseTesselation(Tesselation):
                             assym_mode=self.assym_angle,
                             separated_site_mode=self.separated_site_mode,
                         )
+                        face.convex = True
                         self.faces.append(face)

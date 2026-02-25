@@ -57,6 +57,7 @@ class Face:
             area += (x2 - x1) * (y2 + y1)
         if area > 0:
             self.vertices = list(reversed(self.vertices))
+        self.convex = False
 
     @staticmethod
     def generate(
@@ -219,7 +220,12 @@ class Face:
             angle = angle_parametrisation(
                 self.vertices[0], self.param_mode, bounds, frame_num
             )
-
+        angle = np.clip(angle, 0, np.pi/2)
+        #Safety in case of Penrose Tile
+        #Since some are not convex, we get instability so we clip the angle
+        if self.convex: 
+            angle = np.clip(angle, 0, 0.5)
+        
         for i in range(len(self.vertices)):
             p0 = self.vertices[i]
             p1 = self.vertices[(i + 1) % len(self.vertices)]
@@ -247,11 +253,14 @@ class Face:
                 p_mid_1x = p2.x + (p1.x - p2.x) * (self.separated_site - 1)/self.separated_site 
                 p_mid_1y = p2.y + (p1.y - p2.y) * (self.separated_site - 1)/self.separated_site
                 
+
             angle_0 = heading_0 + angle
             angle_1 = heading_1 - angle
 
             if self.assym_mode:
-                angle_1 = heading_1 - self.assym_mode
+                critical = self.critical_angle(p0, p1, p2)
+                angle_safe = min(self.assym_mode, critical)
+                angle_1 = heading_1 - angle_safe
 
             end_pt_0x, end_pt_0y = np.cos(angle_0), np.sin(angle_0)
             end_pt_1x, end_pt_1y = np.cos(angle_1), np.sin(angle_1)
@@ -286,6 +295,16 @@ class Face:
         new_face.vertices = vertices
         new_face.mid_points = mid_points
         return new_face
+    
+    def critical_angle(self, p0, p1, p2):
+        v1 = np.array([p0.x - p1.x, p0.y - p1.y])
+        v2 = np.array([p2.x - p1.x, p2.y - p1.y])
+
+        v1 /= np.linalg.norm(v1)
+        v2 /= np.linalg.norm(v2)
+
+        dot = np.clip(np.dot(v1, v2), -1.0, 1.0)
+        return (np.pi - np.arccos(dot)) * 0.5 - 1e-4
 
     def half_plane(self):
         """
