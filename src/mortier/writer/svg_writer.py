@@ -43,6 +43,17 @@ class SVGWriter(Writer):
             f"{filename}.svg",
             size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm"),
         )
+        clip = self.dwg.clipPath(id="clip_area")
+        clip.add(
+            self.dwg.rect(
+                insert=(0, 0),
+                size=(self.size[2], self.size[3])
+            )
+        )
+
+        self.dwg.defs.add(clip)
+        self.main_group = self.dwg.g(clip_path="url(#clip_area)")
+
         self.dwg.viewbox(width=size[2], height=size[3])
 
         self.api_mode = False
@@ -67,7 +78,7 @@ class SVGWriter(Writer):
         if not self.in_bounds(c):
             return
 
-        self.dwg.add(
+        self.main_group.add(
             self.dwg.circle(
                 center=(c.x, c.y),
                 r=r,
@@ -112,12 +123,12 @@ class SVGWriter(Writer):
         if not self.in_bounds(p0) and not self.in_bounds(p1):
             return
 
-        self.dwg.add(
+        self.main_group.add(
             self.dwg.line(
                 start=(p0.x, p0.y),
                 end=(p1.x, p1.y),
-                stroke=f"rgb({color[0]}, {color[1]}, {color[2]})",
-                stroke_width=0.5,
+                stroke=f"rgb({self.color_line[0]}, {self.color_line[1]}, {self.color_line[2]})",
+                stroke_width=0.1,
             )
         )
 
@@ -135,7 +146,7 @@ class SVGWriter(Writer):
             buf = io.StringIO()
             self.dwg.write(buf)
             return buf.getvalue()
-
+        self.dwg.add(self.main_group)
         self.dwg.save()
         return None
 

@@ -22,7 +22,7 @@ class Writer:
         self.ornements = None
         self.hatching = None
         self.bezier = False
-        self.color_line = (255, 255, 255)
+        self.color_line = (0, 0, 0)
         self.color_bg = (0, 0, 0)
         assert not (self.bezier and self.hatching)
 
@@ -124,7 +124,7 @@ class Writer:
     def point(self, p, color=(255, 255, 255)):
         pass
 
-    def line(self, p0, p1, color=(255, 255, 255)):
+    def line(self, p0, p1, color=(0, 0, 0)):
         pass
 
     def draw_beziers(self, face):
@@ -134,7 +134,7 @@ class Writer:
             p2 = face.vertices[i + 2]
             lines = quadratic_bezier(p0, p1, p2)
             for j in range(len(lines) - 1):
-                self.line(lines[j], lines[j + 1])
+                self.line(lines[j], lines[j + 1], self.color_line)
 
     def face(self, face, dotted=False):
         n_vert = len(face.vertices)
