@@ -24,6 +24,7 @@ class Writer:
         self.bezier = False
         self.color_line = (0, 0, 0)
         self.color_bg = (0, 0, 0)
+        self.polygon_fill = {}
         assert not (self.bezier and self.hatching)
 
     def set_ornements(self, ornements):
@@ -90,23 +91,37 @@ class Writer:
             points, self.intersect_points, self.ornements
         )
 
+        xy = []
         for i in range(0, len(pos_ring) - 1, 2):
             p0 = pos_ring[i]
             p1 = pos_ring[i + 1]
             p2 = pos_ring[(i + 2) % len(pos_ring)]
 
+            xy.append(tuple(p0.numpy()))
+            xy.append(tuple(p1.numpy()))
+            xy.append(tuple(p2.numpy()))
+
             if self.bezier:
                 lines = quadratic_bezier(p0, p1, p2)
                 for j in range(len(lines) - 1):
                     self.line(lines[j], lines[j + 1], self.color_line)
-            else:
-                self.line(p0, p1, self.color_line)
-                self.line(p1, p2, self.color_line)
+            # else:
+            #    self.line(p0, p1, self.color_line)
+            #    self.line(p1, p2, self.color_line)
+        if not self.bezier:
+            self.polygon(
+                xy, fill=self.polygon_fill[len(points)], outline=self.color_line
+            )
 
+        xy = []
         for i in range(0, len(neg_ring) - 2, 3):
             p0 = neg_ring[i]
             p1 = neg_ring[i + 1]
             p2 = neg_ring[i + 2]
+
+            xy.append(tuple(p0.numpy()))
+            xy.append(tuple(p1.numpy()))
+            xy.append(tuple(p2.numpy()))
 
             if self.bezier:
                 lines = quadratic_bezier(p0, p1, p2)
@@ -138,6 +153,10 @@ class Writer:
 
     def face(self, face, dotted=False):
         n_vert = len(face.vertices)
+        if n_vert not in self.polygon_fill:
+            self.polygon_fill[n_vert] = tuple(
+                [int(c * 255) for c in self.colormap(np.random.randint(255))[:3]]
+            )
 
         fill_intersect_points(face, self.intersect_points)
         inside_vertices = face.vertices
@@ -148,12 +167,13 @@ class Writer:
             if self.bezier:
                 self.draw_beziers(face)
             else:
-                for i in range(n_vert):
-                    self.line(
-                        face.vertices[i],
-                        face.vertices[(i + 1) % n_vert],
-                        self.color_line,
-                    )
+                xy = []
+                for i in range(n_vert + 1):
+                    xy.append(tuple(face.vertices[i % n_vert].numpy()))
+                self.polygon(
+                    xy, fill=self.polygon_fill[n_vert], outline=self.color_line
+                )
+
         if self.hatching:
             self.hatch_fill(inside_vertices)
             if self.hatching.crosshatch:
@@ -177,6 +197,9 @@ class Writer:
 
     def set_color_bg(self, color):
         pass
+
+    def set_colormap(self, colormap):
+        self.colormap = colormap
 
     def new(self, filename, size=None, n_tiles=None):
         pass

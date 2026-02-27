@@ -150,6 +150,15 @@ class SVGWriter(Writer):
         self.dwg.save()
         return None
 
+    def polygon(self, points, fill, outline):
+        self.main_group.add(
+            self.dwg.polygon(
+                points,
+                fill=f"rgb({fill[0]}, {fill[1]}, {fill[2]})",
+                stroke=f"rgb({outline[0]}, {outline[1]}, {outline[2]})",
+            )
+        )
+
     def set_color_bg(self, color):
         if color:
             self.color_bg = color
