@@ -4,7 +4,6 @@ from mortier.coords import EuclideanCoords
 from mortier.enums import OrnementsType
 
 
-
 class Tesselation:
     """
     Base class for geometric tessellations.
@@ -49,7 +48,7 @@ class Tesselation:
         This method is responsible for populating ``self.faces`` and
         must be implemented by subclasses.
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def set_param_mode(self, mode=False):
         """
@@ -143,7 +142,7 @@ class Tesselation:
                 caption += ", bandeaux"
 
         self.writer.set_caption(caption)
-        #self.writer.set_label(caption)
+        # self.writer.set_label(caption)
 
     def draw_tesselation(self, frame_num=[0, 1]):
         """

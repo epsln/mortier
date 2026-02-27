@@ -29,46 +29,41 @@ class P3Penrose(P2Penrose):
         self.code = code
 
     @staticmethod
-    def initialise(code=2, length=60, p = EuclideanCoords([0, 0])):
+    def initialise(code=2, length=60, p=EuclideanCoords([0, 0])):
         """
         Generate a base level 0 tiling as a star  of P3 Tiles
         Parameters
         ----------
         length: float
             Length of the side
-        p: EuclideanCoords 
+        p: EuclideanCoords
             Center of the star
 
         code: int
             Indicates which sub-tile this face belongs to.
         """
         output = []
-        theta = 2 * np.pi/5
+        theta = 2 * np.pi / 5
         for i in range(10):
             angle1 = i * theta
             angle2 = (i + 1) * theta
 
-            A = EuclideanCoords([
-                p.x + length * np.cos(angle1),
-                p.y + length * np.sin(angle1)
-            ])
+            A = EuclideanCoords(
+                [p.x + length * np.cos(angle1), p.y + length * np.sin(angle1)]
+            )
 
-            B = EuclideanCoords([
-                p.x + length * np.cos(angle2),
-                p.y + length * np.sin(angle2)
-            ])
+            B = EuclideanCoords(
+                [p.x + length * np.cos(angle2), p.y + length * np.sin(angle2)]
+            )
 
-            C = EuclideanCoords([
-                A.x + (B.x - p.x),
-                A.y + (B.y - p.y)
-            ])
+            C = EuclideanCoords([A.x + (B.x - p.x), A.y + (B.y - p.y)])
 
             if i % 2:
                 output.append(P3Penrose(p, A, C, 2))
             else:
                 output.append(P3Penrose(p, B, C, 2))
 
-        return output 
+        return output
 
     def inflate(self):
         """

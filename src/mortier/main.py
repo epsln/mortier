@@ -193,7 +193,6 @@ def tess_param(
     tesselation.set_param_mode(parametrised)
     tesselation.set_assym_angle(assym_angle)
     tesselation.set_separated_site_mode(separated_sites)
-    t = time.time()
     tesselation.draw_tesselation()
 
 

@@ -44,12 +44,7 @@ class SVGWriter(Writer):
             size=(f"{svg_size[0]}mm", f"{svg_size[1]}mm"),
         )
         clip = self.dwg.clipPath(id="clip_area")
-        clip.add(
-            self.dwg.rect(
-                insert=(0, 0),
-                size=(self.size[2], self.size[3])
-            )
-        )
+        clip.add(self.dwg.rect(insert=(0, 0), size=(self.size[2], self.size[3])))
 
         self.dwg.defs.add(clip)
         self.main_group = self.dwg.g(clip_path="url(#clip_area)")
@@ -86,6 +81,7 @@ class SVGWriter(Writer):
                 stroke=f"rgb({color[0]}, {color[1]}, {color[2]})",
             )
         )
+
     def point(self, p, color=(0, 0, 0)):
         """
         Draw a point, which is simply a very small circle.

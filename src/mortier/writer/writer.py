@@ -134,13 +134,16 @@ class Writer:
         return pos_ring
 
     def circle(self, c, r, color=(255, 255, 255)):
-        pass
+        raise NotImplementedError
 
     def point(self, p, color=(255, 255, 255)):
-        pass
+        raise NotImplementedError
 
     def line(self, p0, p1, color=(0, 0, 0)):
-        pass
+        raise NotImplementedError
+
+    def polygon(self, points, fill, outline):
+        raise NotImplementedError
 
     def draw_beziers(self, face):
         for i in range(0, len(face.vertices) - 2, 2):

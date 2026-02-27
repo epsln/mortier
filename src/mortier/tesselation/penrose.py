@@ -1,7 +1,7 @@
+from mortier.coords import EuclideanCoords
 from mortier.enums import TileType
 from mortier.face import Face, P2Penrose, P3Penrose
 from mortier.tesselation.tesselation import Tesselation
-from mortier.coords import EuclideanCoords 
 
 
 class PenroseTesselation(Tesselation):
@@ -35,15 +35,13 @@ class PenroseTesselation(Tesselation):
 
         if tile == TileType.P2:
             self.pen = P2Penrose.initialise(
-                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/80),
-                p = EuclideanCoords([writer.size[2]/2,
-                                    writer.size[3]/2])
+                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles / 80),
+                p=EuclideanCoords([writer.size[2] / 2, writer.size[3] / 2]),
             )
         else:
             self.pen = P3Penrose.initialise(
-                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles/80), 
-                p = EuclideanCoords([writer.size[2]/2,
-                                    writer.size[3]/2])
+                length=max(writer.size[2], writer.size[3]) * (writer.n_tiles / 80),
+                p=EuclideanCoords([writer.size[2] / 2, writer.size[3] / 2]),
             )
 
     def tesselate_face(self):
@@ -63,8 +61,8 @@ class PenroseTesselation(Tesselation):
 
         if not self.angle:
             for i, p in enumerate(self.pen):
-                for l in p.edges:
-                    self.writer.line(l.beg_pt, l.end_pt)
+                for edge in p.edges:
+                    self.writer.line(edge.beg_pt, edge.end_pt)
         else:
             # Merge compatible triangle pairs into faces
             for i, p in enumerate(self.pen):

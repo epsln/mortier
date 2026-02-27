@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-from mortier.coords import Coords, EuclideanCoords, LatticeCoords, Line
+from mortier.coords import Coords, EuclideanCoords, LatticeCoords
 from mortier.utils.math_utils import angle_parametrisation
 
 
@@ -37,7 +37,7 @@ class Face:
             If True, separate the launch sites of the rays
         """
         self.vertices = vertices
-        if type(self.vertices[0]) == LatticeCoords:
+        if type(self.vertices[0]) is LatticeCoords:
             self._vertices = np.array([v.w for v in self.vertices], dtype=complex)
 
         self.mid_points = mid_points
@@ -133,11 +133,11 @@ class Face:
         """
         new_face = copy.copy(self)
         if type(self.vertices[0]).__name__ == "LatticeCoords":
-            translation = mult_i * dir_vec_1.w + mult_j * dir_vec_2.w   # both complex
+            translation = mult_i * dir_vec_1.w + mult_j * dir_vec_2.w  # both complex
             new_face._vertices += translation
         else:
             new_face.vertices = [v.translate(dir_vec_1) for v in self.vertices]
-        return new_face 
+        return new_face
 
     def scale(self, n):
         """
@@ -215,17 +215,16 @@ class Face:
         vertices = []
         mid_points = []
 
-
         if self.param_mode:
             angle = angle_parametrisation(
                 self.vertices[0], self.param_mode, bounds, frame_num
             )
-        angle = np.clip(angle, 0, np.pi/2)
-        #Safety in case of Penrose Tile
-        #Since some are not convex, we get instability so we clip the angle
-        if self.convex: 
+        angle = np.clip(angle, 0, np.pi / 2)
+        # Safety in case of Penrose Tile
+        # Since some are not convex, we get instability so we clip the angle
+        if self.convex:
             angle = np.clip(angle, 0, 0.5)
-        
+
         for i in range(len(self.vertices)):
             p0 = self.vertices[i]
             p1 = self.vertices[(i + 1) % len(self.vertices)]
@@ -237,7 +236,7 @@ class Face:
             p_mid_0x = (p0.x + p1.x) * 0.5
             p_mid_0y = (p0.y + p1.y) * 0.5
 
-            heading_0 = np.arctan2(dy, dx) 
+            heading_0 = np.arctan2(dy, dx)
 
             dx = p2.x - p1.x
             dy = p2.y - p1.y
@@ -248,11 +247,16 @@ class Face:
             heading_1 = np.arctan2(dy, dx)
 
             if self.separated_site_mode:
-                p_mid_0x = p1.x + (p0.x - p1.x) * 1/self.separated_site 
-                p_mid_0y = p1.y + (p0.y - p1.y) * 1/self.separated_site
-                p_mid_1x = p2.x + (p1.x - p2.x) * (self.separated_site - 1)/self.separated_site 
-                p_mid_1y = p2.y + (p1.y - p2.y) * (self.separated_site - 1)/self.separated_site
-                
+                p_mid_0x = p1.x + (p0.x - p1.x) * 1 / self.separated_site
+                p_mid_0y = p1.y + (p0.y - p1.y) * 1 / self.separated_site
+                p_mid_1x = (
+                    p2.x
+                    + (p1.x - p2.x) * (self.separated_site - 1) / self.separated_site
+                )
+                p_mid_1y = (
+                    p2.y
+                    + (p1.y - p2.y) * (self.separated_site - 1) / self.separated_site
+                )
 
             angle_0 = heading_0 + angle
             angle_1 = heading_1 - angle
@@ -287,7 +291,9 @@ class Face:
             if self.separated_site_mode:
                 vertices.append(EuclideanCoords([p_mid_1x, p_mid_1y]))
                 if self.assym_mode:
-                    mid_points.append((EuclideanCoords([p_mid_1x, p_mid_1y]), self.assym_mode))
+                    mid_points.append(
+                        (EuclideanCoords([p_mid_1x, p_mid_1y]), self.assym_mode)
+                    )
                 else:
                     mid_points.append((EuclideanCoords([p_mid_1x, p_mid_1y]), angle))
 
@@ -295,7 +301,7 @@ class Face:
         new_face.vertices = vertices
         new_face.mid_points = mid_points
         return new_face
-    
+
     def critical_angle(self, p0, p1, p2):
         v1 = np.array([p0.x - p1.x, p0.y - p1.y])
         v2 = np.array([p2.x - p1.x, p2.y - p1.y])
@@ -359,7 +365,6 @@ class Face:
                 inside = not inside
 
         return inside
-            
 
     def __str__(self):
         """
@@ -373,5 +378,5 @@ class Face:
         t = []
         for v in self.vertices:
             t.append(f"({round(v.x, 2)},{round(v.y, 2)})")
-            #t.append(f"({v.x},{v.y})")
+            # t.append(f"({v.x},{v.y})")
         return "->".join(t)

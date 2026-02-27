@@ -1,12 +1,13 @@
-import math
-import numpy as np
 import copy
-from functools import partial
+import math
+
+import numpy as np
 
 from mortier.coords import LatticeCoords
 from mortier.face.face import Face
 from mortier.tesselation.tesselation import Tesselation
 from mortier.utils.math_utils import plane_to_tile_coords
+
 
 class RegularTesselation(Tesselation):
     """
@@ -178,8 +179,6 @@ class RegularTesselation(Tesselation):
 
         self.writer.write()
 
-
-
     def tesselate_face(self):
         """
         Generate all faces covering the visible region.
@@ -221,20 +220,16 @@ class RegularTesselation(Tesselation):
         i_vals = np.arange(i_min, i_max)
         j_vals = np.arange(j_min, j_max)
 
-        I, J = np.meshgrid(i_vals, j_vals, indexing="ij")
+        I_grid, J_grid = np.meshgrid(i_vals, j_vals, indexing="ij")
 
         translations = (
-                I[..., None] * self.T1.w +
-                J[..., None] * self.T2.w
+            I_grid[..., None] * self.T1.w + J_grid[..., None] * self.T2.w
         ).reshape(-1, 4)
 
         for face in faces:
             verts = face._vertices  # (Vf, 4)
 
-            transformed = (
-                verts[None, :, :] +
-                translations[:, None, :]
-            )
+            transformed = verts[None, :, :] + translations[:, None, :]
 
             transformed *= self.writer.n_tiles
             for tv in transformed:

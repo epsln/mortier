@@ -118,7 +118,7 @@ class HyperbolicTesselation(Tesselation):
         for polygon in self.tess:
             points = polygon[1:]
             vertices = [EuclideanCoords([p.real, p.imag]) for p in points]
-            face = Face(vertices, param_mode = self.param_mode )
+            face = Face(vertices, param_mode=self.param_mode)
             self.faces.append(face)
 
         if self.half_plane:

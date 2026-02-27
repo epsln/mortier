@@ -18,7 +18,7 @@ class LatticeCoords(Coords):
         w : array-like of length 4
             Lattice vector [w0, w1, w2, w3].
         """
-        self.w = np.array([w[0], w[1], w[2], w[3]], dtype = complex)
+        self.w = np.array([w[0], w[1], w[2], w[3]], dtype=complex)
 
         # Map 4D lattice to 2D Euclidean coordinates
         self.x = (w[0] + 0.5 * np.sqrt(3) * w[1] + 0.5 * w[2]).real
