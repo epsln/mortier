@@ -3,16 +3,15 @@ import random
 
 import click
 import numpy as np
+from matplotlib import colormaps
 
-from mortier.enums import (FileType, HatchType, ParamType, TesselationType, RegularTesselationType,
-                           TileType)
+from mortier.enums import (FileType, HatchType, ParamType,
+                           RegularTesselationType, TesselationType, TileType)
 from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
                                  RegularTesselation)
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 from mortier.writer.hatching import Hatching
 from mortier.writer.ornements import Ornements
-
-import time
 
 with open("data/database.json", "r") as file:
     js = json.load(file)
@@ -114,6 +113,12 @@ with open("data/database.json", "r") as file:
     type=(int, int, int),
     help="Color of the hatching",
 )
+@click.option(
+    "--colormap",
+    default="magma",
+    type=click.Choice(list(colormaps)),
+    help="Color of the faces",
+)
 def tess_param(
     tesselation_type,
     tess_id,
@@ -141,6 +146,7 @@ def tess_param(
     color,
     color_bg,
     color_hatch,
+    colormap,
 ):
     tess = js[tess_id]
     if file_type in [FileType.JPG, FileType.PNG]:
@@ -164,6 +170,7 @@ def tess_param(
     writer.bezier = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)
+    writer.set_colormap(colormaps[colormap])
     if hatch_type:
         hatch_type = Hatching(
             angle=hatch_angle,
