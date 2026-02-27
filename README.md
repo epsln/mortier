@@ -29,7 +29,8 @@ Mortier also implements hatch filling (lines or dots) for your tilings, and is a
     - Bands and lace modes with configurable width
     - Bézier curve sides for smooth rendering
     - Hatch fill patterns with angle, spacing, and cross-hatching options
-    - Optional half-plane conversion for hyperbolic tilings
+    - Polygon filling with matplotlib colormaps, line, background and hatching colors
+    - Half-plane conversion for hyperbolic tilings
     - Flexible scaling and output size
 
 ## Installation
@@ -89,6 +90,10 @@ As seen just above, Mortier provides extensive control over the generated tiling
 - `--refine` : Refinement level for hyperbolic tiling
 - `--assym_angle` : Asymmetrical ray angle
 - `--separated_sites` : Separate the projection sites of the rays as a fraction of the side
+- `--color` : Color of the lines 
+- `--color_bg` : Color of the background 
+- `--color_hatch` : Color of the hatching 
+- `--colormap` : Colormap to use 
 
 ## Testing
 
@@ -97,6 +102,11 @@ Run tests with:
 ```
 poetry run pytest
 ``` 
+
+You can also run some benchmarks with codspeed
+```
+poetry run pytest --codspeed
+```
 
 ## Acknowledgements
 - The Dr. Sotò-Sanchez [thesis](https://doi.org/10.1007/s00371-019-01665-y), whose tiling generation algorithm is implemented here.
