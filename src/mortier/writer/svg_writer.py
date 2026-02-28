@@ -146,12 +146,20 @@ class SVGWriter(Writer):
         self.dwg.save()
         return None
 
-    def polygon(self, points, fill, outline):
+    def polygon(self, points, outline, fill = None):
+        if fill:
+            fill_opacity = "1"
+        else:
+            fill_opacity = "0"
+            fill = [0, 0, 0]
+
         self.main_group.add(
             self.dwg.polygon(
                 points,
                 fill=f"rgb({fill[0]}, {fill[1]}, {fill[2]})",
+                fill_opacity = fill_opacity,
                 stroke=f"rgb({outline[0]}, {outline[1]}, {outline[2]})",
+                stroke_width = 0.1
             )
         )
 

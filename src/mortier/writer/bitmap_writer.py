@@ -123,7 +123,7 @@ class BitmapWriter(Writer):
             width=1,
         )
 
-    def polygon(self, points, fill, outline):
+    def polygon(self, points, outline, fill = None):
         self.output.polygon(points, fill=fill, outline=outline)
 
     def write(self):

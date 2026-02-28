@@ -24,9 +24,10 @@ class Writer:
         self.bezier = False
         self.color_line = (0, 0, 0)
         self.color_bg = (0, 0, 0)
+        self._colormap = None
         self.polygon_fill = {}
         assert not (self.bezier and self.hatching)
-
+    
     def set_ornements(self, ornements):
         assert not (self.bezier and self.hatching)
         self.ornements = ornements
@@ -157,9 +158,12 @@ class Writer:
     def face(self, face, dotted=False):
         n_vert = len(face.vertices)
         if n_vert not in self.polygon_fill:
-            self.polygon_fill[n_vert] = tuple(
-                [int(c * 255) for c in self.colormap(np.random.randint(255))[:3]]
-            )
+            if self._colormap:
+                self.polygon_fill[n_vert] = tuple(
+                    [int(c * 255) for c in self._colormap(np.random.randint(255))[:3]]
+                )
+            else:
+                self.polygon_fill[n_vert] = None
 
         fill_intersect_points(face, self.intersect_points)
         inside_vertices = face.vertices
@@ -176,7 +180,6 @@ class Writer:
                 self.polygon(
                     xy, fill=self.polygon_fill[n_vert], outline=self.color_line
                 )
-
         if self.hatching:
             self.hatch_fill(inside_vertices)
             if self.hatching.crosshatch:
@@ -202,7 +205,7 @@ class Writer:
         pass
 
     def set_colormap(self, colormap):
-        self.colormap = colormap
+        self._colormap = colormap
 
     def new(self, filename, size=None, n_tiles=None):
         pass

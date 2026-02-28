@@ -115,7 +115,6 @@ with open("data/database.json", "r") as file:
 )
 @click.option(
     "--colormap",
-    default="magma",
     type=click.Choice(list(colormaps)),
     help="Color of the faces",
 )
@@ -170,7 +169,8 @@ def tess_param(
     writer.bezier = bezier
     writer.color_line = color
     writer.set_color_bg(color_bg)
-    writer.set_colormap(colormaps[colormap])
+    if colormap:
+        writer.set_colormap(colormaps[colormap])
     if hatch_type:
         hatch_type = Hatching(
             angle=hatch_angle,
