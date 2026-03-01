@@ -138,11 +138,11 @@ class SVGWriter(Writer):
             SVG content as a string if `api_mode` is enabled,
             otherwise None.
         """
+        self.dwg.add(self.main_group)
         if self.api_mode:
             buf = io.StringIO()
             self.dwg.write(buf)
             return buf.getvalue()
-        self.dwg.add(self.main_group)
         self.dwg.save()
         return None
 
