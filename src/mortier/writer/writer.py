@@ -160,7 +160,7 @@ class Writer:
         if n_vert not in self.polygon_fill:
             if self._colormap:
                 self.polygon_fill[n_vert] = tuple(
-                    [int(c * 255) for c in self._colormap(np.random.randint(255))[:3]]
+                    [int(c * 255) for c in self._colormap((n_vert * 32) % 255)[:3]]
                 )
             else:
                 self.polygon_fill[n_vert] = None
