@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mortier"
-version = "0.3.5"
+version = "0.3.6"
 description = ""
 authors = ["Epsilon"]
 packages = [{ include = "mortier", from = "src" }]
