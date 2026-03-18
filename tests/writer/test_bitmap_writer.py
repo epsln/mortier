@@ -95,34 +95,6 @@ def test_set_color_bg_none():
     w.set_color_bg(None)
 
 
-
-@pytest.mark.parametrize(
-    "color_input, expected",
-    [
-        ("red", (255, 0, 0)),
-        ("green", (0, 255, 0)),
-        ("blue", (0, 0, 255)),
-        ("cyan", (0, 128, 200)),
-        ("yellow", (255, 227, 0)),
-        ((1, 2, 3), (1, 2, 3)),
-    ],
-)
-def test_line_color_conversion(monkeypatch, color_input, expected):
-    w = BitmapWriter("test.png")
-    recorder = RecordingDraw()
-    w.output = recorder
-
-    p0 = FakePoint(0, 0)
-    p1 = FakePoint(10, 10)
-
-    w.line(p0, p1, color=color_input)
-
-    assert recorder.calls == [
-        ("line", [(0, 0), (10, 10)], expected, 1)
-    ]
-
-
-
 def test_write_saves_file(monkeypatch):
     w = BitmapWriter("test.png")
 

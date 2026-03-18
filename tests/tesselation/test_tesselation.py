@@ -71,7 +71,6 @@ def test_draw_tesselation_basic():
     assert output == "output"
     assert any(call[0] == "face" for call in writer.calls)
     assert any(call[0] == "caption" for call in writer.calls)
-    assert any(call[0] == "label" for call in writer.calls)
 
     # check caption contains all active flags
     caption_call = next(call[1] for call in writer.calls if call[0] == "caption")

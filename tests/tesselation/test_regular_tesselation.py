@@ -125,4 +125,3 @@ def test_find_corners_bounds(tessellation):
     # If show_base=True, returns fixed range
     tess.show_base = True
     assert tess.find_corners() == (-1, 2, -1, 2)
-
