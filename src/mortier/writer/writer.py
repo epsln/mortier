@@ -3,9 +3,10 @@ import math
 import numpy as np
 
 from mortier.coords import EuclideanCoords
-from mortier.enums import HatchType
-from mortier.utils.geometry import (fill_intersect_points, outline_lines,
+from mortier.enums import HatchType, OrnementsType
+from mortier.utils.geometry import (normalize, fill_intersect_points, outline_lines,
                                     quadratic_bezier)
+                                    
 
 
 class Writer:
@@ -22,6 +23,7 @@ class Writer:
         self.ornements = None
         self.hatching = None
         self.bezier = False
+        self.regular = False
         self.color_line = (0, 0, 0)
         self.color_bg = (0, 0, 0)
         self._colormap = None
@@ -146,6 +148,26 @@ class Writer:
     def polygon(self, points, fill, outline):
         raise NotImplementedError
 
+    def draw_band_face(self, face):
+        """Draw a scaled-down version of the face for the non-PIC bands case."""
+        n = len(face.vertices)
+
+        # Compute centroid
+        cx = sum(v.x for v in face.vertices) / n
+        cy = sum(v.y for v in face.vertices) / n
+        centroid = np.array([cx, cy])
+
+        # Scale each vertex toward the centroid by the band width
+        xy = []
+        for v in face.vertices:
+            p = np.array([v.x, v.y])
+            direction = normalize(centroid - p)
+            # Move vertex inward by width
+            p_inset = p + direction * self.ornements.width
+            xy.append(tuple(p_inset))
+
+        self.polygon(xy, fill=self.polygon_fill.get(n), outline=self.color_line)
+
     def draw_beziers(self, face):
         for i in range(0, len(face.vertices) - 2, 2):
             p0 = face.vertices[i]
@@ -165,11 +187,16 @@ class Writer:
             else:
                 self.polygon_fill[n_vert] = None
 
-        fill_intersect_points(face, self.intersect_points)
-        inside_vertices = face.vertices
-
         if self.ornements:
-            inside_vertices = self.draw_outline_lines(face.vertices)
+            if self.regular:
+                if self.ornements.type == OrnementsType.BANDS:
+                    self.draw_band_face(face)
+                else:
+                    raise ValueError("Can't apply laces to regular tesselation !")
+            else:
+                # PIC case — original logic
+                fill_intersect_points(face, self.intersect_points)
+                self.draw_outline_lines(face.vertices)
         else:
             if self.bezier:
                 self.draw_beziers(face)
@@ -177,13 +204,12 @@ class Writer:
                 xy = []
                 for i in range(n_vert + 1):
                     xy.append(tuple(face.vertices[i % n_vert].numpy()))
-                self.polygon(
-                    xy, fill=self.polygon_fill[n_vert], outline=self.color_line
-                )
+                self.polygon(xy, fill=self.polygon_fill[n_vert], outline=self.color_line)
+
         if self.hatching:
-            self.hatch_fill(inside_vertices)
+            self.hatch_fill(face.vertices)
             if self.hatching.crosshatch:
-                self.hatch_fill(inside_vertices, self.hatching.crosshatch)
+                self.hatch_fill(face.vertices, self.hatching.crosshatch)
 
     def in_bounds(self, v):
         if math.isnan(v.x) or math.isnan(v.y) or math.isinf(v.x) or math.isinf(v.y):
