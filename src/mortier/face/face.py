@@ -40,7 +40,15 @@ class Face:
         if type(self.vertices[0]) is LatticeCoords:
             self._vertices = np.array([v.w for v in self.vertices], dtype=complex)
 
-        self.mid_points = mid_points
+        n = len(vertices)
+        self.mid_points = []
+        for i in range(n):
+            p0 = vertices[i]
+            p1 = vertices[(i + 1) % n]
+            mid = EuclideanCoords([(p0.x + p1.x) / 2, (p0.y + p1.y) / 2])
+            angle = np.arctan2(p1.y - p0.y, p1.x - p0.x)
+            self.mid_points.append((mid, angle))
+
         self.param_mode = param_mode
         self.assym_mode = assym_mode
 
