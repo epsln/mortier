@@ -11,7 +11,8 @@ from mortier.utils.geometry import (
     compute_cut_length,
     outline_lines,
     quadratic_bezier,
-    fill_intersect_points
+    fill_intersect_points,
+    vertex_key
 )
 from mortier.coords import EuclideanCoords
 from mortier.face import Face
@@ -140,7 +141,7 @@ def test_fill_intersect_points_and_outline():
 
     # Test that each midpoint is in intersect_points with proper keys
     for p, angle in face.mid_points:
-        key = str(p)
+        key = vertex_key(p)
         assert key in intersect_points
         assert "state" in intersect_points[key]
         assert "angle" in intersect_points[key]

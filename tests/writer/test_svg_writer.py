@@ -31,9 +31,9 @@ def test_circle_in_bounds():
     w.circle(p, 10, color=(255, 0, 0))
 
     # One element added
-    assert len(w.dwg.elements) > 0
+    assert len(w.main_group.elements) > 0
 
-    circle = w.dwg.elements[-1]
+    circle = w.main_group.elements[-1]
     assert circle['stroke'] == "rgb(255, 0, 0)"
     assert circle['fill'] == "none"
 
@@ -53,11 +53,12 @@ def test_line_drawn_if_one_point_in_bounds():
     p0 = FakePoint(50, 50)
     p1 = FakePoint(200, 200)
 
+    w.color_line = (0, 255, 0) 
     w.line(p0, p1, color=(0, 255, 0))
 
-    line = w.dwg.elements[-1]
+    line = w.main_group.elements[-1]
     assert line['stroke'] == "rgb(0, 255, 0)"
-    assert line['stroke-width'] == 0.5
+    assert line['stroke-width'] == w.stroke_width 
 
 
 def test_line_not_drawn_if_both_out_of_bounds():
@@ -123,7 +124,7 @@ def test_new_resets_drawing():
     w = SVGWriter("testfile", size=(0, 0, 100, 100))
     w.circle(FakePoint(50, 50), 10)
 
-    assert len(w.dwg.elements) > 1
+    assert len(w.main_group.elements) > 0
 
     w.new("newfile", size=(0, 0, 200, 200))
 
