@@ -159,7 +159,7 @@ class SVGWriter(Writer):
                 fill=f"rgb({fill[0]}, {fill[1]}, {fill[2]})",
                 fill_opacity = fill_opacity,
                 stroke=f"rgb({outline[0]}, {outline[1]}, {outline[2]})",
-                stroke_width = 0.1
+                stroke_width = 0.5
             )
         )
 
