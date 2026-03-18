@@ -136,11 +136,7 @@ def compute_cut_length(theta, ornements):
         add_length = cut_length
     return cut_length, add_length
 
-
-def outline_lines(points, intersect_points, ornements):
-    """
-    Compute pairs of offset polylines (outer and inner) for a given polyline.
-    """
+def outline_lines(points, intersect_points, ornements, use_crossing_logic = True):
     pts = points
     n = len(pts)
     if n < 2:
@@ -148,6 +144,7 @@ def outline_lines(points, intersect_points, ornements):
 
     pos_ring = []
     neg_ring = []
+    beg_point = None
 
     for i in range(n):
         p_prev = pts[(i - 1) % n]
@@ -163,53 +160,44 @@ def outline_lines(points, intersect_points, ornements):
             p_prev, p_curr, p_next, ornements, end
         )
 
-        if str(p_curr) in intersect_points:
-            inter_p = intersect_points[str(p_curr)]
-            cut_length, add_length = compute_cut_length(inter_p["angle"], ornements)
-            beg_point = offset_segment(p_curr, p_next, cut_length, ornements)
+        if vertex_key(p_curr) in intersect_points:
+            inter_p = intersect_points[vertex_key(p_curr)]
+            cut_length, add_length = compute_cut_length(
+                inter_p["angle"], ornements)
             if inter_p["state"][0] == 1:
-                beg_point = offset_segment(p_curr, p_next, cut_length, ornements)
+                beg_point = offset_segment(
+                    p_curr, p_next, cut_length, ornements)
             else:
-                beg_point = offset_segment(p_curr, p_next, add_length, ornements)
+                beg_point = offset_segment(
+                    p_curr, p_next, add_length, ornements)
 
-        elif str(p_next) in intersect_points:
-            inter_p = intersect_points[str(p_next)]
-            cut_length, add_length = compute_cut_length(inter_p["angle"], ornements)
-            end_point = offset_segment(
-                p_curr, p_next, cut_length, ornements, end_cut=True
-            )
+        elif vertex_key(p_next) in intersect_points:
+            inter_p = intersect_points[vertex_key(p_next)]
+            cut_length, add_length = compute_cut_length(
+                inter_p["angle"], ornements)
             if inter_p["state"][1] == 1:
                 end_point = offset_segment(
-                    p_curr, p_next, cut_length, ornements, end_cut=True
-                )
+                    p_curr, p_next, cut_length, ornements, end_cut=True)
             else:
                 end_point = offset_segment(
-                    p_curr, p_next, add_length, ornements, end_cut=True
-                )
-
-            neg_ring.append(beg_point)
-            neg_ring.append(neg_midpoint)
-            neg_ring.append(end_point)
+                    p_curr, p_next, add_length, ornements, end_cut=True)
+            if beg_point is not None:
+                neg_ring.append(beg_point)
+                neg_ring.append(neg_midpoint)
+                neg_ring.append(end_point)
+            beg_point = None
 
         pos_ring.append(pos_midpoint)
 
-    # Hacky way to get the closing of the inside polygon
-    s0 = EuclideanCoords([pos_ring[0].x - pos_ring[1].x, pos_ring[0].y - pos_ring[1].y])
-    s1 = EuclideanCoords(
-        [pos_ring[-2].x - pos_ring[-1].x, pos_ring[-2].y - pos_ring[-1].y]
-    )
+    # Close the ring
+    if len(pos_ring) >= 2:
+        closing = EuclideanCoords(
+            intersect(pos_ring[-2], pos_ring[-1], pos_ring[0], pos_ring[1])
+        )
+        pos_ring[0] = closing
+        pos_ring[-1] = closing
 
-    t = (
-        s1.x * (pos_ring[0].y - pos_ring[-2].y)
-        - s1.y * (pos_ring[0].x - pos_ring[-2].x)
-    ) / (-s1.x * s0.y + s0.x * s1.y)
-
-    x = EuclideanCoords([pos_ring[0].x + (t * s0.x), pos_ring[0].y + (t * s0.y)])
-
-    pos_ring[0] = x
-    pos_ring[-1] = x
     return pos_ring, neg_ring
-
 
 def quadratic_bezier(p0, p1, p2, steps=10):
     # TODO: Maybe N order bezier with all vertices ?
@@ -224,15 +212,18 @@ def quadratic_bezier(p0, p1, p2, steps=10):
 
 def fill_intersect_points(face, intersect_points):
     for p, angle in face.mid_points:
-        if str(p) not in intersect_points:
-            intersect_points[str(p)] = {
+        if vertex_key(p) not in intersect_points:
+            intersect_points[vertex_key(p)] = {
                 "state": np.random.randint(2, size=2),
                 "angle": angle,
             }
-        elif intersect_points[str(p)]["state"].sum() % 2 == 0:
-            intersect_points[str(p)] = {
+        elif intersect_points[vertex_key(p)]["state"].sum() % 2 == 0:
+            intersect_points[vertex_key(p)] = {
                 "state": np.array(
-                    [(x + 1) % 2 for x in intersect_points[str(p)]["state"]]
+                    [(x + 1) % 2 for x in intersect_points[vertex_key(p)]["state"]]
                 ),
                 "angle": angle,
             }
+
+def vertex_key(v, precision=2):
+    return (round(float(v.x), precision), round(float(v.y), precision))
