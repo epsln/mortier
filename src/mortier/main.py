@@ -13,7 +13,7 @@ from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 from mortier.writer.hatching import Hatching
 from mortier.writer.ornements import Ornements
 
-with open("data/database.json", "r") as file:
+with open("data/tilings.json", "r") as file:
     js = json.load(file)
 
 
@@ -27,7 +27,7 @@ with open("data/database.json", "r") as file:
 @click.option(
     "--tess_id",
     default=random.choice(list(js.keys())),
-    type=click.Choice(RegularTesselationType),
+    type=click.Choice(list(js.keys())),
     help="Tesselation ID in the database.",
 )
 @click.option(
@@ -150,6 +150,9 @@ def tess_param(
     tess = js[tess_id]
     if file_type in [FileType.JPG, FileType.PNG]:
         writer = BitmapWriter(
+            f"images/{output}_{tess_id}.{file_type.value}", size=(0, 0, output_size[0], output_size[1])
+        )
+        writer = BitmapWriter(
             f"{output}.{file_type.value}", size=(0, 0, output_size[0], output_size[1])
         )
     elif file_type == FileType.SVG:
@@ -194,6 +197,7 @@ def tess_param(
     tesselation.set_assym_angle(assym_angle)
     tesselation.set_separated_site_mode(separated_sites)
     tesselation.draw_tesselation()
+    tess_id = random.choice(list(js.keys()))
 
 
 if __name__ == "__main__":
