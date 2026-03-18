@@ -163,7 +163,7 @@ class Writer:
             p = np.array([v.x, v.y])
             direction = normalize(centroid - p)
             # Move vertex inward by width
-            p_inset = p + direction * self.ornements.width
+            p_inset = p + direction * self.ornements.width * 3/len(face.vertices)
             xy.append(tuple(p_inset))
 
         self.polygon(xy, fill=self.polygon_fill.get(n), outline=self.color_line)
