@@ -163,19 +163,22 @@ class Tesselation:
         if self.show_base:
             self.draw_cell()
 
-        for face in self.faces:
-            if self.show_underlying:
-                self.writer.face(face, dotted=True)
+        if self.angle:
+            for face in self.faces:
+                if self.angle:
+                    f = face.ray_transform(
+                        self.angle,
+                        self.writer.size,
+                        frame_num,
+                    )
+                if self.show_underlying:
+                    self.writer.face(face, dotted=True)
+                self.writer.face(f)
 
-            f = face
-            if self.angle:
-                f = f.ray_transform(
-                    self.angle,
-                    self.writer.size,
-                    frame_num,
-                )
-
-            self.writer.face(f)
+        else:
+            self.writer.regular = True
+            for face in self.faces:
+                self.writer.face(face)
 
         if self.draw_unit_circle:
             self.writer.circle(
