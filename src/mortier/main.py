@@ -150,9 +150,6 @@ def tess_param(
     tess = js[tess_id]
     if file_type in [FileType.JPG, FileType.PNG]:
         writer = BitmapWriter(
-            f"images/{output}_{tess_id}.{file_type.value}", size=(0, 0, output_size[0], output_size[1])
-        )
-        writer = BitmapWriter(
             f"{output}.{file_type.value}", size=(0, 0, output_size[0], output_size[1])
         )
     elif file_type == FileType.SVG:
