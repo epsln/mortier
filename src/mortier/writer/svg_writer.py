@@ -147,7 +147,7 @@ class SVGWriter(Writer):
         self.dwg.save()
         return None
 
-    def polygon(self, points, outline, fill = None):
+    def polygon(self, points, outline, fill=None):
         if fill:
             fill_opacity = "1"
         else:
@@ -158,9 +158,9 @@ class SVGWriter(Writer):
             self.dwg.polygon(
                 points,
                 fill=f"rgb({fill[0]}, {fill[1]}, {fill[2]})",
-                fill_opacity = fill_opacity,
+                fill_opacity=fill_opacity,
                 stroke=f"rgb({outline[0]}, {outline[1]}, {outline[2]})",
-                stroke_width = self.stroke_width
+                stroke_width=self.stroke_width,
             )
         )
 
@@ -217,4 +217,3 @@ class SVGWriter(Writer):
 
         self.dwg.viewbox(width=size[2], height=size[3])
         self.stroke_width = 0.1
-

@@ -4,9 +4,12 @@ import numpy as np
 
 from mortier.coords import EuclideanCoords
 from mortier.enums import HatchType, OrnementsType
-from mortier.utils.geometry import (normalize, fill_intersect_points, outline_lines,
-                                    quadratic_bezier)
-                                    
+from mortier.utils.geometry import (
+    normalize,
+    fill_intersect_points,
+    outline_lines,
+    quadratic_bezier,
+)
 
 
 class Writer:
@@ -29,7 +32,7 @@ class Writer:
         self._colormap = None
         self.polygon_fill = {}
         assert not (self.bezier and self.hatching)
-    
+
     def set_ornements(self, ornements):
         assert not (self.bezier and self.hatching)
         self.ornements = ornements
@@ -163,7 +166,7 @@ class Writer:
             p = np.array([v.x, v.y])
             direction = normalize(centroid - p)
             # Move vertex inward by width
-            p_inset = p + direction * self.ornements.width * 3/len(face.vertices)
+            p_inset = p + direction * self.ornements.width * 3 / len(face.vertices)
             xy.append(tuple(p_inset))
 
         self.polygon(xy, fill=self.polygon_fill.get(n), outline=self.color_line)
@@ -204,7 +207,9 @@ class Writer:
                 xy = []
                 for i in range(n_vert + 1):
                     xy.append(tuple(face.vertices[i % n_vert].numpy()))
-                self.polygon(xy, fill=self.polygon_fill[n_vert], outline=self.color_line)
+                self.polygon(
+                    xy, fill=self.polygon_fill[n_vert], outline=self.color_line
+                )
 
         if self.hatching:
             self.hatch_fill(face.vertices)

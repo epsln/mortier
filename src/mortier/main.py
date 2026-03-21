@@ -5,10 +5,18 @@ import click
 import numpy as np
 from matplotlib import colormaps
 
-from mortier.enums import (FileType, HatchType, ParamType,
-                           RegularTesselationType, TesselationType, TileType)
-from mortier.tesselation import (HyperbolicTesselation, PenroseTesselation,
-                                 RegularTesselation)
+from mortier.enums import (
+    FileType,
+    HatchType,
+    ParamType,
+    TesselationType,
+    TileType,
+)
+from mortier.tesselation import (
+    HyperbolicTesselation,
+    PenroseTesselation,
+    RegularTesselation,
+)
 from mortier.writer import BitmapWriter, SVGWriter, TikzWriter
 from mortier.writer.hatching import Hatching
 from mortier.writer.ornements import Ornements

@@ -136,7 +136,8 @@ def compute_cut_length(theta, ornements):
         add_length = cut_length
     return cut_length, add_length
 
-def outline_lines(points, intersect_points, ornements, use_crossing_logic = True):
+
+def outline_lines(points, intersect_points, ornements, use_crossing_logic=True):
     pts = points
     n = len(pts)
     if n < 2:
@@ -162,25 +163,23 @@ def outline_lines(points, intersect_points, ornements, use_crossing_logic = True
 
         if vertex_key(p_curr) in intersect_points:
             inter_p = intersect_points[vertex_key(p_curr)]
-            cut_length, add_length = compute_cut_length(
-                inter_p["angle"], ornements)
+            cut_length, add_length = compute_cut_length(inter_p["angle"], ornements)
             if inter_p["state"][0] == 1:
-                beg_point = offset_segment(
-                    p_curr, p_next, cut_length, ornements)
+                beg_point = offset_segment(p_curr, p_next, cut_length, ornements)
             else:
-                beg_point = offset_segment(
-                    p_curr, p_next, add_length, ornements)
+                beg_point = offset_segment(p_curr, p_next, add_length, ornements)
 
         elif vertex_key(p_next) in intersect_points:
             inter_p = intersect_points[vertex_key(p_next)]
-            cut_length, add_length = compute_cut_length(
-                inter_p["angle"], ornements)
+            cut_length, add_length = compute_cut_length(inter_p["angle"], ornements)
             if inter_p["state"][1] == 1:
                 end_point = offset_segment(
-                    p_curr, p_next, cut_length, ornements, end_cut=True)
+                    p_curr, p_next, cut_length, ornements, end_cut=True
+                )
             else:
                 end_point = offset_segment(
-                    p_curr, p_next, add_length, ornements, end_cut=True)
+                    p_curr, p_next, add_length, ornements, end_cut=True
+                )
             if beg_point is not None:
                 neg_ring.append(beg_point)
                 neg_ring.append(neg_midpoint)
@@ -198,6 +197,7 @@ def outline_lines(points, intersect_points, ornements, use_crossing_logic = True
         pos_ring[-1] = closing
 
     return pos_ring, neg_ring
+
 
 def quadratic_bezier(p0, p1, p2, steps=10):
     # TODO: Maybe N order bezier with all vertices ?
@@ -224,6 +224,7 @@ def fill_intersect_points(face, intersect_points):
                 ),
                 "angle": angle,
             }
+
 
 def vertex_key(v, precision=2):
     return (round(float(v.x), precision), round(float(v.y), precision))
