@@ -2,6 +2,7 @@ import abc
 
 from mortier.coords import EuclideanCoords
 from mortier.enums import OrnementsType
+from mortier.utils.geometry import build_negative_space_faces
 
 
 class Tesselation:
@@ -39,6 +40,7 @@ class Tesselation:
         self.lacing_mode = False
         self.tile = None
         self.tess_id = None
+        self.depth = 1
 
     @abc.abstractmethod
     def tesselate_face(self):
@@ -163,17 +165,43 @@ class Tesselation:
         if self.show_base:
             self.draw_cell()
 
+        faces = self.faces
         if self.angle:
-            for face in self.faces:
-                if self.angle:
-                    f = face.ray_transform(
-                        self.angle,
-                        self.writer.size,
-                        frame_num,
-                    )
-                if self.show_underlying:
-                    self.writer.face(face, dotted=True)
-                self.writer.face(f)
+            for i in range(self.depth):
+                new_faces = []
+                for face in faces:
+                    if self.angle:
+                        f = face.ray_transform(
+                            self.angle,
+                            self.writer.size,
+                            frame_num,
+                        )
+                    new_faces.append(f)
+                    if self.show_underlying:
+                        self.writer.face(face, dotted=True)
+                    if i == self.depth - 1:
+                        self.writer.face(f)
+                        #self.writer.color_line = (255, 0, 0)
+                    #pr = 1
+                    #for v in f.vertices:
+                    #    if 0 > v.x or v.x > 1920 or v.y < 0 or v.y > 1920:
+                    #        pr = 0
+                    #        break
+                    #if pr == 1:
+                    #    print("Face") 
+                    #    print(f)
+                    #    for o in f.intersection_points:
+                    #        print(f"l0: {o['launch_0']} -> {o['end_pt0']}, l1: {o['launch_1']} -> {o['end_pt1']}")
+
+                    #    self.writer.color_line = (255, 255, 255)
+                    #if i == self.depth - 1:
+                    #    for o in f.intersection_points:
+                    #        self.writer.line(o['launch_0'], o['end_pt0'], color = (0, 255, 0)) 
+                    #        self.writer.line(o['launch_1'], o['end_pt1'], color = (0, 0, 255)) 
+                    #        self.writer.circle(o['point'], 10, color = (0, 0, 255)) 
+
+                negatives = build_negative_space_faces(new_faces)
+                faces = new_faces + negatives
 
         else:
             self.writer.regular = True
