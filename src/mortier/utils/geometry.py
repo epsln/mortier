@@ -2,6 +2,7 @@ import numpy as np
 
 from mortier.coords import EuclideanCoords
 from mortier.enums import OrnementsType
+from mortier.face import Face
 
 
 def line_offset(p1, p2, d):
@@ -228,3 +229,81 @@ def fill_intersect_points(face, intersect_points):
 
 def vertex_key(v, precision=2):
     return (round(float(v.x), precision), round(float(v.y), precision))
+
+def build_negative_space_faces(transformed_faces):
+    from collections import defaultdict
+
+    # For each original vertex, collect ordered (launch_1, intersection, launch_0)
+    # triplets from each face that has that vertex
+    vertex_to_triplets = defaultdict(list)
+
+    for tf in transformed_faces:
+        if not hasattr(tf, 'intersection_points'):
+            continue
+        for ip in tf.intersection_points:
+            orig = ip["original_vertex"]
+            p = ip["point"]
+            l0 = ip["launch_0"]
+            l1 = ip["launch_1"]
+
+            # Skip invalid points
+            if not (np.isfinite(p.x) and np.isfinite(p.y)):
+                continue
+            if not (np.isfinite(l0.x) and np.isfinite(l0.y)):
+                continue
+            if not (np.isfinite(l1.x) and np.isfinite(l1.y)):
+                continue
+
+            key = (round(orig.x, 2), round(orig.y, 2))
+            vertex_to_triplets[key].append({
+                "launch_0": l0,   # root on edge coming into p1
+                "intersection": p,
+                "launch_1": l1,   # root on edge going out of p1
+                "angle_to_orig": np.arctan2(
+                    p.y - orig.y, p.x - orig.x
+                )
+            })
+
+    negative_faces = []
+    for key, triplets in vertex_to_triplets.items():
+        if len(triplets) < 2:
+            continue
+
+        # Sort triplets by angle of their intersection point around the
+        # original vertex — this gives correct winding order
+        triplets.sort(key=lambda t: t["angle_to_orig"])
+
+        # Build face vertices: for each triplet in order,
+        # add launch_1 then intersection then launch_0
+        # This traces the boundary of the negative space face
+        pts = []
+        for t in triplets:
+            pts.append(t["launch_1"])
+            pts.append(t["intersection"])
+            pts.append(t["launch_0"])
+
+        # Remove consecutive duplicates
+        unique_pts = [pts[0]]
+        for p in pts[1:]:
+            prev = unique_pts[-1]
+            if not (abs(p.x - prev.x) < 1e-3 and abs(p.y - prev.y) < 1e-3):
+                unique_pts.append(p)
+
+        if len(unique_pts) < 3:
+            continue
+
+        # Validate
+        if not all(np.isfinite(p.x) and np.isfinite(p.y) for p in unique_pts):
+            continue
+
+        # Check not degenerate
+        v1 = np.array([unique_pts[1].x - unique_pts[0].x,
+                        unique_pts[1].y - unique_pts[0].y])
+        v2 = np.array([unique_pts[2].x - unique_pts[0].x,
+                        unique_pts[2].y - unique_pts[0].y])
+        if abs(v1[0]*v2[1] - v1[1]*v2[0]) < 1e-6:
+            continue
+
+        negative_faces.append(Face(unique_pts))
+
+    return negative_faces

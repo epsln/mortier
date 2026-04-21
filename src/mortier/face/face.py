@@ -49,6 +49,8 @@ class Face:
             angle = np.arctan2(p1.y - p0.y, p1.x - p0.x)
             self.mid_points.append((mid, angle))
 
+        if np.allclose(self.vertices[0].numpy(), self.vertices[-1].numpy()):
+            self.vertices.pop()
         self.param_mode = param_mode
         self.assym_mode = assym_mode
 
@@ -222,6 +224,7 @@ class Face:
         new_face = copy.copy(self)
         vertices = []
         mid_points = []
+        intersection_points = []  # NEW: store (mid_key, intersection_point, original_vertex_idx)
 
         if self.param_mode:
             angle = angle_parametrisation(
@@ -274,8 +277,8 @@ class Face:
                 angle_safe = min(self.assym_mode, critical)
                 angle_1 = heading_1 - angle_safe
 
-            end_pt_0x, end_pt_0y = np.cos(angle_0), np.sin(angle_0)
-            end_pt_1x, end_pt_1y = np.cos(angle_1), np.sin(angle_1)
+            end_pt_0x, end_pt_0y = 100 * np.cos(angle_0), 100 * np.sin(angle_0)
+            end_pt_1x, end_pt_1y = 100 * np.cos(angle_1), 100 * np.sin(angle_1)
 
             end_pt_0x = p_mid_0x + end_pt_0x
             end_pt_0y = p_mid_0y + end_pt_0y
@@ -285,12 +288,36 @@ class Face:
             s0x, s0y = p_mid_0x - end_pt_0x, p_mid_0y - end_pt_0y
             s1x, s1y = p_mid_1x - end_pt_1x, p_mid_1y - end_pt_1y
 
-            t = (s1x * (p_mid_0y - p_mid_1y) - s1y * (p_mid_0x - p_mid_1x)) / (
-                -s1x * s0y + s0x * s1y
-            )
+            #t = (s1x * (p_mid_0y - p_mid_1y) - s1y * (p_mid_0x - p_mid_1x)) / (
+            #    -s1x * s0y + s0x * s1y
+            #)
 
-            cx, cy = p_mid_0x + (t * s0x), p_mid_0y + (t * s0y)
+            #cx, cy = p_mid_0x + (t * s0x), p_mid_0y + (t * s0y)
+
+            denom = -s1x * s0y + s0x * s1y
+            if abs(denom) < 1e-8:
+            #    # Rays are parallel, use the mid point 
+                cx = (p_mid_0x + p_mid_1x)/2
+                cy = (p_mid_0y + p_mid_1y)/2
+            else:
+                t = (s1x * (p_mid_0y - p_mid_1y) - s1y * (p_mid_0x - p_mid_1x)) / denom
+                cx, cy = p_mid_0x + (t * s0x), p_mid_0y + (t * s0y)
+
+            # Guard against inf/nan before creating the point
+            #if not (np.isfinite(cx) and np.isfinite(cy)):
+            #    continue
+
             p = EuclideanCoords([cx, cy])
+
+            # Store intersection point with its two launch sites and original vertex
+            intersection_points.append({
+                "point": p,
+                "launch_0": EuclideanCoords([p_mid_0x, p_mid_0y]),
+                "end_pt0": EuclideanCoords([end_pt_0x, end_pt_0y]),
+                "end_pt1": EuclideanCoords([end_pt_1x, end_pt_1y]),
+                "launch_1": EuclideanCoords([p_mid_1x, p_mid_1y]),
+                "original_vertex": p1,  # the original vertex between the two edges
+            })
 
             vertices.append(EuclideanCoords([p_mid_0x, p_mid_0y]))
             mid_points.append((EuclideanCoords([p_mid_0x, p_mid_0y]), angle))
@@ -308,6 +335,7 @@ class Face:
         vertices.append(vertices[0])
         new_face.vertices = vertices
         new_face.mid_points = mid_points
+        new_face.intersection_points = intersection_points  # NEW
         return new_face
 
     def critical_angle(self, p0, p1, p2):
