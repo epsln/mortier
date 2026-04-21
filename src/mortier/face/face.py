@@ -332,7 +332,7 @@ class Face:
                 else:
                     mid_points.append((EuclideanCoords([p_mid_1x, p_mid_1y]), angle))
 
-        #vertices.append(vertices[0])
+        vertices.append(vertices[0])
         new_face.vertices = vertices
         new_face.mid_points = mid_points
         new_face.intersection_points = intersection_points  # NEW
