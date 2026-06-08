@@ -158,4 +158,11 @@ def angle_parametrisation(point, mode, bounds, frame_num=[0, 1]):
         angle = snoise3(x, y, z, octaves=4)
         return map_num(angle, -1, 1, 0.01, np.pi / 2)
 
+    if mode == ParamType.CIRCLE:
+        aspect_ratio = min(bounds[2], bounds[3])/max(bounds[2], bounds[3])
+        x = map_num(point.x, bounds[0], bounds[2], -4, 4)
+        y = map_num(point.y, bounds[1], bounds[3], -4 * aspect_ratio, 4 * aspect_ratio)
+        angle = np.sin(np.sqrt(x * x + y * y))
+        return map_num(angle, -1, 1, 0.01, np.pi / 2)
+
     raise ValueError(f"Missing or unrecognized mode: {mode}.")

@@ -6,3 +6,4 @@ class ParamType(str, Enum):
     PERLIN = "perlin"
     SIN = "sin"
     SIMPLEX = "simplex"
+    CIRCLE = "circle"
